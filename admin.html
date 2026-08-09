@@ -28,6 +28,8 @@
     
     .btn-action { padding: 10px 18px; background: #f2ba49; color: #111; font-weight: 800; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 0.85rem; }
     .btn-action:hover { background: #e0aa38; }
+    .btn-secondary { background: #3a3f55; color: #fff; }
+    .btn-secondary:hover { background: #4a506b; }
     .btn-danger { background: #dc3545; color: #fff; }
     .btn-danger:hover { background: #bd2130; }
 
@@ -38,8 +40,9 @@
     .product-list-item span { color: #888; font-size: 0.8rem; margin-left: 10px; }
 
     .drag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-top: 15px; }
-    .drag-item { background: #0e1017; border: 1px solid #2d3245; border-radius: 8px; padding: 8px; text-align: center; }
-    .drag-item img, .drag-item video { width: 100%; height: 70px; object-fit: cover; border-radius: 4px; }
+    .drag-item { background: #0e1017; border: 1px solid #2d3245; border-radius: 8px; padding: 8px; text-align: center; cursor: grab; }
+    .drag-item.dragging { opacity: 0.4; border-color: #f2ba49; }
+    .drag-item img, .drag-item video { width: 100%; height: 70px; object-fit: cover; border-radius: 4px; pointer-events: none; }
   </style>
 </head>
 <body>
@@ -57,7 +60,6 @@
     <a href="./index.html" target="_blank" class="nav-item">&#128065; View Live Store</a>
     
     <div class="nav-group-title">Content Strategy</div>
-    <a href="#collections-section" class="nav-item">Collections</a>
     <a href="#products-section" class="nav-item">Products &amp; Reviews</a>
   </aside>
 
@@ -102,7 +104,7 @@
     <!-- Active Management Dashboard -->
     <div id="admin-dashboard" style="display: none;">
 
-      <!-- 1. Global Site Settings -->
+      <!-- Global Site Settings -->
       <div class="panel-card">
         <h3>&#9312; GLOBAL SITE SETTINGS</h3>
         <div class="form-group">
@@ -115,9 +117,9 @@
         </div>
       </div>
 
-      <!-- 2. Posts & Trending Today (Individual Entry Editor) -->
+      <!-- Entry Editor -->
       <div id="products-section" class="panel-card">
-        <h3>&#9313; POSTS &amp; TRENDING TODAY (INDIVIDUAL ENTRY EDITOR)</h3>
+        <h3 id="form-heading">&#9313; ADD NEW PRODUCT ENTRY</h3>
         <form id="add-product-form">
           <div class="form-group">
             <label>Product Title</label>
@@ -170,11 +172,14 @@
             <input type="url" id="prod-media" class="form-control" placeholder="https://..." required>
           </div>
 
-          <button type="submit" class="btn-action" style="background:#28a745; color:#fff;">+ Add Product Entry</button>
+          <div style="display: flex; gap: 10px;">
+            <button type="submit" id="submit-btn" class="btn-action" style="background:#28a745; color:#fff;">+ Add Product Entry</button>
+            <button type="button" id="cancel-edit-btn" class="btn-action btn-secondary" style="display: none;">Cancel Edit</button>
+          </div>
         </form>
       </div>
 
-      <!-- 3. Current Product Inventory & Publish -->
+      <!-- Inventory & Reordering -->
       <div class="panel-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
           <h3 style="margin: 0;">&#9314; CURRENT PRODUCTS (<span id="prod-count">0</span>)</h3>
@@ -183,11 +188,10 @@
         
         <div id="product-list"></div>
 
-        <h4 style="margin-top: 25px; color:#aaa; font-size: 0.85rem;">PREVIEW ORDER IN TRENDING GRID</h4>
+        <h4 style="margin-top: 25px; color:#aaa; font-size: 0.85rem;">REORDER ITEMS (DRAG AND DROP TO POSITION)</h4>
         <div id="drag-grid" class="drag-grid"></div>
       </div>
 
-      <!-- Overview Box -->
       <div class="panel-card" style="display:flex; justify-content:space-around; text-align:center;">
         <div>
           <div style="font-size: 1.8rem; font-weight: 800; color: #f2ba49;" id="stat-total-posts">0</div>
@@ -195,7 +199,7 @@
         </div>
         <div>
           <div style="font-size: 1.8rem; font-weight: 800; color: #f2ba49;">4</div>
-          <div style="font-size:0.75rem; color:#888;">Active Collections</div>
+          <div style="font-size:0.75rem; color:#888;">Active Categories</div>
         </div>
       </div>
 
@@ -207,12 +211,17 @@
 <script>
   let products = [];
   let fileSha = '';
+  let editingIndex = null;
+  let draggedIndex = null;
 
   const form = document.getElementById('admin-config-form');
   const setupCard = document.getElementById('setup-card');
   const dashboard = document.getElementById('admin-dashboard');
   const disconnectBtn = document.getElementById('disconnect-btn');
   const noticeBox = document.getElementById('notice-box');
+  const addProductForm = document.getElementById('add-product-form');
+  const cancelEditBtn = document.getElementById('cancel-edit-btn');
+  const submitBtn = document.getElementById('submit-btn');
 
   function showNotice(msg, isErr = false) {
     noticeBox.style.display = 'block';
@@ -277,26 +286,91 @@
           <strong>${p.title}</strong>
           <span>(${p.category || 'General'}) &bull; ${p.price || ''}</span>
         </div>
-        <button onclick="deleteProduct(${i})" class="btn-action btn-danger" style="padding:4px 10px; font-size:0.75rem;">Delete</button>
+        <div>
+          <button onclick="editProduct(${i})" class="btn-action btn-secondary" style="padding:4px 10px; font-size:0.75rem; margin-right:5px;">Edit</button>
+          <button onclick="deleteProduct(${i})" class="btn-action btn-danger" style="padding:4px 10px; font-size:0.75rem;">Delete</button>
+        </div>
       </div>
     `).join('');
 
-    dragGrid.innerHTML = products.map(p => {
+    dragGrid.innerHTML = products.map((p, i) => {
       const isVideo = p.isVideo || (p.image && p.image.endsWith('.mp4'));
       return `
-        <div class="drag-item">
+        <div class="drag-item" draggable="true" data-index="${i}">
           ${isVideo ? `<video src="${p.image}"></video>` : `<img src="${p.image}">`}
-          <div style="font-size:0.65rem; color:#aaa; margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${p.title}</div>
+          <div style="font-size:0.65rem; color:#aaa; margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${i + 1}. ${p.title}</div>
         </div>
       `;
     }).join('');
+
+    attachDragAndDropListeners();
   }
 
-  document.getElementById('add-product-form').addEventListener('submit', (e) => {
+  function attachDragAndDropListeners() {
+    const items = document.querySelectorAll('.drag-item');
+    items.forEach(item => {
+      item.addEventListener('dragstart', (e) => {
+        draggedIndex = parseInt(item.getAttribute('data-index'));
+        item.classList.add('dragging');
+      });
+      item.addEventListener('dragend', () => {
+        item.classList.remove('dragging');
+      });
+      item.addEventListener('dragover', (e) => {
+        e.preventDefault();
+      });
+      item.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const targetIndex = parseInt(item.getAttribute('data-index'));
+        if (draggedIndex !== null && draggedIndex !== targetIndex) {
+          const movedItem = products.splice(draggedIndex, 1)[0];
+          products.splice(targetIndex, 0, movedItem);
+          renderProducts();
+          showNotice('Order updated! Click "Save & Publish" to push layout.');
+        }
+      });
+    });
+  }
+
+  window.editProduct = function(i) {
+    editingIndex = i;
+    const p = products[i];
+    document.getElementById('prod-title').value = p.title || '';
+    document.getElementById('prod-verdict').value = p.verdict || '';
+    document.getElementById('prod-pros').value = p.pros || '';
+    document.getElementById('prod-cons').value = p.cons || '';
+    document.getElementById('prod-price').value = p.price || '';
+    document.getElementById('prod-rating').value = p.rating || '';
+    document.getElementById('prod-category').value = p.category || 'kitchen-pantry';
+    document.getElementById('prod-link').value = p.link || '';
+    document.getElementById('prod-media').value = p.image || '';
+
+    document.getElementById('form-heading').textContent = `✏️ EDIT PRODUCT ENTRY #${i + 1}`;
+    submitBtn.textContent = 'Update Product Entry';
+    submitBtn.style.background = '#f2ba49';
+    submitBtn.style.color = '#000';
+    cancelEditBtn.style.display = 'inline-block';
+    
+    document.getElementById('products-section').scrollIntoView({ behavior: 'smooth' });
+  };
+
+  function resetForm() {
+    editingIndex = null;
+    addProductForm.reset();
+    document.getElementById('form-heading').textContent = '➕ ADD NEW PRODUCT ENTRY';
+    submitBtn.textContent = '+ Add Product Entry';
+    submitBtn.style.background = '#28a745';
+    submitBtn.style.color = '#fff';
+    cancelEditBtn.style.display = 'none';
+  }
+
+  cancelEditBtn.addEventListener('click', resetForm);
+
+  addProductForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const media = document.getElementById('prod-media').value;
-    products.push({
-      id: Date.now().toString(),
+    const entryData = {
+      id: editingIndex !== null ? products[editingIndex].id : Date.now().toString(),
       title: document.getElementById('prod-title').value,
       verdict: document.getElementById('prod-verdict').value,
       pros: document.getElementById('prod-pros').value,
@@ -307,14 +381,23 @@
       link: document.getElementById('prod-link').value,
       image: media,
       isVideo: media.endsWith('.mp4')
-    });
-    document.getElementById('add-product-form').reset();
+    };
+
+    if (editingIndex !== null) {
+      products[editingIndex] = entryData;
+      showNotice('Product entry updated locally! Click "Save & Publish" to push changes.');
+    } else {
+      products.push(entryData);
+      showNotice('Product entry added to queue! Click "Save & Publish" to push changes.');
+    }
+
+    resetForm();
     renderProducts();
-    showNotice('Product entry added to local queue! Click "Save & Publish" to push changes.');
   });
 
   window.deleteProduct = function(i) {
     products.splice(i, 1);
+    if (editingIndex === i) resetForm();
     renderProducts();
     showNotice('Entry deleted from queue.');
   };
