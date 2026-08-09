@@ -287,34 +287,45 @@
   }
 
   /* --- FETCH CATALOG DATA --- */
-  async function fetchCatalog() {
-    const user = localStorage.getItem('gh_user') || 'checkthiscart';
-    const repo = localStorage.getItem('gh_repo') || 'store';
-    const path = localStorage.getItem('gh_path') || 'products.json';
+ async function fetchCatalog() {
+  const user = localStorage.getItem('gh_user') || 'checkthiscart';
+  const repo = localStorage.getItem('gh_repo') || 'store';
+  const path = localStorage.getItem('gh_path') || 'products.json';
 
-    try {
-      const res = await fetch(`https://raw.githubusercontent.com/${user}/${repo}/main/${path}`);
-      if (!res.ok) throw new Error('Catalog file not found');
-      const data = await res.json();
-      
-      if (data.hero) {
-        heroData = data.hero;
-        localStorage.setItem('ctc_hero', JSON.stringify(heroData));
-        loadHeroSection();
-      }
-      if (data.categories) {
-        categories = data.categories;
-        localStorage.setItem('ctc_categories', JSON.stringify(categories));
-        loadCategories();
-      }
-
-      products = Array.isArray(data) ? data : (data.products || []);
-      renderProducts();
-    } catch (err) {
-      console.warn('Falling back to local data/defaults:', err.message);
-      renderProducts();
-    }
+  // 1. Check local storage first (instant update from Admin panel)
+  const localProducts = localStorage.getItem('ctc_products');
+  if (localProducts) {
+    products = JSON.parse(localProducts);
+    renderProducts();
   }
+
+  // 2. Fetch remote with cache-busting timestamp
+  try {
+    const cacheBuster = `?t=${Date.now()}`;
+    const res = await fetch(`https://raw.githubusercontent.com/${user}/${repo}/main/${path}${cacheBuster}`);
+    if (!res.ok) throw new Error('Catalog file not found');
+    const data = await res.json();
+    
+    if (data.hero) {
+      heroData = data.hero;
+      localStorage.setItem('ctc_hero', JSON.stringify(heroData));
+      loadHeroSection();
+    }
+    if (data.categories) {
+      categories = data.categories;
+      localStorage.setItem('ctc_categories', JSON.stringify(categories));
+      loadCategories();
+    }
+
+    products = Array.isArray(data) ? data : (data.products || []);
+    // Cache latest remote fetch locally
+    localStorage.setItem('ctc_products', JSON.stringify(products));
+    renderProducts();
+  } catch (err) {
+    console.warn('Using local data/defaults:', err.message);
+    renderProducts();
+  }
+}
 
   // Initialize Page
   loadHeroSection();
