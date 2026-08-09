@@ -10,8 +10,11 @@
   <div style="max-width: 900px; margin: 20px auto;">
     <a href="./index.html" style="color: #8a2be2; text-decoration: none;">← View Live Site</a>
     <h1 style="margin-top: 10px;">Product Admin</h1>
-    <p style="color: #aaa;">Add, edit, and delete products. Click 'Save & Publish to GitHub' to go live.</p>
+    <p style="color: #aaa;">Add, edit, and delete products with live status tracking.</p>
     
+    <!-- Notification Notice Board -->
+    <div id="notice-box" style="display:none; padding: 12px 18px; border-radius: 8px; margin-top: 15px; font-weight: bold; font-size: 0.9rem;"></div>
+
     <!-- Setup Card -->
     <div id="setup-card" style="background: #181828; padding: 25px; border-radius: 12px; border: 1px solid #2a2a40; margin-top: 20px;">
       <h3 style="margin-top:0;">Connect to GitHub</h3>
@@ -28,7 +31,7 @@
     <!-- Connected Dashboard -->
     <div id="admin-dashboard" style="display: none;">
       <div style="background: #181828; padding: 15px 25px; border-radius: 12px; border: 1px solid #2a2a40; margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
-        <span style="color: #00ff88; font-weight: bold;">✓ Connected successfully to products.json</span>
+        <span style="color: #00ff88; font-weight: bold;">✓ Connected successfully</span>
         <button id="disconnect-btn" style="background: #dc3545; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Disconnect</button>
       </div>
 
@@ -36,11 +39,11 @@
       <div style="background: #181828; padding: 25px; border-radius: 12px; border: 1px solid #2a2a40; margin-top: 20px;">
         <h3>Add New Product</h3>
         <form id="add-product-form" style="display: flex; flex-direction: column; gap: 12px;">
-          <input type="text" id="prod-title" placeholder="Product Title (e.g. Modern Desk Lamp)" required style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px;">
-          <input type="text" id="prod-category" placeholder="Category (e.g. home-organization, kitchen-pantry)" required style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px;">
+          <input type="text" id="prod-title" placeholder="Product Title" required style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px;">
+          <input type="text" id="prod-category" placeholder="Category (e.g. Kitchen, Home)" required style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px;">
           <input type="url" id="prod-image" placeholder="Image URL" required style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px;">
           <input type="url" id="prod-link" placeholder="Amazon Affiliate Link" required style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px;">
-          <textarea id="prod-desc" placeholder="Brief product description / hook..." style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px; height: 60px;"></textarea>
+          <textarea id="prod-desc" placeholder="Product description..." style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px; height: 60px;"></textarea>
           <button type="submit" style="padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Add to List</button>
         </form>
       </div>
@@ -64,6 +67,15 @@
     const setupCard = document.getElementById('setup-card');
     const dashboard = document.getElementById('admin-dashboard');
     const disconnectBtn = document.getElementById('disconnect-btn');
+    const noticeBox = document.getElementById('notice-box');
+
+    function showNotice(message, isError = false) {
+      noticeBox.style.display = 'block';
+      noticeBox.textContent = message;
+      noticeBox.style.background = isError ? '#5c1d1d' : '#1d5c2e';
+      noticeBox.style.border = isError ? '1px solid #ff4d4d' : '1px solid #4dff88';
+      noticeBox.style.color = '#fff';
+    }
 
     function checkConnection() {
       const savedToken = localStorage.getItem('gh_pat');
@@ -87,22 +99,37 @@
         const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
           headers: { Authorization: `token ${token}` }
         });
+        
+        if (!res.ok) {
+          throw new Error(`GitHub API Error: ${res.status} (${res.statusText})`);
+        }
+
         const data = await res.json();
         fileSha = data.sha;
-        products = JSON.parse(atob(data.content));
+        
+        // Decode base64 content safely
+        const decodedContent = decodeURIComponent(escape(atob(data.content)));
+        products = JSON.parse(decodedContent || '[]');
         renderProducts();
+        showNotice('Successfully loaded products from GitHub.');
       } catch (err) {
-        alert('Failed to load products.json from GitHub.');
+        showNotice(`Error loading products: ${err.message}. If products.json is empty, add your first item below and publish!`, true);
+        products = [];
+        renderProducts();
       }
     }
 
     function renderProducts() {
       const container = document.getElementById('product-list');
       document.getElementById('prod-count').textContent = products.length;
+      if (products.length === 0) {
+        container.innerHTML = '<p style="color:#888; text-align:center; padding:10px;">No products in list yet. Add one above!</p>';
+        return;
+      }
       container.innerHTML = products.map((p, i) => `
-        <div style="display:flex; justify-content:space-between; align-items:center; background:#0f0f1a; padding:12px; border-radius:6px; border:1px solid #333;">
-          <div>
-            <strong>${p.title}</strong> <span style="color:#888; font-size:0.8rem;">(${p.category || 'No Category'})</span>
+        <div style="display:flex; justify-space-between; align-items:center; background:#0f0f1a; padding:12px; border-radius:6px; border:1px solid #333;">
+          <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:70%;">
+            <strong>${p.title}</strong> <span style="color:#888; font-size:0.8rem;">(${p.category})</span>
           </div>
           <button onclick="removeProduct(${i})" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button>
         </div>
@@ -121,12 +148,14 @@
       });
       document.getElementById('add-product-form').reset();
       renderProducts();
+      showNotice('Product added to local list! Click "Save & Publish to GitHub" to make it live.');
     });
 
-    function removeProduct(index) {
+    window.removeProduct = function(index) {
       products.splice(index, 1);
       renderProducts();
-    }
+      showNotice('Product removed from local list. Remember to publish changes.');
+    };
 
     document.getElementById('publish-btn').addEventListener('click', async () => {
       const user = localStorage.getItem('gh_user');
@@ -134,26 +163,34 @@
       const path = localStorage.getItem('gh_path');
       const token = localStorage.getItem('gh_pat');
 
-      const content = btoa(unescape(encodeURIComponent(JSON.stringify(products, null, 2))));
+      showNotice('Publishing changes to GitHub...');
 
-      const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `token ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: 'Update products via Admin Panel',
-          content: content,
-          sha: fileSha
-        })
-      });
+      try {
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(products, null, 2))));
 
-      if (res.ok) {
-        alert('Successfully published changes to GitHub!');
-        fetchProducts();
-      } else {
-        alert('Error saving changes to GitHub.');
+        const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `token ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: 'Update products via Admin Panel',
+            content: content,
+            sha: fileSha || undefined
+          })
+        });
+
+        const resData = await res.json();
+
+        if (!res.ok) {
+          throw new Error(resData.message || `Failed with status ${res.status}`);
+        }
+
+        fileSha = resData.content.sha;
+        showNotice('Successfully published changes to GitHub! Live site will update in 1-2 minutes.');
+      } catch (err) {
+        showNotice(`Publishing Failed: ${err.message}`, true);
       }
     });
 
