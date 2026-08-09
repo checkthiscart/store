@@ -1,2 +1,2 @@
-# gift-ideas
+# store
 board 1
