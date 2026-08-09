@@ -7,89 +7,168 @@
   <link rel="stylesheet" href="./site.css">
 </head>
 <body style="background: #0f0f1a; color: #fff; font-family: sans-serif; padding: 20px;">
-  <div style="max-width: 800px; margin: 20px auto;">
+  <div style="max-width: 900px; margin: 20px auto;">
     <a href="./index.html" style="color: #8a2be2; text-decoration: none;">← View Live Site</a>
     <h1 style="margin-top: 10px;">Product Admin</h1>
-    <p style="color: #aaa;">Add, edit, and delete products. Nothing goes live until saved.</p>
+    <p style="color: #aaa;">Add, edit, and delete products. Click 'Save & Publish to GitHub' to go live.</p>
     
+    <!-- Setup Card -->
     <div id="setup-card" style="background: #181828; padding: 25px; border-radius: 12px; border: 1px solid #2a2a40; margin-top: 20px;">
       <h3 style="margin-top:0;">Connect to GitHub</h3>
-      <p style="font-size: 0.85rem; color: #aaa;">Saved locally in your browser cache.</p>
-      
-      <form id="admin-config-form" style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
-        <label>GitHub Username
-          <input type="text" id="cfg-user" value="checkthiscart" style="width: 100%; padding: 10px; margin-top: 5px; background: #0f0f1a; border: 1px solid #3a3a55; color: #fff; border-radius: 6px;">
-        </label>
-        
-        <label>Repository Name
-          <input type="text" id="cfg-repo" value="store" style="width: 100%; padding: 10px; margin-top: 5px; background: #0f0f1a; border: 1px solid #3a3a55; color: #fff; border-radius: 6px;">
-        </label>
-        
-        <label>Branch
-          <input type="text" id="cfg-branch" value="main" style="width: 100%; padding: 10px; margin-top: 5px; background: #0f0f1a; border: 1px solid #3a3a55; color: #fff; border-radius: 6px;">
-        </label>
-        
-        <label>Data File Path
-          <input type="text" id="cfg-path" value="products.json" style="width: 100%; padding: 10px; margin-top: 5px; background: #0f0f1a; border: 1px solid #3a3a55; color: #fff; border-radius: 6px;">
-        </label>
-        
-        <label>Personal Access Token (PAT)
-          <input type="password" id="cfg-token" placeholder="github_pat_..." style="width: 100%; padding: 10px; margin-top: 5px; background: #0f0f1a; border: 1px solid #3a3a55; color: #fff; border-radius: 6px;" required>
-        </label>
-        
-        <button type="submit" style="padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px;">Save & Connect</button>
+      <form id="admin-config-form" style="display: flex; flex-direction: column; gap: 15px;">
+        <label>GitHub Username <input type="text" id="cfg-user" value="checkthiscart" style="width:100%; padding:8px; margin-top:4px; background:#0f0f1a; border:1px solid #333; color:#fff;"></label>
+        <label>Repository Name <input type="text" id="cfg-repo" value="store" style="width:100%; padding:8px; margin-top:4px; background:#0f0f1a; border:1px solid #333; color:#fff;"></label>
+        <label>Branch <input type="text" id="cfg-branch" value="main" style="width:100%; padding:8px; margin-top:4px; background:#0f0f1a; border:1px solid #333; color:#fff;"></label>
+        <label>Data File Path <input type="text" id="cfg-path" value="products.json" style="width:100%; padding:8px; margin-top:4px; background:#0f0f1a; border:1px solid #333; color:#fff;"></label>
+        <label>Personal Access Token (PAT) <input type="password" id="cfg-token" placeholder="github_pat_..." style="width:100%; padding:8px; margin-top:4px; background:#0f0f1a; border:1px solid #333; color:#fff;" required></label>
+        <button type="submit" style="padding: 10px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer;">Save & Connect</button>
       </form>
     </div>
 
-    <!-- Dashboard area shown after connection -->
-    <div id="admin-dashboard" style="display: none; background: #181828; padding: 25px; border-radius: 12px; border: 1px solid #2a2a40; margin-top: 20px;">
-      <div style="display: flex; justify-space-between; align-items: center; margin-bottom: 20px;">
-        <h3 style="margin: 0;">Connected Repository</h3>
+    <!-- Connected Dashboard -->
+    <div id="admin-dashboard" style="display: none;">
+      <div style="background: #181828; padding: 15px 25px; border-radius: 12px; border: 1px solid #2a2a40; margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <span style="color: #00ff88; font-weight: bold;">✓ Connected successfully to products.json</span>
         <button id="disconnect-btn" style="background: #dc3545; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Disconnect</button>
       </div>
-      <p style="color: #00ff88; font-weight: bold;">✓ Connected successfully to products.json</p>
+
+      <!-- Add Product Form -->
+      <div style="background: #181828; padding: 25px; border-radius: 12px; border: 1px solid #2a2a40; margin-top: 20px;">
+        <h3>Add New Product</h3>
+        <form id="add-product-form" style="display: flex; flex-direction: column; gap: 12px;">
+          <input type="text" id="prod-title" placeholder="Product Title (e.g. Modern Desk Lamp)" required style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px;">
+          <input type="text" id="prod-category" placeholder="Category (e.g. home-organization, kitchen-pantry)" required style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px;">
+          <input type="url" id="prod-image" placeholder="Image URL" required style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px;">
+          <input type="url" id="prod-link" placeholder="Amazon Affiliate Link" required style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px;">
+          <textarea id="prod-desc" placeholder="Brief product description / hook..." style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px; height: 60px;"></textarea>
+          <button type="submit" style="padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Add to List</button>
+        </form>
+      </div>
+
+      <!-- Product List & Publish -->
+      <div style="background: #181828; padding: 25px; border-radius: 12px; border: 1px solid #2a2a40; margin-top: 20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+          <h3>Current Products (<span id="prod-count">0</span>)</h3>
+          <button id="publish-btn" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Save & Publish to GitHub</button>
+        </div>
+        <div id="product-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+      </div>
     </div>
   </div>
 
   <script>
+    let products = [];
+    let fileSha = '';
+
     const form = document.getElementById('admin-config-form');
     const setupCard = document.getElementById('setup-card');
     const dashboard = document.getElementById('admin-dashboard');
     const disconnectBtn = document.getElementById('disconnect-btn');
 
-    // Auto-load existing config
     function checkConnection() {
       const savedToken = localStorage.getItem('gh_pat');
       if (savedToken) {
         setupCard.style.display = 'none';
         dashboard.style.display = 'block';
+        fetchProducts();
       } else {
         setupCard.style.display = 'block';
         dashboard.style.display = 'none';
       }
     }
 
+    async function fetchProducts() {
+      const user = localStorage.getItem('gh_user');
+      const repo = localStorage.getItem('gh_repo');
+      const path = localStorage.getItem('gh_path');
+      const token = localStorage.getItem('gh_pat');
+
+      try {
+        const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
+          headers: { Authorization: `token ${token}` }
+        });
+        const data = await res.json();
+        fileSha = data.sha;
+        products = JSON.parse(atob(data.content));
+        renderProducts();
+      } catch (err) {
+        alert('Failed to load products.json from GitHub.');
+      }
+    }
+
+    function renderProducts() {
+      const container = document.getElementById('product-list');
+      document.getElementById('prod-count').textContent = products.length;
+      container.innerHTML = products.map((p, i) => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#0f0f1a; padding:12px; border-radius:6px; border:1px solid #333;">
+          <div>
+            <strong>${p.title}</strong> <span style="color:#888; font-size:0.8rem;">(${p.category || 'No Category'})</span>
+          </div>
+          <button onclick="removeProduct(${i})" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('add-product-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      products.push({
+        id: Date.now().toString(),
+        title: document.getElementById('prod-title').value,
+        category: document.getElementById('prod-category').value,
+        image: document.getElementById('prod-image').value,
+        link: document.getElementById('prod-link').value,
+        description: document.getElementById('prod-desc').value
+      });
+      document.getElementById('add-product-form').reset();
+      renderProducts();
+    });
+
+    function removeProduct(index) {
+      products.splice(index, 1);
+      renderProducts();
+    }
+
+    document.getElementById('publish-btn').addEventListener('click', async () => {
+      const user = localStorage.getItem('gh_user');
+      const repo = localStorage.getItem('gh_repo');
+      const path = localStorage.getItem('gh_path');
+      const token = localStorage.getItem('gh_pat');
+
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(products, null, 2))));
+
+      const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `token ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: 'Update products via Admin Panel',
+          content: content,
+          sha: fileSha
+        })
+      });
+
+      if (res.ok) {
+        alert('Successfully published changes to GitHub!');
+        fetchProducts();
+      } else {
+        alert('Error saving changes to GitHub.');
+      }
+    });
+
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const token = document.getElementById('cfg-token').value.trim();
-      if (!token) {
-        alert('Please paste your Personal Access Token!');
-        return;
-      }
-      
       localStorage.setItem('gh_user', document.getElementById('cfg-user').value.trim());
       localStorage.setItem('gh_repo', document.getElementById('cfg-repo').value.trim());
       localStorage.setItem('gh_branch', document.getElementById('cfg-branch').value.trim());
       localStorage.setItem('gh_path', document.getElementById('cfg-path').value.trim());
-      localStorage.setItem('gh_pat', token);
-
-      alert('Credentials saved!');
+      localStorage.setItem('gh_pat', document.getElementById('cfg-token').value.trim());
       checkConnection();
     });
 
     disconnectBtn.addEventListener('click', () => {
       localStorage.clear();
-      alert('Disconnected.');
       checkConnection();
     });
 
