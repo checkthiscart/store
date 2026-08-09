@@ -37,7 +37,9 @@
     
     .list-item { display: flex; justify-content: space-between; align-items: center; background: #0e1017; padding: 12px 16px; border-radius: 8px; border: 1px solid #282c3d; margin-bottom: 10px; }
     .list-item strong { color: #fff; font-size: 0.95rem; }
-    .list-item span { color: #888; font-size: 0.8rem; margin-left: 10px; }
+    .list-item span { color: #888; font-size: 0.8rem; }
+    .cat-item-content { display: flex; align-items: center; gap: 12px; }
+    .cat-thumb-preview { width: 45px; height: 45px; border-radius: 6px; object-fit: cover; background: #1a1d26; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #555; }
 
     .drag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-top: 15px; }
     .drag-item { background: #0e1017; border: 1px solid #2d3245; border-radius: 8px; padding: 8px; text-align: center; cursor: grab; }
@@ -107,7 +109,7 @@
 
       <!-- 1. Category Manager Panel -->
       <div id="categories-section" class="panel-card">
-        <h3 id="cat-form-heading">&#128194; CATEGORY MANAGER (ADD / EDIT / DELETE)</h3>
+        <h3 id="cat-form-heading">&#128194; CATEGORY MANAGER</h3>
         
         <form id="category-form" style="margin-bottom: 25px;">
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -122,13 +124,19 @@
           </div>
 
           <div class="form-group">
-            <label>Description / Caption</label>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label>Category Description</label>
+              <button type="button" onclick="clearCatField('cat-caption')" class="btn-action btn-danger" style="padding:2px 6px; font-size:0.65rem; margin-bottom:4px;">Delete Description</button>
+            </div>
             <input type="text" id="cat-caption" class="form-control" placeholder="e.g. Tested products to make your pets happy.">
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;">
             <div class="form-group">
-              <label>Cover Image URL</label>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <label>Image Thumbnail URL</label>
+                <button type="button" onclick="clearCatField('cat-image')" class="btn-action btn-danger" style="padding:2px 6px; font-size:0.65rem; margin-bottom:4px;">Delete Image Thumbnail</button>
+              </div>
               <input type="url" id="cat-image" class="form-control" placeholder="https://images.unsplash.com/...">
             </div>
             <div class="form-group">
@@ -139,7 +147,7 @@
 
           <div style="display: flex; gap: 10px;">
             <button type="submit" id="cat-submit-btn" class="btn-action" style="background:#28a745; color:#fff;">+ Add Category</button>
-            <button type="button" id="cat-cancel-btn" class="btn-action btn-secondary" style="display: none;">Cancel</button>
+            <button type="button" id="cat-cancel-btn" class="btn-action btn-secondary" style="display: none;">Cancel Edit</button>
           </div>
         </form>
 
@@ -277,6 +285,11 @@
     populateCategoryDropdown();
   }
 
+  window.clearCatField = function(fieldId) {
+    document.getElementById(fieldId).value = '';
+    showNotice(fieldId === 'cat-image' ? 'Image URL field cleared.' : 'Description field cleared.');
+  };
+
   /* --- CATEGORY MANAGEMENT --- */
   function renderCategories() {
     const catList = document.getElementById('category-list');
@@ -289,9 +302,15 @@
 
     catList.innerHTML = categories.map((c, i) => `
       <div class="list-item">
-        <div>
-          <strong>${c.title}</strong>
-          <span>(ID: ${c.id}) &bull; Rating: ${c.rating || 'N/A'}</span>
+        <div class="cat-item-content">
+          ${c.image ? `<img src="${c.image}" class="cat-thumb-preview" alt="Thumb">` : `<div class="cat-thumb-preview">No Img</div>`}
+          <div>
+            <strong>${c.title}</strong>
+            <span style="display:block; font-size:0.75rem; color:#aaa; margin-top:2px;">
+              ${c.caption ? c.caption : '<em style="color:#666;">(No description)</em>'}
+            </span>
+            <span>ID: <code>${c.id}</code> &bull; Rating: ${c.rating || 'N/A'}</span>
+          </div>
         </div>
         <div>
           <button onclick="editCategory(${i})" class="btn-action btn-secondary" style="padding:4px 10px; font-size:0.75rem; margin-right:5px;">Edit</button>
@@ -322,12 +341,14 @@
     catSubmitBtn.style.background = '#f2ba49';
     catSubmitBtn.style.color = '#000';
     catCancelBtn.style.display = 'inline-block';
+
+    document.getElementById('categories-section').scrollIntoView({ behavior: 'smooth' });
   };
 
   function resetCategoryForm() {
     editingCategoryIndex = null;
     categoryForm.reset();
-    document.getElementById('cat-form-heading').textContent = '📂 CATEGORY MANAGER (ADD / EDIT / DELETE)';
+    document.getElementById('cat-form-heading').textContent = '📂 CATEGORY MANAGER';
     catSubmitBtn.textContent = '+ Add Category';
     catSubmitBtn.style.background = '#28a745';
     catSubmitBtn.style.color = '#fff';
