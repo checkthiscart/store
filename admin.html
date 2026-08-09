@@ -182,7 +182,8 @@
       </div>
       <div class="field">
         <label for="ghPath">Data file path</label>
-        <input type="text" id="ghPath" placeholder="products.json" value="products.json">
+        <input type="text" id="ghPath" placeholder="e.g. store/products.json" value="products.json">
+        <span class="field-hint">Include the subfolder if your site isn't at the repo root — e.g. store/products.json.</span>
       </div>
     </div>
     <div class="field-row">
@@ -361,6 +362,14 @@
     return 'https://api.github.com/repos/' + config.owner + '/' + config.repo + '/contents/' + config.path + '?ref=' + encodeURIComponent(config.branch);
   }
 
+  // Folder that products.json lives in (e.g. "store/products.json" -> "store/").
+  // New category page files get created in this same folder, since every page
+  // uses relative links and must sit next to products.json and assets/.
+  function basePath(){
+    var idx = config.path.lastIndexOf('/');
+    return idx === -1 ? '' : config.path.slice(0, idx + 1);
+  }
+
   function b64EncodeUnicode(str){
     return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(_, p1){
       return String.fromCharCode('0x' + p1);
@@ -479,7 +488,7 @@
 
   function createPageFile(cat){
     var html = generateCollectionPageHTML(cat);
-    return ghFetch(ghPathUrl(cat.page), {
+    return ghFetch(ghPathUrl(basePath() + cat.page), {
       method: 'PUT',
       body: JSON.stringify({
         message: 'Add ' + cat.label + ' collection page',
@@ -490,9 +499,9 @@
   }
 
   function deletePageFile(page){
-    return ghFetch(ghPathUrl(page) + '?ref=' + encodeURIComponent(config.branch))
+    return ghFetch(ghPathUrl(basePath() + page) + '?ref=' + encodeURIComponent(config.branch))
       .then(function(fileInfo){
-        return ghFetch(ghPathUrl(page), {
+        return ghFetch(ghPathUrl(basePath() + page), {
           method: 'DELETE',
           body: JSON.stringify({
             message: 'Remove ' + page,
