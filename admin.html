@@ -39,15 +39,26 @@
     .list-item strong { color: #fff; font-size: 0.95rem; }
     .list-item span { color: #888; font-size: 0.8rem; }
     .cat-item-content { display: flex; align-items: center; gap: 12px; }
-    .cat-thumb-preview { width: 45px; height: 45px; border-radius: 6px; object-fit: cover; background: #1a1d26; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #555; }
+    .cat-thumb-preview { width: 45px; height: 45px; border-radius: 6px; object-fit: cover; background: #1a1d26; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #555; cursor: pointer; }
 
     .drag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-top: 15px; }
     .drag-item { background: #0e1017; border: 1px solid #2d3245; border-radius: 8px; padding: 8px; text-align: center; cursor: grab; }
     .drag-item.dragging { opacity: 0.4; border-color: #f2ba49; }
-    .drag-item img, .drag-item video { width: 100%; height: 70px; object-fit: cover; border-radius: 4px; pointer-events: none; }
+    .drag-item img, .drag-item video { width: 100%; height: 70px; object-fit: cover; border-radius: 4px; cursor: pointer; }
+
+    /* Lightbox Modal */
+    .lightbox-modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); justify-content: center; align-items: center; flex-direction: column; }
+    .lightbox-modal img { max-width: 85%; max-height: 80vh; border-radius: 8px; border: 2px solid #282c3d; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+    .lightbox-close { position: absolute; top: 20px; right: 30px; color: #fff; font-size: 2rem; font-weight: bold; cursor: pointer; }
   </style>
 </head>
 <body>
+
+<!-- Lightbox Container -->
+<div id="lightbox" class="lightbox-modal" onclick="closeLightbox()">
+  <span class="lightbox-close">&times;</span>
+  <img id="lightbox-img" src="" alt="Enlarged view">
+</div>
 
 <div class="admin-layout">
   <!-- Sidebar -->
@@ -62,6 +73,7 @@
     <a href="./index.html" target="_blank" class="nav-item">&#128065; View Live Store</a>
     
     <div class="nav-group-title">Content Strategy</div>
+    <a href="#hero-section" class="nav-item">Hero Header</a>
     <a href="#categories-section" class="nav-item">Categories</a>
     <a href="#products-section" class="nav-item">Products &amp; Reviews</a>
   </aside>
@@ -107,6 +119,45 @@
     <!-- Active Management Dashboard -->
     <div id="admin-dashboard" style="display: none;">
 
+      <!-- HERO SECTION MANAGER -->
+      <div id="hero-section" class="panel-card">
+        <h3>&#127912; HERO BANNER &amp; HEADLINES</h3>
+        <form id="hero-form">
+          <div class="form-group">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label>Hero Headline</label>
+              <button type="button" onclick="clearHeroField('hero-headline')" class="btn-action btn-danger" style="padding:2px 6px; font-size:0.65rem; margin-bottom:4px;">Delete Headline</button>
+            </div>
+            <input type="text" id="hero-headline" class="form-control" placeholder="e.g. CURATED ESSENTIALS, TESTED FOR QUALITY.">
+          </div>
+
+          <div class="form-group">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label>Hero Subtitle / Description</label>
+              <button type="button" onclick="clearHeroField('hero-subtitle')" class="btn-action btn-danger" style="padding:2px 6px; font-size:0.65rem; margin-bottom:4px;">Delete Subtitle</button>
+            </div>
+            <input type="text" id="hero-subtitle" class="form-control" placeholder="e.g. Honest reviews and direct links to products that deliver real value.">
+          </div>
+
+          <div class="form-group">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label>Hero Banner Image (URL or File Upload)</label>
+              <button type="button" onclick="clearHeroField('hero-image')" class="btn-action btn-danger" style="padding:2px 6px; font-size:0.65rem; margin-bottom:4px;">Delete Hero Image</button>
+            </div>
+            <input type="url" id="hero-image" class="form-control" placeholder="https://images.unsplash.com/..." style="margin-bottom:8px;">
+            <input type="file" id="hero-image-file" class="form-control" accept="image/*">
+          </div>
+
+          <!-- Hero Image Preview -->
+          <div id="hero-preview-container" style="display:none; margin-bottom:15px;">
+            <label style="font-size:0.75rem; color:#888;">PREVIEW (CLICK TO ENLARGE):</label><br>
+            <img id="hero-preview-img" src="" style="max-height: 100px; border-radius: 6px; border:1px solid #333; margin-top:5px; cursor:pointer;" onclick="openLightbox(this.src)">
+          </div>
+
+          <button type="submit" class="btn-action" style="background:#f2ba49; color:#000;">Save Hero Section</button>
+        </form>
+      </div>
+
       <!-- 1. Category Manager Panel -->
       <div id="categories-section" class="panel-card">
         <h3 id="cat-form-heading">&#128194; CATEGORY MANAGER</h3>
@@ -134,10 +185,11 @@
           <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;">
             <div class="form-group">
               <div style="display:flex; justify-content:space-between; align-items:center;">
-                <label>Image Thumbnail URL</label>
-                <button type="button" onclick="clearCatField('cat-image')" class="btn-action btn-danger" style="padding:2px 6px; font-size:0.65rem; margin-bottom:4px;">Delete Image Thumbnail</button>
+                <label>Image Thumbnail (URL or File Upload)</label>
+                <button type="button" onclick="clearCatField('cat-image')" class="btn-action btn-danger" style="padding:2px 6px; font-size:0.65rem; margin-bottom:4px;">Delete Thumbnail</button>
               </div>
-              <input type="url" id="cat-image" class="form-control" placeholder="https://images.unsplash.com/...">
+              <input type="url" id="cat-image" class="form-control" placeholder="https://..." style="margin-bottom:6px;">
+              <input type="file" id="cat-image-file" class="form-control" accept="image/*">
             </div>
             <div class="form-group">
               <label>Rating</label>
@@ -203,8 +255,9 @@
           </div>
 
           <div class="form-group">
-            <label>Product Media URL (Image or .mp4 Video)</label>
-            <input type="url" id="prod-media" class="form-control" placeholder="https://..." required>
+            <label>Product Media / Thumbnail (Image URL, Video URL, or Local File Upload)</label>
+            <input type="url" id="prod-media" class="form-control" placeholder="https://..." style="margin-bottom:8px;">
+            <input type="file" id="prod-media-file" class="form-control" accept="image/*,video/mp4">
           </div>
 
           <div style="display: flex; gap: 10px;">
@@ -253,6 +306,12 @@
     { id: "gourmet-gifts", title: "Gourmet & Gifts", caption: "Thoughtful quality gifts for everyone.", image: "", rating: "4.9" }
   ];
 
+  let heroData = JSON.parse(localStorage.getItem('ctc_hero')) || {
+    headline: "CURATED ESSENTIALS, TESTED FOR QUALITY",
+    subtitle: "Honest testing notes and verified recommendations.",
+    image: ""
+  };
+
   let fileSha = '';
   let editingProductIndex = null;
   let editingCategoryIndex = null;
@@ -272,6 +331,17 @@
   const catSubmitBtn = document.getElementById('cat-submit-btn');
   const catCancelBtn = document.getElementById('cat-cancel-btn');
 
+  /* --- LIGHTBOX ENLARGE --- */
+  function openLightbox(src) {
+    if (!src) return;
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').style.display = 'flex';
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').style.display = 'none';
+  }
+
   function showNotice(msg, isErr = false) {
     noticeBox.style.display = 'block';
     noticeBox.textContent = msg;
@@ -279,6 +349,63 @@
     noticeBox.style.color = '#fff';
   }
 
+  /* File to Data URL helper */
+  function fileToDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /* --- HERO SECTION --- */
+  function renderHeroForm() {
+    document.getElementById('hero-headline').value = heroData.headline || '';
+    document.getElementById('hero-subtitle').value = heroData.subtitle || '';
+    document.getElementById('hero-image').value = heroData.image || '';
+    
+    if (heroData.image) {
+      document.getElementById('hero-preview-container').style.display = 'block';
+      document.getElementById('hero-preview-img').src = heroData.image;
+    } else {
+      document.getElementById('hero-preview-container').style.display = 'none';
+    }
+  }
+
+  window.clearHeroField = function(fieldId) {
+    if (fieldId === 'hero-image') {
+      document.getElementById('hero-image').value = '';
+      document.getElementById('hero-image-file').value = '';
+      document.getElementById('hero-preview-container').style.display = 'none';
+    } else {
+      document.getElementById(fieldId).value = '';
+    }
+    showNotice('Hero field cleared.');
+  };
+
+  document.getElementById('hero-image-file').addEventListener('change', async (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const dataUrl = await fileToDataURL(e.target.files[0]);
+      document.getElementById('hero-image').value = dataUrl;
+      document.getElementById('hero-preview-container').style.display = 'block';
+      document.getElementById('hero-preview-img').src = dataUrl;
+    }
+  });
+
+  document.getElementById('hero-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    heroData = {
+      headline: document.getElementById('hero-headline').value.trim(),
+      subtitle: document.getElementById('hero-subtitle').value.trim(),
+      image: document.getElementById('hero-image').value.trim()
+    };
+    localStorage.setItem('ctc_hero', JSON.stringify(heroData));
+    renderHeroForm();
+    showNotice('Hero section settings saved!');
+  });
+
+  /* --- CATEGORY MANAGEMENT --- */
   function saveCategories() {
     localStorage.setItem('ctc_categories', JSON.stringify(categories));
     renderCategories();
@@ -287,10 +414,17 @@
 
   window.clearCatField = function(fieldId) {
     document.getElementById(fieldId).value = '';
-    showNotice(fieldId === 'cat-image' ? 'Image URL field cleared.' : 'Description field cleared.');
+    if (fieldId === 'cat-image') document.getElementById('cat-image-file').value = '';
+    showNotice('Category field cleared.');
   };
 
-  /* --- CATEGORY MANAGEMENT --- */
+  document.getElementById('cat-image-file').addEventListener('change', async (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const dataUrl = await fileToDataURL(e.target.files[0]);
+      document.getElementById('cat-image').value = dataUrl;
+    }
+  });
+
   function renderCategories() {
     const catList = document.getElementById('category-list');
     document.getElementById('stat-total-cats').textContent = categories.length;
@@ -303,7 +437,7 @@
     catList.innerHTML = categories.map((c, i) => `
       <div class="list-item">
         <div class="cat-item-content">
-          ${c.image ? `<img src="${c.image}" class="cat-thumb-preview" alt="Thumb">` : `<div class="cat-thumb-preview">No Img</div>`}
+          ${c.image ? `<img src="${c.image}" class="cat-thumb-preview" alt="Thumb" onclick="openLightbox('${c.image}')">` : `<div class="cat-thumb-preview">No Img</div>`}
           <div>
             <strong>${c.title}</strong>
             <span style="display:block; font-size:0.75rem; color:#aaa; margin-top:2px;">
@@ -387,12 +521,20 @@
   };
 
   /* --- PRODUCT MANAGEMENT --- */
+  document.getElementById('prod-media-file').addEventListener('change', async (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const dataUrl = await fileToDataURL(e.target.files[0]);
+      document.getElementById('prod-media').value = dataUrl;
+    }
+  });
+
   function checkConnection() {
     const token = localStorage.getItem('gh_pat');
     if (token) {
       setupCard.style.display = 'none';
       dashboard.style.display = 'block';
       disconnectBtn.style.display = 'inline-block';
+      renderHeroForm();
       renderCategories();
       populateCategoryDropdown();
       fetchProducts();
@@ -441,9 +583,12 @@
 
     list.innerHTML = products.map((p, i) => `
       <div class="list-item">
-        <div>
-          <strong>${p.title}</strong>
-          <span>(${p.category || 'General'}) &bull; ${p.price || ''}</span>
+        <div style="display:flex; align-items:center; gap:12px;">
+          ${p.image ? `<img src="${p.image}" class="cat-thumb-preview" alt="Product" onclick="openLightbox('${p.image}')">` : '<div class="cat-thumb-preview">No Img</div>'}
+          <div>
+            <strong>${p.title}</strong>
+            <span>(${p.category || 'General'}) &bull; ${p.price || ''}</span>
+          </div>
         </div>
         <div>
           <button onclick="editProduct(${i})" class="btn-action btn-secondary" style="padding:4px 10px; font-size:0.75rem; margin-right:5px;">Edit</button>
@@ -456,7 +601,7 @@
       const isVideo = p.isVideo || (p.image && p.image.endsWith('.mp4'));
       return `
         <div class="drag-item" draggable="true" data-index="${i}">
-          ${isVideo ? `<video src="${p.image}"></video>` : `<img src="${p.image}">`}
+          ${isVideo ? `<video src="${p.image}"></video>` : `<img src="${p.image}" onclick="openLightbox('${p.image}')">`}
           <div style="font-size:0.65rem; color:#aaa; margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${i + 1}. ${p.title}</div>
         </div>
       `;
@@ -535,7 +680,7 @@
       category: document.getElementById('prod-category').value,
       link: document.getElementById('prod-link').value,
       image: media,
-      isVideo: media.endsWith('.mp4')
+      isVideo: media.endsWith('.mp4') || media.startsWith('data:video')
     };
 
     if (editingProductIndex !== null) {
@@ -565,12 +710,17 @@
 
     showNotice('Publishing to GitHub...');
     try {
-      const content = btoa(unescape(encodeURIComponent(JSON.stringify(products, null, 2))));
+      const payload = {
+        hero: heroData,
+        categories: categories,
+        products: products
+      };
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
       const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
         method: 'PUT',
         headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: 'Update products via Admin Dashboard',
+          message: 'Update store catalog and hero via Admin Dashboard',
           content: content,
           sha: fileSha || undefined
         })
