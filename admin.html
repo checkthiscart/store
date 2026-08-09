@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>checkthiscart — Admin</title>
+<meta name="robots" content="noindex, nofollow">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+
+<style>
+  body{ padding-bottom:80px; }
+  .admin-wrap{ max-width:920px; margin:0 auto; padding:0 20px; }
+  .admin-header{ padding:36px 0 20px; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+  .admin-header h1{ font-size:1.6rem; font-weight:700; }
+  .status-pill{
+    font-family:'JetBrains Mono', monospace; font-size:0.72rem; padding:6px 12px; border-radius:100px;
+    border:1px solid var(--panel-line); color:var(--text-faint); display:inline-flex; align-items:center; gap:6px;
+  }
+  .status-pill.ok{ color:var(--cyan); border-color:rgba(78,233,216,0.35); }
+  .status-pill.warn{ color:var(--cta); border-color:rgba(255,176,32,0.35); }
+  .status-pill .dot{ width:6px; height:6px; border-radius:50%; background:currentColor; }
+
+  .panel{ background:var(--panel); border:1px solid var(--panel-line); border-radius:var(--radius); padding:22px 24px; margin-bottom:20px; }
+  .panel h2{ font-size:1.05rem; font-weight:700; margin-bottom:6px; }
+  .panel .sub{ font-size:0.85rem; color:var(--text-dim); margin:0 0 18px; line-height:1.55; }
+
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+  .field{ display:flex; flex-direction:column; gap:6px; }
+  .field.full{ grid-column:1 / -1; }
+  .field label{ font-family:'JetBrains Mono', monospace; font-size:0.72rem; letter-spacing:0.04em; color:var(--text-faint); }
+  .field input[type="text"], .field input[type="password"], .field input[type="url"], .field textarea, .field select{
+    background:var(--bg-alt); border:1px solid var(--panel-line); border-radius:10px; color:var(--text);
+    padding:10px 12px; font-family:'Inter', sans-serif; font-size:0.9rem; width:100%;
+  }
+  .field textarea{ resize:vertical; min-height:64px; font-family:'Inter', sans-serif; line-height:1.5; }
+  .field input:focus, .field textarea:focus, .field select:focus{ outline:2px solid var(--cyan); outline-offset:1px; border-color:transparent; }
+  .field-hint{ font-size:0.72rem; color:var(--text-faint); }
+
+  .btn-sm{
+    font-family:'Inter', sans-serif; font-weight:600; font-size:0.85rem; padding:9px 16px; border-radius:100px;
+    border:1px solid var(--panel-line); background:transparent; color:var(--text); cursor:pointer;
+    transition:border-color .18s ease, color .18s ease, background .18s ease;
+  }
+  .btn-sm:hover{ border-color:var(--cyan); color:var(--cyan); }
+  .btn-sm.primary{ background:var(--cta); color:#241300; border-color:transparent; }
+  .btn-sm.primary:hover{ box-shadow:0 4px 18px rgba(255,176,32,0.3); color:#241300; }
+  .btn-sm.danger{ color:var(--danger); border-color:rgba(255,93,108,0.3); }
+  .btn-sm.danger:hover{ border-color:var(--danger); background:rgba(255,93,108,0.08); }
+  .btn-sm:disabled{ opacity:0.5; cursor:not-allowed; }
+
+  .feature-row{ display:flex; gap:8px; margin-bottom:8px; align-items:center; }
+  .feature-row input{ flex:1; }
+  .feature-remove{
+    width:32px; height:32px; flex-shrink:0; border-radius:8px; border:1px solid var(--panel-line);
+    background:transparent; color:var(--text-faint); cursor:pointer; font-size:1rem; line-height:1;
+  }
+  .feature-remove:hover{ color:var(--danger); border-color:rgba(255,93,108,0.3); }
+
+  .tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+  .tab-btn{
+    font-family:'JetBrains Mono', monospace; font-size:0.78rem; padding:9px 14px; border-radius:100px;
+    border:1px solid var(--panel-line); background:transparent; color:var(--text-dim); cursor:pointer;
+    transition:all .18s ease; white-space:nowrap;
+  }
+  .tab-btn.active{ background:rgba(78,233,216,0.1); border-color:rgba(78,233,216,0.4); color:var(--cyan); }
+
+  .item-row{
+    display:flex; align-items:center; gap:14px; padding:14px 16px; border:1px solid var(--panel-line);
+    border-radius:12px; margin-bottom:10px; background:var(--bg-alt);
+  }
+  .item-thumb{
+    width:46px; height:46px; border-radius:9px; background:var(--blue-deep); display:flex; align-items:center;
+    justify-content:center; font-size:1.3rem; flex-shrink:0; overflow:hidden;
+  }
+  .item-thumb img{ width:100%; height:100%; object-fit:cover; }
+  .item-info{ flex:1; min-width:0; }
+  .item-info .t{ font-weight:600; font-size:0.92rem; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .item-info .p{ font-family:'JetBrains Mono', monospace; font-size:0.78rem; color:var(--text-faint); }
+  .item-actions{ display:flex; gap:8px; flex-shrink:0; }
+
+  .empty-note{ text-align:center; padding:30px; color:var(--text-faint); font-size:0.88rem; font-family:'JetBrains Mono', monospace; }
+
+  .publish-bar{
+    position:fixed; bottom:0; left:0; right:0; z-index:60;
+    background:rgba(10,8,18,0.9); backdrop-filter:blur(14px); border-top:1px solid var(--panel-line);
+    padding:14px 20px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  }
+  .publish-bar .msg{ font-family:'JetBrains Mono', monospace; font-size:0.78rem; color:var(--text-dim); }
+  .publish-bar .msg.dirty{ color:var(--cta); }
+  .publish-actions{ display:flex; gap:10px; }
+
+  .toast{
+    position:fixed; top:16px; right:16px; z-index:100; padding:12px 18px; border-radius:10px;
+    font-family:'Inter', sans-serif; font-size:0.85rem; font-weight:600; max-width:340px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.4); opacity:0; transform:translateY(-8px); transition:opacity .2s ease, transform .2s ease;
+    pointer-events:none;
+  }
+  .toast.show{ opacity:1; transform:translateY(0); }
+  .toast.ok{ background:#0f3d34; color:#7ff5df; border:1px solid rgba(78,233,216,0.4); }
+  .toast.err{ background:#3d1620; color:#ff9aa6; border:1px solid rgba(255,93,108,0.4); }
+
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(6,4,12,0.72); z-index:70; display:none;
+    align-items:flex-start; justify-content:center; overflow-y:auto; padding:40px 16px;
+  }
+  .modal-backdrop.show{ display:flex; }
+  .modal{ background:var(--panel); border:1px solid var(--panel-line); border-radius:var(--radius); max-width:640px; width:100%; padding:26px 28px 22px; }
+  .modal-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+  .modal-head h2{ font-size:1.15rem; }
+  .modal-close{ background:none; border:none; color:var(--text-faint); font-size:1.4rem; cursor:pointer; line-height:1; }
+  .modal-close:hover{ color:var(--text); }
+  .modal-footer{ display:flex; justify-content:flex-end; gap:10px; margin-top:16px; }
+
+  .setup-note{
+    font-size:0.82rem; color:var(--text-dim); line-height:1.7; background:rgba(139,92,246,0.06);
+    border-left:2px solid var(--violet-dim); padding:12px 16px; margin-bottom:18px; font-family:'JetBrains Mono', monospace; font-size:0.75rem;
+  }
+
+  @media (max-width:640px){
+    .field-row{ grid-template-columns:1fr; }
+    .item-row{ flex-wrap:wrap; }
+  }
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<!-- ===================== NAV ===================== -->
+<header class="nav">
+  <div class="wrap">
+    <a href="index.html" class="logo">
+      <span class="logo-mark">ctc</span>
+      <span class="logo-text">checkthiscart
+        <small>Admin</small>
+      </span>
+    </a>
+    <a class="back-link" href="index.html" target="_blank">View live site →</a>
+  </div>
+</header>
+
+<div class="admin-wrap">
+
+  <div class="admin-header">
+    <div>
+      <h1>Product admin</h1>
+      <p style="color:var(--text-dim); font-size:0.9rem; margin:6px 0 0;">Add, edit, and delete products. Nothing goes live until you hit Publish.</p>
+    </div>
+    <span class="status-pill" id="statusPill"><span class="dot"></span> <span id="statusText">Not connected</span></span>
+  </div>
+
+  <!-- ===================== CONNECTION SETUP ===================== -->
+  <div class="panel" id="setupPanel">
+    <h2>Connect to GitHub</h2>
+    <p class="sub">One-time setup. This saves to your browser only — it is never written into any file that gets committed.</p>
+
+    <div class="setup-note">
+      <strong style="color:var(--text-dim); font-family:'Inter',sans-serif;">Creating a token (30 seconds):</strong><br>
+      GitHub → Settings → Developer settings → Fine-grained tokens → Generate new token →
+      set Repository access to <em>only this repo</em> → under Permissions, set
+      <em>Contents: Read and write</em> → Generate → paste it below.
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="ghOwner">GitHub username</label>
+        <input type="text" id="ghOwner" placeholder="checkthiscart">
+      </div>
+      <div class="field">
+        <label for="ghRepo">Repository name</label>
+        <input type="text" id="ghRepo" placeholder="checkthiscart.github.io">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="ghBranch">Branch</label>
+        <input type="text" id="ghBranch" placeholder="main" value="main">
+      </div>
+      <div class="field">
+        <label for="ghPath">Data file path</label>
+        <input type="text" id="ghPath" placeholder="products.json" value="products.json">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field full">
+        <label for="ghToken">Personal access token</label>
+        <input type="password" id="ghToken" placeholder="github_pat_...">
+        <span class="field-hint">Stored only in this browser's local storage.</span>
+      </div>
+    </div>
+    <button class="btn-sm primary" id="connectBtn">Save & connect</button>
+    <button class="btn-sm" id="forgetBtn" style="display:none;">Forget saved token</button>
+  </div>
+
+  <!-- ===================== MAIN EDITOR (hidden until connected + loaded) ===================== -->
+  <div id="editorArea" style="display:none;">
+
+    <div class="tabs" id="tabs"></div>
+
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+        <h2 id="tabTitle" style="margin:0;">Trending</h2>
+        <button class="btn-sm primary" id="addBtn">+ Add product</button>
+      </div>
+      <div id="itemList"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ===================== PRODUCT FORM MODAL ===================== -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="modalTitle">Add product</h2>
+      <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+    </div>
+
+    <div class="field-row" id="rankRow" style="display:none;">
+      <div class="field">
+        <label for="f_rank">Trending rank</label>
+        <input type="text" id="f_rank" placeholder="1">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field full">
+        <label for="f_title">Title</label>
+        <input type="text" id="f_title" placeholder="Self-Sealing Silicone Food Bags (Set of 6)">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field full">
+        <label for="f_hook">Description (2-sentence hook)</label>
+        <textarea id="f_hook" placeholder="Freezer-to-microwave bags that actually reseal flat. Cuts single-use plastic without slowing you down."></textarea>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field full">
+        <label>Features</label>
+        <div id="featureRows"></div>
+        <button class="btn-sm" id="addFeatureBtn" type="button" style="align-self:flex-start;">+ Add feature</button>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="f_price">Price</label>
+        <input type="text" id="f_price" placeholder="$16.99">
+      </div>
+      <div class="field">
+        <label for="f_link">Amazon link</label>
+        <input type="url" id="f_link" placeholder="https://www.amazon.com/dp/ASIN?tag=yourtag-20">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field full">
+        <label for="f_image">Image URL (or leave blank and use an emoji instead)</label>
+        <input type="text" id="f_image" placeholder="https://... or 📦">
+        <span class="field-hint">Paste a direct image link, or just type a single emoji as a placeholder.</span>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-sm danger" id="deleteBtn" style="display:none; margin-right:auto;">Delete product</button>
+      <button class="btn-sm" id="cancelBtn">Cancel</button>
+      <button class="btn-sm primary" id="saveBtn">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PUBLISH BAR ===================== -->
+<div class="publish-bar">
+  <span class="msg" id="publishMsg">No unpublished changes</span>
+  <div class="publish-actions">
+    <button class="btn-sm" id="reloadBtn">Reload from GitHub</button>
+    <button class="btn-sm primary" id="publishBtn" disabled>Publish to site</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CONFIG_KEY = 'ctc_admin_config';
+  var state = { data: null, sha: null, dirty: false, activeTab: 'trending', editing: null };
+  var config = null;
+
+  /* ---------- persistence of connection config ---------- */
+  function loadConfig(){
+    try{
+      var raw = localStorage.getItem(CONFIG_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch(e){ return null; }
+  }
+  function saveConfig(c){ localStorage.setItem(CONFIG_KEY, JSON.stringify(c)); }
+  function clearConfig(){ localStorage.removeItem(CONFIG_KEY); }
+
+  /* ---------- toast ---------- */
+  function toast(msg, type){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || 'ok');
+    setTimeout(function(){ t.className = 'toast ' + (type || 'ok'); }, 3200);
+  }
+
+  /* ---------- GitHub API ---------- */
+  function apiUrl(){
+    return 'https://api.github.com/repos/' + config.owner + '/' + config.repo + '/contents/' + config.path + '?ref=' + encodeURIComponent(config.branch);
+  }
+
+  function b64EncodeUnicode(str){
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(_, p1){
+      return String.fromCharCode('0x' + p1);
+    }));
+  }
+  function b64DecodeUnicode(str){
+    return decodeURIComponent(atob(str).split('').map(function(c){
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+  }
+
+  function ghFetch(url, opts){
+    opts = opts || {};
+    opts.headers = Object.assign({
+      'Authorization': 'Bearer ' + config.token,
+      'Accept': 'application/vnd.github+json'
+    }, opts.headers || {});
+    return fetch(url, opts).then(function(res){
+      if(!res.ok){
+        return res.json().catch(function(){ return {}; }).then(function(body){
+          throw new Error((body && body.message) || ('GitHub API error ' + res.status));
+        });
+      }
+      return res.json();
+    });
+  }
+
+  function loadFromGitHub(){
+    setStatus('loading', 'Loading products.json…');
+    return ghFetch(apiUrl()).then(function(json){
+      state.sha = json.sha;
+      state.data = JSON.parse(b64DecodeUnicode(json.content.replace(/\n/g, '')));
+      state.dirty = false;
+      setStatus('ok', 'Connected — up to date');
+      updatePublishBar();
+      renderTabs();
+      renderList();
+      document.getElementById('editorArea').style.display = 'block';
+    }).catch(function(err){
+      setStatus('warn', 'Connection failed');
+      toast('Could not load products.json: ' + err.message, 'err');
+    });
+  }
+
+  function publishToGitHub(){
+    var btn = document.getElementById('publishBtn');
+    btn.disabled = true;
+    btn.textContent = 'Publishing…';
+    var body = {
+      message: 'Update products via admin panel',
+      content: b64EncodeUnicode(JSON.stringify(state.data, null, 2)),
+      branch: config.branch
+    };
+    if(state.sha) body.sha = state.sha;
+
+    ghFetch(apiUrl().split('?')[0], { method: 'PUT', body: JSON.stringify(body) })
+      .then(function(res){
+        state.sha = res.content.sha;
+        state.dirty = false;
+        updatePublishBar();
+        toast('Published! Your site will update in about a minute.', 'ok');
+      })
+      .catch(function(err){
+        toast('Publish failed: ' + err.message, 'err');
+      })
+      .finally(function(){
+        btn.disabled = false;
+        btn.textContent = 'Publish to site';
+      });
+  }
+
+  function setStatus(kind, text){
+    var pill = document.getElementById('statusPill');
+    pill.className = 'status-pill ' + (kind === 'ok' ? 'ok' : kind === 'warn' ? 'warn' : '');
+    document.getElementById('statusText').textContent = text;
+  }
+
+  function updatePublishBar(){
+    var msg = document.getElementById('publishMsg');
+    var btn = document.getElementById('publishBtn');
+    if(state.dirty){
+      msg.textContent = 'You have unpublished changes';
+      msg.classList.add('dirty');
+      btn.disabled = false;
+    } else {
+      msg.textContent = 'No unpublished changes';
+      msg.classList.remove('dirty');
+      btn.disabled = true;
+    }
+  }
+
+  /* ---------- tabs ---------- */
+  function tabList(){
+    var tabs = [{ id: 'trending', label: 'Trending (Hub)' }];
+    (state.data.categories || []).forEach(function(c){
+      tabs.push({ id: c.id, label: c.label });
+    });
+    return tabs;
+  }
+
+  function renderTabs(){
+    var wrap = document.getElementById('tabs');
+    wrap.innerHTML = '';
+    tabList().forEach(function(t){
+      var b = document.createElement('button');
+      b.className = 'tab-btn' + (t.id === state.activeTab ? ' active' : '');
+      b.textContent = t.label;
+      b.addEventListener('click', function(){
+        state.activeTab = t.id;
+        renderTabs();
+        renderList();
+      });
+      wrap.appendChild(b);
+    });
+  }
+
+  function currentItems(){
+    if(state.activeTab === 'trending') return state.data.trending || [];
+    return (state.data.collections || {})[state.activeTab] || [];
+  }
+  function setCurrentItems(items){
+    if(state.activeTab === 'trending') state.data.trending = items;
+    else state.data.collections[state.activeTab] = items;
+  }
+
+  function renderList(){
+    var title = tabList().find(function(t){ return t.id === state.activeTab; });
+    document.getElementById('tabTitle').textContent = title ? title.label : '';
+    var listEl = document.getElementById('itemList');
+    listEl.innerHTML = '';
+    var items = currentItems();
+
+    if(items.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'empty-note';
+      empty.textContent = 'No products yet. Click "+ Add product" to create the first one.';
+      listEl.appendChild(empty);
+      return;
+    }
+
+    items.forEach(function(p, idx){
+      var row = document.createElement('div');
+      row.className = 'item-row';
+
+      var thumb = document.createElement('div');
+      thumb.className = 'item-thumb';
+      if(p.image && /^https?:\/\//i.test(p.image)){
+        var img = document.createElement('img');
+        img.src = p.image; img.alt = '';
+        thumb.appendChild(img);
+      } else {
+        thumb.textContent = p.image || '🛒';
+      }
+      row.appendChild(thumb);
+
+      var info = document.createElement('div');
+      info.className = 'item-info';
+      var t = document.createElement('div'); t.className = 't'; t.textContent = p.title || '(untitled)';
+      var pr = document.createElement('div'); pr.className = 'p mono'; pr.textContent = (p.price || '') + (state.activeTab === 'trending' ? '  ·  rank ' + (p.rank || '—') : '');
+      info.appendChild(t); info.appendChild(pr);
+      row.appendChild(info);
+
+      var actions = document.createElement('div');
+      actions.className = 'item-actions';
+      var editBtn = document.createElement('button');
+      editBtn.className = 'btn-sm'; editBtn.textContent = 'Edit';
+      editBtn.addEventListener('click', function(){ openModal(idx); });
+      var delBtn = document.createElement('button');
+      delBtn.className = 'btn-sm danger'; delBtn.textContent = 'Delete';
+      delBtn.addEventListener('click', function(){
+        if(confirm('Delete "' + (p.title || 'this product') + '"? This stages a change — nothing publishes until you hit Publish.')){
+          var arr = currentItems();
+          arr.splice(idx, 1);
+          setCurrentItems(arr);
+          state.dirty = true;
+          updatePublishBar();
+          renderList();
+        }
+      });
+      actions.appendChild(editBtn);
+      actions.appendChild(delBtn);
+      row.appendChild(actions);
+
+      listEl.appendChild(row);
+    });
+  }
+
+  /* ---------- modal form ---------- */
+  function openModal(idx){
+    state.editing = idx;
+    var isTrending = state.activeTab === 'trending';
+    var p = idx === null ? { title:'', hook:'', features:[''], price:'', link:'', image:'', rank:'' } : currentItems()[idx];
+
+    document.getElementById('modalTitle').textContent = idx === null ? 'Add product' : 'Edit product';
+    document.getElementById('rankRow').style.display = isTrending ? 'grid' : 'none';
+    document.getElementById('f_rank').value = p.rank || '';
+    document.getElementById('f_title').value = p.title || '';
+    document.getElementById('f_hook').value = p.hook || '';
+    document.getElementById('f_price').value = p.price || '';
+    document.getElementById('f_link').value = p.link || '';
+    document.getElementById('f_image').value = p.image || '';
+    renderFeatureRows(p.features && p.features.length ? p.features.slice() : ['']);
+    document.getElementById('deleteBtn').style.display = idx === null ? 'none' : 'inline-flex';
+
+    document.getElementById('modalBackdrop').classList.add('show');
+  }
+  function closeModal(){
+    document.getElementById('modalBackdrop').classList.remove('show');
+    state.editing = null;
+  }
+
+  function renderFeatureRows(features){
+    var wrap = document.getElementById('featureRows');
+    wrap.innerHTML = '';
+    features.forEach(function(val){
+      addFeatureRow(val);
+    });
+  }
+  function addFeatureRow(val){
+    var wrap = document.getElementById('featureRows');
+    var row = document.createElement('div');
+    row.className = 'feature-row';
+    var input = document.createElement('input');
+    input.type = 'text'; input.value = val || ''; input.placeholder = 'Dishwasher and freezer safe';
+    var rm = document.createElement('button');
+    rm.type = 'button'; rm.className = 'feature-remove'; rm.textContent = '×';
+    rm.addEventListener('click', function(){ row.remove(); });
+    row.appendChild(input); row.appendChild(rm);
+    wrap.appendChild(row);
+  }
+
+  function collectFeatures(){
+    return Array.prototype.slice.call(document.querySelectorAll('#featureRows input'))
+      .map(function(i){ return i.value.trim(); })
+      .filter(Boolean);
+  }
+
+  function saveModal(){
+    var title = document.getElementById('f_title').value.trim();
+    if(!title){ toast('Title is required.', 'err'); return; }
+    var link = document.getElementById('f_link').value.trim();
+    if(link && !/^https?:\/\//i.test(link)){ toast('Amazon link should start with http:// or https://', 'err'); return; }
+
+    var product = {
+      id: (state.editing !== null && currentItems()[state.editing].id) || ('p-' + Date.now().toString(36)),
+      title: title,
+      hook: document.getElementById('f_hook').value.trim(),
+      features: collectFeatures(),
+      price: document.getElementById('f_price').value.trim(),
+      link: link,
+      image: document.getElementById('f_image').value.trim()
+    };
+    if(state.activeTab === 'trending'){
+      var rank = parseInt(document.getElementById('f_rank').value, 10);
+      product.rank = isNaN(rank) ? (currentItems().length + 1) : rank;
+    }
+
+    var arr = currentItems();
+    if(state.editing === null){
+      arr.push(product);
+    } else {
+      arr[state.editing] = product;
+    }
+    setCurrentItems(arr);
+    state.dirty = true;
+    updatePublishBar();
+    renderList();
+    closeModal();
+    toast('Staged — click "Publish to site" to make it live.', 'ok');
+  }
+
+  function deleteFromModal(){
+    if(state.editing === null) return;
+    var arr = currentItems();
+    var p = arr[state.editing];
+    if(confirm('Delete "' + (p.title || 'this product') + '"?')){
+      arr.splice(state.editing, 1);
+      setCurrentItems(arr);
+      state.dirty = true;
+      updatePublishBar();
+      renderList();
+      closeModal();
+    }
+  }
+
+  /* ---------- wire up ---------- */
+  document.getElementById('connectBtn').addEventListener('click', function(){
+    var owner = document.getElementById('ghOwner').value.trim();
+    var repo = document.getElementById('ghRepo').value.trim();
+    var branch = document.getElementById('ghBranch').value.trim() || 'main';
+    var path = document.getElementById('ghPath').value.trim() || 'products.json';
+    var token = document.getElementById('ghToken').value.trim();
+    if(!owner || !repo || !token){ toast('Username, repo, and token are all required.', 'err'); return; }
+    config = { owner: owner, repo: repo, branch: branch, path: path, token: token };
+    saveConfig(config);
+    document.getElementById('forgetBtn').style.display = 'inline-flex';
+    loadFromGitHub();
+  });
+
+  document.getElementById('forgetBtn').addEventListener('click', function(){
+    clearConfig();
+    config = null;
+    document.getElementById('ghToken').value = '';
+    document.getElementById('editorArea').style.display = 'none';
+    document.getElementById('forgetBtn').style.display = 'none';
+    setStatus('', 'Not connected');
+    toast('Saved token cleared from this browser.', 'ok');
+  });
+
+  document.getElementById('reloadBtn').addEventListener('click', function(){
+    if(!config){ toast('Connect to GitHub first.', 'err'); return; }
+    if(state.dirty && !confirm('You have unpublished changes that will be discarded. Reload anyway?')) return;
+    loadFromGitHub();
+  });
+
+  document.getElementById('publishBtn').addEventListener('click', publishToGitHub);
+  document.getElementById('addBtn').addEventListener('click', function(){ openModal(null); });
+  document.getElementById('addFeatureBtn').addEventListener('click', function(){ addFeatureRow(''); });
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.getElementById('cancelBtn').addEventListener('click', closeModal);
+  document.getElementById('saveBtn').addEventListener('click', saveModal);
+  document.getElementById('deleteBtn').addEventListener('click', deleteFromModal);
+  document.getElementById('modalBackdrop').addEventListener('click', function(e){
+    if(e.target === this) closeModal();
+  });
+  window.addEventListener('beforeunload', function(e){
+    if(state.dirty){ e.preventDefault(); e.returnValue = ''; }
+  });
+
+  /* ---------- boot ---------- */
+  (function init(){
+    var saved = loadConfig();
+    if(saved){
+      config = saved;
+      document.getElementById('ghOwner').value = saved.owner;
+      document.getElementById('ghRepo').value = saved.repo;
+      document.getElementById('ghBranch').value = saved.branch;
+      document.getElementById('ghPath').value = saved.path;
+      document.getElementById('ghToken').value = saved.token;
+      document.getElementById('forgetBtn').style.display = 'inline-flex';
+      loadFromGitHub();
+    }
+  })();
+})();
+</script>
+
+</body>
+</html>

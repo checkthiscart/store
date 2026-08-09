@@ -1,0 +1,141 @@
+{
+  "categories": [
+    {
+      "id": "kitchen-pantry",
+      "label": "Kitchen & Pantry Hacks",
+      "description": "Gadgets and storage that actually earn counter space.",
+      "icon": "🍳",
+      "shelf": "#01 / SHELF",
+      "page": "kitchen-pantry.html"
+    },
+    {
+      "id": "smart-audio-tech",
+      "label": "Smart Audio & Tech",
+      "description": "Everyday gadgets worth the upgrade, tested for real use.",
+      "icon": "🎧",
+      "shelf": "#02 / SHELF",
+      "page": "smart-audio-tech.html"
+    },
+    {
+      "id": "home-organization",
+      "label": "Home Organization",
+      "description": "Small buys that make a real dent in daily clutter.",
+      "icon": "🗄️",
+      "shelf": "#03 / SHELF",
+      "page": "home-organization.html"
+    },
+    {
+      "id": "gourmet-gifts",
+      "label": "Gourmet & Gifts",
+      "description": "Give-worthy finds for the person who \"has everything.\"",
+      "icon": "🎁",
+      "shelf": "#04 / SHELF",
+      "page": "gourmet-gifts.html"
+    }
+  ],
+  "trending": [
+    {
+      "id": "trend-1",
+      "rank": 1,
+      "title": "Self-Sealing Silicone Food Bags (Set of 6)",
+      "hook": "Freezer-to-microwave bags that actually reseal flat. Cuts single-use plastic without slowing you down.",
+      "features": ["Dishwasher and freezer safe", "Leakproof triple-lock seal", "Stacks flat in any drawer"],
+      "price": "$16.99",
+      "link": "https://www.amazon.com/dp/EXAMPLEASIN1?tag=yourtag-20",
+      "image": "📦"
+    },
+    {
+      "id": "trend-2",
+      "rank": 2,
+      "title": "Under-Cabinet Rechargeable LED Puck Lights",
+      "hook": "Stick-on lighting with a motion sensor, no electrician required. Twenty minutes to install, gone from \"dark counter\" forever.",
+      "features": ["Motion + light sensor combo", "USB-C rechargeable, 3-month battery", "Adhesive or magnetic mount"],
+      "price": "$24.99",
+      "link": "https://www.amazon.com/dp/EXAMPLEASIN2?tag=yourtag-20",
+      "image": "🔌"
+    },
+    {
+      "id": "trend-3",
+      "rank": 3,
+      "title": "Weighted Pump Dispensers for Shower (Set of 3)",
+      "hook": "Turns any bottle into a wall-mount dispenser in seconds. The shelf-clearing upgrade every shower needs.",
+      "features": ["Fits shampoo, conditioner, body wash", "Rustproof stainless pump", "No drilling, waterproof adhesive"],
+      "price": "$21.99",
+      "link": "https://www.amazon.com/dp/EXAMPLEASIN3?tag=yourtag-20",
+      "image": "🧴"
+    },
+    {
+      "id": "trend-4",
+      "rank": 4,
+      "title": "Bone Conduction Sport Earphones",
+      "hook": "Open-ear design so you can still hear traffic, coworkers, or your name being called. Sweat-proof for actual workouts.",
+      "features": ["IP68 waterproof rating", "8-hour battery, 10-min fast charge", "Bluetooth 5.3, dual-device pairing"],
+      "price": "$39.99",
+      "link": "https://www.amazon.com/dp/EXAMPLEASIN4?tag=yourtag-20",
+      "image": "🎧"
+    },
+    {
+      "id": "trend-5",
+      "rank": 5,
+      "title": "Collapsible Drawer Organizer Bins (8-Piece)",
+      "hook": "Foldable when empty, rigid when full — built for the drawer that never quite closes right.",
+      "features": ["4 sizes for mixed drawers", "Washable woven fabric", "Flat-packs for storage"],
+      "price": "$18.49",
+      "link": "https://www.amazon.com/dp/EXAMPLEASIN5?tag=yourtag-20",
+      "image": "🧺"
+    },
+    {
+      "id": "trend-6",
+      "rank": 6,
+      "title": "Insulated Gift-Boxed Tumbler Set (2-Pack)",
+      "hook": "Arrives gift-ready with zero extra wrapping. Keeps drinks cold 24 hours, hot for 12 — a genuinely reusable gift.",
+      "features": ["Double-wall vacuum insulation", "Leakproof lid, straw included", "Ships in a gift box"],
+      "price": "$27.99",
+      "link": "https://www.amazon.com/dp/EXAMPLEASIN6?tag=yourtag-20",
+      "image": "☕"
+    }
+  ],
+  "collections": {
+    "kitchen-pantry": [],
+    "smart-audio-tech": [],
+    "home-organization": [],
+    "gourmet-gifts": [
+      {
+        "id": "gift-1",
+        "title": "Insulated Gift-Boxed Tumbler Set (2-Pack)",
+        "hook": "Arrives already gift-wrapped, so you skip the wrapping paper entirely. Keeps coffee hot for 12 hours and iced drinks cold for 24 — a gift they'll actually use every day.",
+        "features": ["Double-wall vacuum insulation", "Leakproof lid with reusable straw", "Ships in a ready-to-give gift box"],
+        "price": "$27.99",
+        "link": "https://www.amazon.com/dp/EXAMPLEASIN6?tag=yourtag-20",
+        "image": "☕"
+      },
+      {
+        "id": "gift-2",
+        "title": "Artisan Honey & Hot Sauce Flight (6-Bottle Set)",
+        "hook": "Six small-batch flavors in one box, so there's something for the picky eater and the heat-seeker on your list. No card needed — the box already looks like a present.",
+        "features": ["6 full-size bottles, mixed flavor set", "Small-batch, non-GMO ingredients", "Pre-boxed for gifting, no wrap required"],
+        "price": "$34.95",
+        "link": "https://www.amazon.com/dp/EXAMPLEASIN7?tag=yourtag-20",
+        "image": "🍯"
+      },
+      {
+        "id": "gift-3",
+        "title": "Coconut Wax Candle Trio (Amber Glass)",
+        "hook": "Three slow-burn scents in matching amber jars — the rare candle set that looks expensive without being a splurge. Ready to give straight out of the box.",
+        "features": ["45+ hour burn time, per candle", "Coconut wax, cotton wick, no soot", "Matching jars, reusable after burning"],
+        "price": "$29.99",
+        "link": "https://www.amazon.com/dp/EXAMPLEASIN8?tag=yourtag-20",
+        "image": "🕯️"
+      },
+      {
+        "id": "gift-4",
+        "title": "Charcuterie Board & Serving Knife Set",
+        "hook": "One board, four knives, zero guesswork for hosting season. It's the gift that also solves \"what do I bring to the party.\"",
+        "features": ["Solid acacia wood board with handle", "4-piece stainless serving knife set", "Includes juice groove and slate labels"],
+        "price": "$42.50",
+        "link": "https://www.amazon.com/dp/EXAMPLEASIN9?tag=yourtag-20",
+        "image": "🧀"
+      }
+    ]
+  }
+}
