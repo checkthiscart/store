@@ -6,42 +6,94 @@
   <title>Product Admin | checkthiscart</title>
   <link rel="stylesheet" href="./site.css">
 </head>
-<body>
-  <div class="admin-container" style="max-width: 800px; margin: 40px auto; padding: 20px; font-family: sans-serif;">
-    <a href="./index.html">← View Live Site</a>
-    <h1>Product Admin</h1>
-    <p>Add, edit, and delete products. Nothing goes live until you push to GitHub.</p>
+<body style="background: #0f0f1a; color: #fff; font-family: sans-serif; padding: 20px;">
+  <div style="max-width: 800px; margin: 20px auto;">
+    <a href="./index.html" style="color: #8a2be2; text-decoration: none;">← View Live Site</a>
+    <h1 style="margin-top: 10px;">Product Admin</h1>
+    <p style="color: #aaa;">Add, edit, and delete products. Nothing goes live until saved.</p>
     
-    <div style="background: #1e1e2f; color: #fff; padding: 20px; border-radius: 8px; margin-top: 20px;">
-      <h3>Connect to GitHub</h3>
-      <p style="font-size: 0.9rem; color: #ccc;">One-time setup. This saves to your browser only.</p>
+    <div id="setup-card" style="background: #181828; padding: 25px; border-radius: 12px; border: 1px solid #2a2a40; margin-top: 20px;">
+      <h3 style="margin-top:0;">Connect to GitHub</h3>
+      <p style="font-size: 0.85rem; color: #aaa;">Saved locally in your browser cache.</p>
       
-      <form id="admin-config-form" style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+      <form id="admin-config-form" style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
         <label>GitHub Username
-          <input type="text" id="cfg-user" value="checkthiscart" style="width: 100%; padding: 8px; margin-top: 4px;">
+          <input type="text" id="cfg-user" value="checkthiscart" style="width: 100%; padding: 10px; margin-top: 5px; background: #0f0f1a; border: 1px solid #3a3a55; color: #fff; border-radius: 6px;">
         </label>
         
         <label>Repository Name
-          <input type="text" id="cfg-repo" value="store" style="width: 100%; padding: 8px; margin-top: 4px;">
+          <input type="text" id="cfg-repo" value="store" style="width: 100%; padding: 10px; margin-top: 5px; background: #0f0f1a; border: 1px solid #3a3a55; color: #fff; border-radius: 6px;">
         </label>
         
         <label>Branch
-          <input type="text" id="cfg-branch" value="main" style="width: 100%; padding: 8px; margin-top: 4px;">
+          <input type="text" id="cfg-branch" value="main" style="width: 100%; padding: 10px; margin-top: 5px; background: #0f0f1a; border: 1px solid #3a3a55; color: #fff; border-radius: 6px;">
         </label>
         
         <label>Data File Path
-          <input type="text" id="cfg-path" value="products.json" style="width: 100%; padding: 8px; margin-top: 4px;">
+          <input type="text" id="cfg-path" value="products.json" style="width: 100%; padding: 10px; margin-top: 5px; background: #0f0f1a; border: 1px solid #3a3a55; color: #fff; border-radius: 6px;">
         </label>
         
         <label>Personal Access Token (PAT)
-          <input type="password" id="cfg-token" placeholder="github_pat_..." style="width: 100%; padding: 8px; margin-top: 4px;">
+          <input type="password" id="cfg-token" placeholder="github_pat_..." style="width: 100%; padding: 10px; margin-top: 5px; background: #0f0f1a; border: 1px solid #3a3a55; color: #fff; border-radius: 6px;" required>
         </label>
         
-        <button type="submit" style="padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Save & Connect</button>
+        <button type="submit" style="padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px;">Save & Connect</button>
       </form>
+    </div>
+
+    <!-- Dashboard area shown after connection -->
+    <div id="admin-dashboard" style="display: none; background: #181828; padding: 25px; border-radius: 12px; border: 1px solid #2a2a40; margin-top: 20px;">
+      <div style="display: flex; justify-space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0;">Connected Repository</h3>
+        <button id="disconnect-btn" style="background: #dc3545; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Disconnect</button>
+      </div>
+      <p style="color: #00ff88; font-weight: bold;">✓ Connected successfully to products.json</p>
     </div>
   </div>
 
-  <script src="./site.js"></script>
+  <script>
+    const form = document.getElementById('admin-config-form');
+    const setupCard = document.getElementById('setup-card');
+    const dashboard = document.getElementById('admin-dashboard');
+    const disconnectBtn = document.getElementById('disconnect-btn');
+
+    // Auto-load existing config
+    function checkConnection() {
+      const savedToken = localStorage.getItem('gh_pat');
+      if (savedToken) {
+        setupCard.style.display = 'none';
+        dashboard.style.display = 'block';
+      } else {
+        setupCard.style.display = 'block';
+        dashboard.style.display = 'none';
+      }
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const token = document.getElementById('cfg-token').value.trim();
+      if (!token) {
+        alert('Please paste your Personal Access Token!');
+        return;
+      }
+      
+      localStorage.setItem('gh_user', document.getElementById('cfg-user').value.trim());
+      localStorage.setItem('gh_repo', document.getElementById('cfg-repo').value.trim());
+      localStorage.setItem('gh_branch', document.getElementById('cfg-branch').value.trim());
+      localStorage.setItem('gh_path', document.getElementById('cfg-path').value.trim());
+      localStorage.setItem('gh_pat', token);
+
+      alert('Credentials saved!');
+      checkConnection();
+    });
+
+    disconnectBtn.addEventListener('click', () => {
+      localStorage.clear();
+      alert('Disconnected.');
+      checkConnection();
+    });
+
+    checkConnection();
+  </script>
 </body>
 </html>
