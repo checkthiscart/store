@@ -6,15 +6,16 @@
   <title>checkthiscart | Curated Reviews & Tested Products</title>
   <link rel="stylesheet" href="./site.css">
   <style>
-    body { background: #0f1015; color: #e1e3ea; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding-bottom: 60px; }
+    body { background: #0f1015; color: #e1e3ea; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
     
     /* Navigation Header */
     header { padding: 18px 40px; background: #161822; border-bottom: 1px solid #232633; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     .logo { font-weight: 900; font-size: 1.2rem; color: #fff; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; text-decoration: none; }
     .logo-badge { background: #f2ba49; color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 900; }
-    .nav-links { display: flex; gap: 20px; align-items: center; }
-    .nav-links a { color: #a0a5b5; text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; }
-    .nav-links a:hover { color: #fff; }
+    
+    /* Pinterest Link Button */
+    .pinterest-btn { display: flex; align-items: center; gap: 8px; background: #e60023; color: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 700; padding: 8px 16px; border-radius: 20px; transition: 0.2s; }
+    .pinterest-btn:hover { background: #ad001a; }
 
     /* Dynamic Hero Section */
     .hero-banner { position: relative; padding: 70px 20px; text-align: center; background: #161822; border-bottom: 1px solid #232633; overflow: hidden; }
@@ -44,7 +45,7 @@
     /* Featured Highlights Row */
     .featured-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-bottom: 50px; }
     .featured-card { background: linear-gradient(145deg, #1d202d, #141620); border: 1px solid #f2ba49; border-radius: 12px; padding: 20px; display: flex; gap: 15px; align-items: center; }
-    .featured-card img { width: 90px; height: 90px; border-radius: 8px; object-fit: cover; cursor: pointer; }
+    .featured-card img { width: 90px; height: 90px; border-radius: 8px; object-fit: cover; cursor: pointer; background: #222; }
     .featured-info h4 { margin: 0 0 6px 0; color: #fff; font-size: 1rem; }
     .featured-info p { margin: 0 0 10px 0; font-size: 0.8rem; color: #aaa; }
 
@@ -52,7 +53,7 @@
     .product-stream { display: flex; flex-direction: column; gap: 30px; }
     .stream-card { background: #181a24; border: 1px solid #282c3d; border-radius: 14px; overflow: hidden; display: grid; grid-template-columns: 320px 1fr; transition: 0.2s; }
     .stream-card:hover { border-color: #3d435c; }
-    .stream-media { position: relative; background: #000; width: 100%; height: 100%; min-height: 240px; cursor: pointer; }
+    .stream-media { position: relative; background: #111; width: 100%; height: 100%; min-height: 240px; cursor: pointer; }
     .stream-media img, .stream-media video { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; }
     .stream-content { padding: 25px; display: flex; flex-direction: column; justify-content: space-between; }
     .stream-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
@@ -69,17 +70,21 @@
     .buy-btn { padding: 10px 18px; background: #28a745; color: #fff; text-decoration: none; font-weight: 800; font-size: 0.85rem; border-radius: 6px; text-transform: uppercase; transition: 0.2s; }
     .buy-btn:hover { background: #218838; }
 
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-      .stream-card { grid-template-columns: 1fr; }
-      .stream-media { height: 200px; min-height: unset; }
-      header { padding: 15px 20px; }
-    }
+    /* Footer Section */
+    footer { background: #161822; border-top: 1px solid #232633; padding: 40px 20px; text-align: center; margin-top: 60px; color: #888; font-size: 0.85rem; }
+    footer p { margin: 8px 0; }
+    footer a { color: #f2ba49; text-decoration: none; }
 
     /* Lightbox Modal */
     .lightbox-modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); justify-content: center; align-items: center; }
     .lightbox-modal img { max-width: 85%; max-height: 80vh; border-radius: 8px; border: 2px solid #282c3d; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
     .lightbox-close { position: absolute; top: 20px; right: 30px; color: #fff; font-size: 2rem; font-weight: bold; cursor: pointer; }
+
+    @media (max-width: 768px) {
+      .stream-card { grid-template-columns: 1fr; }
+      .stream-media { height: 200px; min-height: unset; }
+      header { padding: 15px 20px; }
+    }
   </style>
 </head>
 <body>
@@ -90,16 +95,16 @@
   <img id="lightbox-img" src="" alt="Enlarged preview">
 </div>
 
-<!-- Header -->
+<!-- Navigation Header -->
 <header>
   <a href="#" class="logo">
     <span class="logo-badge">CTC</span> checkthiscart
   </a>
-  <div class="nav-links">
-    <a href="#categories-section">Categories</a>
-    <a href="#reviews-section">Reviews</a>
-    <a href="./admin.html" style="color:#f2ba49;">Admin Panel &rarr;</a>
-  </div>
+  <!-- Pinterest Link -->
+  <a href="https://pinterest.com/checkthiscart" target="_blank" rel="noopener" class="pinterest-btn">
+    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/></svg>
+    Follow on Pinterest
+  </a>
 </header>
 
 <!-- Dynamic Hero Banner -->
@@ -113,7 +118,7 @@
 
 <main class="container">
 
-  <!-- Explore Categories Section -->
+  <!-- Category List Section -->
   <div id="categories-section" class="section-title">&#128194; EXPLORE CATEGORIES</div>
   <div id="category-tabs" class="category-tabs"></div>
   <div id="categories-grid" class="categories-grid"></div>
@@ -128,12 +133,22 @@
 
 </main>
 
+<!-- Footer Section -->
+<footer>
+  <p>&copy; 2026 <strong>checkthiscart</strong>. All rights reserved.</p>
+  <p style="font-size: 0.75rem; color: #666; max-width: 600px; margin: 10px auto 0 auto;">
+    Disclaimer: When you buy through links on our site, we may earn an affiliate commission at no extra cost to you.
+  </p>
+</footer>
+
 <script>
+  const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=600&q=80";
+
   let categories = JSON.parse(localStorage.getItem('ctc_categories')) || [
-    { id: "kitchen-pantry", title: "Kitchen & Pantry", caption: "The only pantry organizers we recommend.", image: "", rating: "4.9" },
-    { id: "smart-audio-tech", title: "Smart Audio & Tech", caption: "Gadgets and audio tech with major upgrades.", image: "", rating: "4.8" },
-    { id: "home-organization", title: "Home Organization", caption: "Smart storage solutions for your home.", image: "", rating: "4.7" },
-    { id: "gourmet-gifts", title: "Gourmet & Gifts", caption: "Thoughtful quality gifts for everyone.", image: "", rating: "4.9" }
+    { id: "kitchen-pantry", title: "Kitchen & Pantry", caption: "The only pantry organizers we recommend.", image: DEFAULT_IMAGE, rating: "4.9" },
+    { id: "smart-audio-tech", title: "Smart Audio & Tech", caption: "Gadgets and audio tech with major upgrades.", image: DEFAULT_IMAGE, rating: "4.8" },
+    { id: "home-organization", title: "Home Organization", caption: "Smart storage solutions for your home.", image: DEFAULT_IMAGE, rating: "4.7" },
+    { id: "gourmet-gifts", title: "Gourmet & Gifts", caption: "Thoughtful quality gifts for everyone.", image: DEFAULT_IMAGE, rating: "4.9" }
   ];
 
   let heroData = JSON.parse(localStorage.getItem('ctc_hero')) || {
@@ -182,15 +197,18 @@
       `).join('')}
     `;
 
-    gridContainer.innerHTML = categories.map(c => `
-      <div class="cat-card" onclick="filterCategory('${c.id}')">
-        ${c.image ? `<img src="${c.image}" alt="${c.title}" onclick="event.stopPropagation(); openLightbox('${c.image}')">` : '<div style="width:50px; height:50px; background:#222; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#555; font-size:0.7rem;">No Img</div>'}
-        <div>
-          <h4>${c.title}</h4>
-          <p>${c.caption || 'Verified reviews'}</p>
+    gridContainer.innerHTML = categories.map(c => {
+      const imgUrl = c.image || DEFAULT_IMAGE;
+      return `
+        <div class="cat-card" onclick="filterCategory('${c.id}')">
+          <img src="${imgUrl}" alt="${c.title}" onerror="this.onerror=null;this.src='${DEFAULT_IMAGE}';" onclick="event.stopPropagation(); openLightbox(this.src)">
+          <div>
+            <h4>${c.title}</h4>
+            <p>${c.caption || 'Verified reviews'}</p>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   }
 
   function filterCategory(catId) {
@@ -205,19 +223,22 @@
     const featuredContainer = document.getElementById('featured-grid');
     const filtered = currentFilter === 'all' ? products : products.filter(p => p.category === currentFilter);
 
-    // Render Featured Picks (first 2 items)
+    // Render Featured Picks
     if (products.length > 0) {
       const topPicks = products.slice(0, 2);
-      featuredContainer.innerHTML = topPicks.map(p => `
-        <div class="featured-card">
-          <img src="${p.image}" alt="${p.title}" onclick="openLightbox('${p.image}')">
-          <div class="featured-info">
-            <h4>${p.title}</h4>
-            <p>${p.verdict ? p.verdict.substring(0, 70) + '...' : ''}</p>
-            <a href="${p.link}" target="_blank" class="buy-btn" style="padding:6px 12px; font-size:0.75rem;">Check Price (${p.price}) &rarr;</a>
+      featuredContainer.innerHTML = topPicks.map(p => {
+        const imgUrl = p.image || DEFAULT_IMAGE;
+        return `
+          <div class="featured-card">
+            <img src="${imgUrl}" alt="${p.title}" onerror="this.onerror=null;this.src='${DEFAULT_IMAGE}';" onclick="openLightbox(this.src)">
+            <div class="featured-info">
+              <h4>${p.title}</h4>
+              <p>${p.verdict ? p.verdict.substring(0, 70) + '...' : ''}</p>
+              <a href="${p.link || '#'}" target="_blank" class="buy-btn" style="padding:6px 12px; font-size:0.75rem;">Check Price (${p.price || ''}) &rarr;</a>
+            </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     } else {
       featuredContainer.innerHTML = '<p style="color:#666;">No featured picks available.</p>';
     }
@@ -229,11 +250,15 @@
     }
 
     streamContainer.innerHTML = filtered.map(p => {
+      const imgUrl = p.image || DEFAULT_IMAGE;
       const isVideo = p.isVideo || (p.image && p.image.endsWith('.mp4'));
+      
       return `
         <div class="stream-card">
-          <div class="stream-media" onclick="openLightbox('${p.image}')">
-            ${isVideo ? `<video src="${p.image}" autoplay loop muted playsinline></video>` : `<img src="${p.image}" alt="${p.title}">`}
+          <div class="stream-media" onclick="openLightbox('${imgUrl}')">
+            ${isVideo 
+              ? `<video src="${imgUrl}" autoplay loop muted playsinline></video>` 
+              : `<img src="${imgUrl}" alt="${p.title}" onerror="this.onerror=null;this.src='${DEFAULT_IMAGE}';">`}
           </div>
           <div class="stream-content">
             <div>
@@ -253,7 +278,7 @@
 
             <div class="stream-footer">
               <span class="price-tag">${p.price || ''}</span>
-              <a href="${p.link}" target="_blank" rel="noopener" class="buy-btn">View Deal &rarr;</a>
+              <a href="${p.link || '#'}" target="_blank" rel="noopener" class="buy-btn">View Deal &rarr;</a>
             </div>
           </div>
         </div>
@@ -261,7 +286,7 @@
     }).join('');
   }
 
-  /* --- FETCH DATA --- */
+  /* --- FETCH CATALOG DATA --- */
   async function fetchCatalog() {
     const user = localStorage.getItem('gh_user') || 'checkthiscart';
     const repo = localStorage.getItem('gh_repo') || 'store';
