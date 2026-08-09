@@ -200,6 +200,23 @@
     });
   }
 
+  /* ---------- footer nav (always in sync with categories) ---------- */
+  var PINTEREST_URL = 'https://pinterest.com/YOUR_PINTEREST_HANDLE';
+
+  function renderFooterLinks(container, categories, pageConfig){
+    if(!container) return;
+    container.innerHTML = '';
+    categories.forEach(function(cat){
+      container.appendChild(el('a', { text: cat.label, href: cat.page }));
+    });
+    if(pageConfig.type === 'collection'){
+      container.appendChild(el('a', { text: 'All Collections', href: 'index.html' }));
+    }
+    container.appendChild(el('a', {
+      text: 'Pinterest', href: PINTEREST_URL, attrs: { target: '_blank', rel: 'noopener' }
+    }));
+  }
+
   /* ---------- page bootstrap ---------- */
   // Each page sets window.CTC_PAGE before loading this script, e.g.:
   //   { type: 'hub' }
@@ -229,6 +246,8 @@
         var products = (data.collections || {})[pageConfig.collectionId] || [];
         if(listEl) renderCollectionList(listEl, products, meta);
       }
+
+      renderFooterLinks(document.getElementById('footerCollectionLinks'), data.categories || [], pageConfig);
 
       initReveal();
       initTilt('.tag-card, .product-card, .product-block');

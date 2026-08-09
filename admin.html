@@ -213,6 +213,50 @@
 
 </div>
 
+<!-- ===================== CATEGORY FORM MODAL ===================== -->
+<div class="modal-backdrop" id="catModalBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="catModalTitle">Add category</h2>
+      <button class="modal-close" id="catModalClose" aria-label="Close">&times;</button>
+    </div>
+
+    <div class="field-row">
+      <div class="field full">
+        <label for="c_label">Category name</label>
+        <input type="text" id="c_label" placeholder="Pet Must-Haves">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field full">
+        <label for="c_description">Short description (shows on the hub card)</label>
+        <textarea id="c_description" placeholder="Everyday finds that make life with a pet easier."></textarea>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="c_icon">Icon (emoji)</label>
+        <input type="text" id="c_icon" placeholder="🐾">
+      </div>
+      <div class="field">
+        <label for="c_page">Page file</label>
+        <input type="text" id="c_page" disabled>
+        <span class="field-hint">Auto-generated from the name, created on GitHub when you save.</span>
+      </div>
+    </div>
+
+    <div class="setup-note" id="catCreateNote">
+      Saving will create <strong id="catPageNamePreview" style="color:var(--text-dim); font-family:'Inter',sans-serif;">a new page</strong> in your repo automatically and add it to the hub grid once you Publish.
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-sm danger" id="catDeleteBtn" style="display:none; margin-right:auto;">Delete category</button>
+      <button class="btn-sm" id="catCancelBtn">Cancel</button>
+      <button class="btn-sm primary" id="catSaveBtn">Save category</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===================== PRODUCT FORM MODAL ===================== -->
 <div class="modal-backdrop" id="modalBackdrop">
   <div class="modal">
@@ -410,11 +454,57 @@
 
   /* ---------- tabs ---------- */
   function tabList(){
-    var tabs = [{ id: 'trending', label: 'Trending (Hub)' }];
+    var tabs = [{ id: '__categories__', label: 'Categories' }, { id: 'trending', label: 'Trending (Hub)' }];
     (state.data.categories || []).forEach(function(c){
       tabs.push({ id: c.id, label: c.label });
     });
     return tabs;
+  }
+
+  /* ---------- slug + page-file helpers ---------- */
+  function slugify(str){
+    return (str || '').toLowerCase().trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 60) || 'category';
+  }
+
+  function generateCollectionPageHTML(cat){
+    return '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">\n<title>' + cat.label + ' | checkthiscart</title>\n<meta name="description" content="' + (cat.description || '').replace(/"/g, '&quot;') + '">\n\n<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">\n<link rel="stylesheet" href="assets/site.css">\n</head>\n<body>\n\n<div class="scroll-progress" id="scrollProgress"></div>\n\n<header class="nav">\n  <div class="wrap-narrow">\n    <a href="index.html" class="logo">\n      <span class="logo-mark">ctc</span>\n      <span class="logo-text">checkthiscart\n        <small>Must-Haves Finds</small>\n      </span>\n    </a>\n    <a class="back-link" href="index.html">\u2190 All collections</a>\n  </div>\n</header>\n\n<section class="collection-hero">\n  <div class="wrap-narrow">\n    <span class="collection-eyebrow reveal" id="collectionEyebrow">Shelf</span>\n    <h1 class="reveal" id="collectionTitle">' + cat.label + '</h1>\n    <p class="lede reveal" id="collectionLede">' + (cat.description || '') + '</p>\n    <p class="disclosure reveal">As an Amazon Associate, checkthiscart earns from qualifying purchases. All links on this page go to Amazon.com \u2014 prices shown were accurate at time of writing and may have changed.</p>\n  </div>\n</section>\n\n<section class="wrap-narrow">\n  <div class="product-list" id="productList"></div>\n</section>\n\n<div class="strip">\n  <div class="wrap-narrow">\n    As an Amazon Associate, checkthiscart earns from qualifying purchases. This page contains affiliate links \u2014 clicking through and buying costs you nothing extra.\n  </div>\n</div>\n\n<footer>\n  <div class="wrap-narrow">\n    <div class="footer-top">\n      <a href="index.html" class="logo">\n        <span class="logo-mark">ctc</span>\n        <span class="logo-text">checkthiscart\n          <small>Must-Haves Finds</small>\n        </span>\n      </a>\n      <nav class="footer-links" id="footerCollectionLinks"></nav>\n    </div>\n    <div class="footer-legal">\n      <p><strong>Amazon Associates Disclosure:</strong> checkthiscart is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com. As an Amazon Associate, this site earns from qualifying purchases at no additional cost to you.</p>\n      <p>Product prices and availability shown here are accurate as of the date indicated and are subject to change. Any price or availability information displayed on Amazon.com at the time of purchase applies.</p>\n      <p>\u00a9 2026 checkthiscart. All product images and descriptions belong to their respective owners on Amazon.com.</p>\n    </div>\n  </div>\n</footer>\n\n<script>window.CTC_PAGE = { type: \'collection\', collectionId: \'' + cat.id + '\' };</script>\n<script src="assets/site.js"></script>\n</body>\n</html>\n';
+  }
+
+  function ghPathUrl(path){
+    return 'https://api.github.com/repos/' + config.owner + '/' + config.repo + '/contents/' + path;
+  }
+
+  function createPageFile(cat){
+    var html = generateCollectionPageHTML(cat);
+    return ghFetch(ghPathUrl(cat.page), {
+      method: 'PUT',
+      body: JSON.stringify({
+        message: 'Add ' + cat.label + ' collection page',
+        content: b64EncodeUnicode(html),
+        branch: config.branch
+      })
+    });
+  }
+
+  function deletePageFile(page){
+    return ghFetch(ghPathUrl(page) + '?ref=' + encodeURIComponent(config.branch))
+      .then(function(fileInfo){
+        return ghFetch(ghPathUrl(page), {
+          method: 'DELETE',
+          body: JSON.stringify({
+            message: 'Remove ' + page,
+            sha: fileInfo.sha,
+            branch: config.branch
+          })
+        });
+      })
+      .catch(function(err){
+        // If the file was already missing, treat as success rather than blocking the category deletion.
+        console.warn('Page file delete skipped:', err.message);
+      });
   }
 
   function renderTabs(){
@@ -445,6 +535,13 @@
   function renderList(){
     var title = tabList().find(function(t){ return t.id === state.activeTab; });
     document.getElementById('tabTitle').textContent = title ? title.label : '';
+    document.getElementById('addBtn').textContent = state.activeTab === '__categories__' ? '+ Add category' : '+ Add product';
+
+    if(state.activeTab === '__categories__'){
+      renderCategoryList();
+      return;
+    }
+
     var listEl = document.getElementById('itemList');
     listEl.innerHTML = '';
     var items = currentItems();
@@ -502,6 +599,157 @@
 
       listEl.appendChild(row);
     });
+  }
+
+  /* ---------- category list ---------- */
+  function renderCategoryList(){
+    var listEl = document.getElementById('itemList');
+    listEl.innerHTML = '';
+    var cats = state.data.categories || [];
+
+    if(cats.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'empty-note';
+      empty.textContent = 'No categories yet. Click "+ Add category" to create your first shelf.';
+      listEl.appendChild(empty);
+      return;
+    }
+
+    cats.forEach(function(cat, idx){
+      var row = document.createElement('div');
+      row.className = 'item-row';
+
+      var thumb = document.createElement('div');
+      thumb.className = 'item-thumb';
+      thumb.textContent = cat.icon || '🛒';
+      row.appendChild(thumb);
+
+      var info = document.createElement('div');
+      info.className = 'item-info';
+      var t = document.createElement('div'); t.className = 't'; t.textContent = cat.label || '(untitled)';
+      var pr = document.createElement('div'); pr.className = 'p mono'; pr.textContent = cat.page + '  ·  ' + ((state.data.collections[cat.id] || []).length) + ' products';
+      info.appendChild(t); info.appendChild(pr);
+      row.appendChild(info);
+
+      var actions = document.createElement('div');
+      actions.className = 'item-actions';
+      var editBtn = document.createElement('button');
+      editBtn.className = 'btn-sm'; editBtn.textContent = 'Edit';
+      editBtn.addEventListener('click', function(){ openCategoryModal(idx); });
+      var delBtn = document.createElement('button');
+      delBtn.className = 'btn-sm danger'; delBtn.textContent = 'Delete';
+      delBtn.addEventListener('click', function(){ deleteCategory(idx); });
+      actions.appendChild(editBtn);
+      actions.appendChild(delBtn);
+      row.appendChild(actions);
+
+      listEl.appendChild(row);
+    });
+  }
+
+  function openCategoryModal(idx){
+    state.editingCategory = idx;
+    var cat = idx === null ? { label:'', description:'', icon:'', id:'', page:'' } : state.data.categories[idx];
+
+    document.getElementById('catModalTitle').textContent = idx === null ? 'Add category' : 'Edit category';
+    document.getElementById('c_label').value = cat.label || '';
+    document.getElementById('c_description').value = cat.description || '';
+    document.getElementById('c_icon').value = cat.icon || '';
+    document.getElementById('c_page').value = cat.page || '(generated on save)';
+    document.getElementById('catCreateNote').style.display = idx === null ? 'block' : 'none';
+    document.getElementById('catDeleteBtn').style.display = idx === null ? 'none' : 'inline-flex';
+
+    updatePagePreview();
+    document.getElementById('catModalBackdrop').classList.add('show');
+  }
+  function closeCategoryModal(){
+    document.getElementById('catModalBackdrop').classList.remove('show');
+    state.editingCategory = null;
+  }
+  function updatePagePreview(){
+    if(state.editingCategory !== null) return; // page name is locked once created
+    var slug = slugify(document.getElementById('c_label').value);
+    document.getElementById('c_page').value = slug + '.html';
+    document.getElementById('catPageNamePreview').textContent = slug + '.html';
+  }
+
+  function saveCategory(){
+    var label = document.getElementById('c_label').value.trim();
+    if(!label){ toast('Category name is required.', 'err'); return; }
+    var description = document.getElementById('c_description').value.trim();
+    var icon = document.getElementById('c_icon').value.trim() || '🛒';
+    var btn = document.getElementById('catSaveBtn');
+
+    if(state.editingCategory !== null){
+      // Editing an existing category: label/description/icon only, id and page stay fixed.
+      var existing = state.data.categories[state.editingCategory];
+      existing.label = label;
+      existing.description = description;
+      existing.icon = icon;
+      state.dirty = true;
+      updatePublishBar();
+      renderTabs();
+      renderCategoryList();
+      closeCategoryModal();
+      toast('Category updated \u2014 click "Publish to site" to make it live.', 'ok');
+      return;
+    }
+
+    // Adding a new category
+    var id = slugify(label);
+    if(state.data.categories.some(function(c){ return c.id === id; })){
+      toast('A category with a similar name already exists.', 'err'); return;
+    }
+    var page = id + '.html';
+    var shelfNum = String(state.data.categories.length + 1).padStart(2, '0');
+    var newCat = { id: id, label: label, description: description, icon: icon, shelf: '#' + shelfNum + ' / SHELF', page: page };
+
+    btn.disabled = true;
+    btn.textContent = 'Creating page…';
+    createPageFile(newCat)
+      .then(function(){
+        state.data.categories.push(newCat);
+        state.data.collections[id] = [];
+        state.dirty = true;
+        updatePublishBar();
+        renderTabs();
+        renderCategoryList();
+        closeCategoryModal();
+        toast('Page created! Click "Publish to site" to add it to your hub grid.', 'ok');
+      })
+      .catch(function(err){
+        toast('Could not create the page file: ' + err.message, 'err');
+      })
+      .finally(function(){
+        btn.disabled = false;
+        btn.textContent = 'Save category';
+      });
+  }
+
+  function deleteCategory(idx){
+    var cat = state.data.categories[idx];
+    var productCount = (state.data.collections[cat.id] || []).length;
+    var warning = 'Delete "' + cat.label + '"?' + (productCount ? (' It has ' + productCount + ' product(s) that will be removed too.') : '');
+    if(!confirm(warning)) return;
+
+    var alsoDeletePage = confirm('Also delete the page file (' + cat.page + ') from GitHub? Cancel keeps the file on GitHub but unlinked from the site.');
+
+    function finishRemoval(){
+      state.data.categories.splice(idx, 1);
+      delete state.data.collections[cat.id];
+      if(state.activeTab === cat.id) state.activeTab = '__categories__';
+      state.dirty = true;
+      updatePublishBar();
+      renderTabs();
+      renderCategoryList();
+      toast('Category removed \u2014 click "Publish to site" to finish.', 'ok');
+    }
+
+    if(alsoDeletePage){
+      deletePageFile(cat.page).then(finishRemoval).catch(finishRemoval);
+    } else {
+      finishRemoval();
+    }
   }
 
   /* ---------- modal form ---------- */
@@ -633,7 +881,22 @@
   });
 
   document.getElementById('publishBtn').addEventListener('click', publishToGitHub);
-  document.getElementById('addBtn').addEventListener('click', function(){ openModal(null); });
+  document.getElementById('addBtn').addEventListener('click', function(){
+    if(state.activeTab === '__categories__') openCategoryModal(null);
+    else openModal(null);
+  });
+  document.getElementById('catModalClose').addEventListener('click', closeCategoryModal);
+  document.getElementById('catCancelBtn').addEventListener('click', closeCategoryModal);
+  document.getElementById('catSaveBtn').addEventListener('click', saveCategory);
+  document.getElementById('catDeleteBtn').addEventListener('click', function(){
+    if(state.editingCategory === null) return;
+    closeCategoryModal();
+    deleteCategory(state.editingCategory);
+  });
+  document.getElementById('c_label').addEventListener('input', updatePagePreview);
+  document.getElementById('catModalBackdrop').addEventListener('click', function(e){
+    if(e.target === this) closeCategoryModal();
+  });
   document.getElementById('addFeatureBtn').addEventListener('click', function(){ addFeatureRow(''); });
   document.getElementById('modalClose').addEventListener('click', closeModal);
   document.getElementById('cancelBtn').addEventListener('click', closeModal);
