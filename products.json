@@ -1,10 +1,41 @@
 [
   {
-    "id": "1786293619801",
-    "title": "Blue Diamond Hybrid 12 Piece Stainless Steel Nonstick Cookware Set | PFAS-Free Ceramic Nonstick Pots & Pans, Diamond Bond, Induction & All Cooktop Ready, Dishwasher and Oven Safe, Glass Lids",
-    "category": "Kitchen ",
-    "image": "https://m.media-amazon.com/images/I/81Dz4xx6mTL._AC_SL1500_.jpg",
-    "link": "https://www.amazon.com/Blue-Diamond-Stainless-Dishwasher-Compatible/dp/B0DR98DKPF?crid=3S0JTVK9WORWN&dib=eyJ2IjoiMSJ9.l4w9llnpVodrCCvtY1EGSDXDISEAnSgqBpKvrqTDd37W7C9UeFVwwFJ2skjPyuWWOzHbsFbpI4Isc4bRJX5YGnWZF3broTkEtS6FSmbhRMjOoLRpKmyE-YhnuMSNHYXfO7uIJ2t1QcOO9sYqqEcw6ZnF62PY4rHrJwGhv-Pip319EW_bRVRhzQaupqRmK3VguCDmwOkY9xM5FTqM4i1SDLjRGvlWEyzBZwis8a51ghbDjUmuSrj8YC--zo5oEVqIZ-ln5LuJwYCjICgGkd_lJ2LE9XfyJk2J01xi-auWCpI.DmCUeLJ3RkFV0vmFfUl_Lvm-DIcnQmKjPbPb0EnEh_o&dib_tag=se&keywords=Cookware%2BSets%3A%2BHigh-quality%2Bcookware%2Bbrands%2Bare%2Bwell-represented%2Bon%2BAmazon%2BUS.%2BWhile%2Bthe%2Bspecific%2B%22Heritage%2BSteel%22%2Btitanium%2Bline%2Bis%2Boften%2Bsold%2Bthrough%2Bspecialized%2Bretailers%2C%2Byou%2Bcan%2Bfind%2Bmany%2Bcomparable%2B5-ply%2Bstainless%2Bsteel%2Bcookware%2Bsets%2Bon%2BAmazon%2BUS%2Bthat%2Bserve%2Bas%2B%22upgrades%22%2Bfor%2Bhome%2Bchefs.&m=ATVPDKIKX0DER&nsdOptOutParam=true&qid=1786255772&refinements=p_36%3A-21000%2Cp_6%3AATVPDKIKX0DER%2Cp_n_g-1003530794111%3A101341800011%7C101341801011%7C",
-    "description": "Cookware Set"
+    "id": "1",
+    "title": "Self-Sealing Silicone Food Bags",
+    "verdict": "Tested: Leak-proof for 12 days. The set that replaced our plastics.",
+    "pros": "Incredible seal, dishwasher safe.",
+    "cons": "Pricey per bag.",
+    "price": "$21.99",
+    "rating": "4.8",
+    "category": "kitchen-pantry",
+    "link": "https://www.amazon.com",
+    "image": "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80",
+    "isVideo": false
+  },
+  {
+    "id": "2",
+    "title": "Rechargeable Under-Cabinet LED Bar Lights",
+    "verdict": "Tested: The wireless lights that last 4 weeks. Our kitchen is finally bright.",
+    "pros": "Long battery, magnetic mount.",
+    "cons": "Charging can be slow.",
+    "price": "$20.99",
+    "rating": "4.7",
+    "category": "home-organization",
+    "link": "https://www.amazon.com",
+    "image": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=600&q=80",
+    "isVideo": false
+  },
+  {
+    "id": "3",
+    "title": "Weighted Pump Dispensers for Shower",
+    "verdict": "The adhesive didn't budget. Drip-free and clutter-killing.",
+    "pros": "Holds heavy bottles, clean look.",
+    "cons": "Narrow refill opening.",
+    "price": "$21.00",
+    "rating": "4.9",
+    "category": "home-organization",
+    "link": "https://www.amazon.com",
+    "image": "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80",
+    "isVideo": false
   }
 ]

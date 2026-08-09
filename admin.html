@@ -3,213 +3,365 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Product Admin | checkthiscart</title>
+  <title>Admin Dashboard | checkthiscart</title>
   <link rel="stylesheet" href="./site.css">
-</head>
-<body style="background: #0f0f1a; color: #fff; font-family: sans-serif; padding: 20px;">
-  <div style="max-width: 900px; margin: 20px auto;">
-    <a href="./index.html" style="color: #8a2be2; text-decoration: none;">← View Live Site</a>
-    <h1 style="margin-top: 10px;">Product Admin</h1>
-    <p style="color: #aaa;">Add, edit, and delete products with live status tracking.</p>
+  <style>
+    body { background: #121318; color: #e1e3ea; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .sidebar { width: 240px; background: #181a20; border-right: 1px solid #282b36; padding: 20px 15px; }
+    .sidebar-logo { font-weight: 800; letter-spacing: 1px; color: #fff; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; margin-bottom: 30px; }
+    .nav-group-title { font-size: 0.7rem; color: #666; font-weight: 700; text-transform: uppercase; margin: 20px 0 8px 10px; }
+    .nav-item { display: block; padding: 8px 12px; color: #a0a5b5; text-decoration: none; font-size: 0.85rem; border-radius: 6px; margin-bottom: 4px; transition: 0.2s; }
+    .nav-item:hover, .nav-item.active { background: #232733; color: #fff; }
     
-    <!-- Notification Notice Board -->
-    <div id="notice-box" style="display:none; padding: 12px 18px; border-radius: 8px; margin-top: 15px; font-weight: bold; font-size: 0.9rem;"></div>
+    .admin-main { flex: 1; padding: 30px 40px; max-width: 1000px; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .admin-header h1 { font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0; }
 
-    <!-- Setup Card -->
-    <div id="setup-card" style="background: #181828; padding: 25px; border-radius: 12px; border: 1px solid #2a2a40; margin-top: 20px;">
-      <h3 style="margin-top:0;">Connect to GitHub</h3>
-      <form id="admin-config-form" style="display: flex; flex-direction: column; gap: 15px;">
-        <label>GitHub Username <input type="text" id="cfg-user" value="checkthiscart" style="width:100%; padding:8px; margin-top:4px; background:#0f0f1a; border:1px solid #333; color:#fff;"></label>
-        <label>Repository Name <input type="text" id="cfg-repo" value="store" style="width:100%; padding:8px; margin-top:4px; background:#0f0f1a; border:1px solid #333; color:#fff;"></label>
-        <label>Branch <input type="text" id="cfg-branch" value="main" style="width:100%; padding:8px; margin-top:4px; background:#0f0f1a; border:1px solid #333; color:#fff;"></label>
-        <label>Data File Path <input type="text" id="cfg-path" value="products.json" style="width:100%; padding:8px; margin-top:4px; background:#0f0f1a; border:1px solid #333; color:#fff;"></label>
-        <label>Personal Access Token (PAT) <input type="password" id="cfg-token" placeholder="github_pat_..." style="width:100%; padding:8px; margin-top:4px; background:#0f0f1a; border:1px solid #333; color:#fff;" required></label>
-        <button type="submit" style="padding: 10px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer;">Save & Connect</button>
+    .panel-card { background: #181a23; border: 1px solid #282c3d; border-radius: 12px; padding: 24px; margin-bottom: 25px; }
+    .panel-card h3 { margin-top: 0; color: #f2ba49; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
+    
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: #9aa0b4; text-transform: uppercase; margin-bottom: 6px; }
+    .form-control { width: 100%; padding: 10px 12px; background: #0e1017; border: 1px solid #2d3245; border-radius: 6px; color: #fff; font-size: 0.9rem; box-sizing: border-box; }
+    .form-control:focus { outline: none; border-color: #f2ba49; }
+    
+    .btn-action { padding: 10px 18px; background: #f2ba49; color: #111; font-weight: 800; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 0.85rem; }
+    .btn-action:hover { background: #e0aa38; }
+    .btn-danger { background: #dc3545; color: #fff; }
+    .btn-danger:hover { background: #bd2130; }
+
+    .notice-banner { padding: 12px 18px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; margin-bottom: 20px; display: none; }
+    
+    .product-list-item { display: flex; justify-content: space-between; align-items: center; background: #0e1017; padding: 12px 16px; border-radius: 8px; border: 1px solid #282c3d; margin-bottom: 10px; }
+    .product-list-item strong { color: #fff; font-size: 0.95rem; }
+    .product-list-item span { color: #888; font-size: 0.8rem; margin-left: 10px; }
+
+    .drag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-top: 15px; }
+    .drag-item { background: #0e1017; border: 1px solid #2d3245; border-radius: 8px; padding: 8px; text-align: center; }
+    .drag-item img, .drag-item video { width: 100%; height: 70px; object-fit: cover; border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span style="background:#f2ba49; color:#000; padding:2px 6px; border-radius:4px; font-weight:900;">CTC</span>
+      ADMIN DASHBOARD
+    </div>
+    
+    <div class="nav-group-title">Menu</div>
+    <a href="#" class="nav-item active">&#128202; Dashboard</a>
+    <a href="./index.html" target="_blank" class="nav-item">&#128065; View Live Store</a>
+    
+    <div class="nav-group-title">Content Strategy</div>
+    <a href="#collections-section" class="nav-item">Collections</a>
+    <a href="#products-section" class="nav-item">Products &amp; Reviews</a>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    
+    <div class="admin-header">
+      <h1>SITE CONTENT MANAGER</h1>
+      <button id="disconnect-btn" class="btn-action btn-danger" style="display:none;">Disconnect GitHub</button>
+    </div>
+
+    <div id="notice-box" class="notice-banner"></div>
+
+    <!-- GitHub Connection Panel -->
+    <div id="setup-card" class="panel-card">
+      <h3>&#128279; Connect to GitHub</h3>
+      <form id="admin-config-form">
+        <div class="form-group">
+          <label>GitHub Username</label>
+          <input type="text" id="cfg-user" class="form-control" value="checkthiscart">
+        </div>
+        <div class="form-group">
+          <label>Repository Name</label>
+          <input type="text" id="cfg-repo" class="form-control" value="store">
+        </div>
+        <div class="form-group">
+          <label>Branch</label>
+          <input type="text" id="cfg-branch" class="form-control" value="main">
+        </div>
+        <div class="form-group">
+          <label>Data File Path</label>
+          <input type="text" id="cfg-path" class="form-control" value="products.json">
+        </div>
+        <div class="form-group">
+          <label>Personal Access Token (PAT)</label>
+          <input type="password" id="cfg-token" class="form-control" placeholder="ghp_..." required>
+        </div>
+        <button type="submit" class="btn-action">Save &amp; Connect</button>
       </form>
     </div>
 
-    <!-- Connected Dashboard -->
+    <!-- Active Management Dashboard -->
     <div id="admin-dashboard" style="display: none;">
-      <div style="background: #181828; padding: 15px 25px; border-radius: 12px; border: 1px solid #2a2a40; margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
-        <span style="color: #00ff88; font-weight: bold;">✓ Connected successfully</span>
-        <button id="disconnect-btn" style="background: #dc3545; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Disconnect</button>
+
+      <!-- 1. Global Site Settings -->
+      <div class="panel-card">
+        <h3>&#9312; GLOBAL SITE SETTINGS</h3>
+        <div class="form-group">
+          <label>Main Headline</label>
+          <input type="text" class="form-control" value="Verified Amazon Finds, Tested for You." readonly>
+        </div>
+        <div class="form-group">
+          <label>Subtitle</label>
+          <input type="text" class="form-control" value="We cut through the noise with real, hands-on tests." readonly>
+        </div>
       </div>
 
-      <!-- Add Product Form -->
-      <div style="background: #181828; padding: 25px; border-radius: 12px; border: 1px solid #2a2a40; margin-top: 20px;">
-        <h3>Add New Product</h3>
-        <form id="add-product-form" style="display: flex; flex-direction: column; gap: 12px;">
-          <input type="text" id="prod-title" placeholder="Product Title" required style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px;">
-          <input type="text" id="prod-category" placeholder="Category (e.g. Kitchen, Home)" required style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px;">
-          <input type="url" id="prod-image" placeholder="Image URL" required style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px;">
-          <input type="url" id="prod-link" placeholder="Amazon Affiliate Link" required style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px;">
-          <textarea id="prod-desc" placeholder="Product description..." style="padding:10px; background:#0f0f1a; border:1px solid #333; color:#fff; border-radius:6px; height: 60px;"></textarea>
-          <button type="submit" style="padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Add to List</button>
+      <!-- 2. Posts & Trending Today (Individual Entry Editor) -->
+      <div id="products-section" class="panel-card">
+        <h3>&#9313; POSTS &amp; TRENDING TODAY (INDIVIDUAL ENTRY EDITOR)</h3>
+        <form id="add-product-form">
+          <div class="form-group">
+            <label>Product Title</label>
+            <input type="text" id="prod-title" class="form-control" placeholder="e.g. Self-Sealing Silicone Food Bags" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Testing Verdict / Subtitle</label>
+            <input type="text" id="prod-verdict" class="form-control" placeholder="e.g. Tested: Leak-proof for 12 days. The set that replaced our plastics.">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="form-group">
+              <label>Pros</label>
+              <input type="text" id="prod-pros" class="form-control" placeholder="e.g. Incredible seal, dishwasher safe.">
+            </div>
+            <div class="form-group">
+              <label>Cons</label>
+              <input type="text" id="prod-cons" class="form-control" placeholder="e.g. Pricey per bag / narrow opening.">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+            <div class="form-group">
+              <label>Price ($)</label>
+              <input type="text" id="prod-price" class="form-control" placeholder="$21.99" required>
+            </div>
+            <div class="form-group">
+              <label>Star Rating</label>
+              <input type="text" id="prod-rating" class="form-control" placeholder="4.8">
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select id="prod-category" class="form-control">
+                <option value="kitchen-pantry">Kitchen &amp; Pantry</option>
+                <option value="smart-audio-tech">Smart Audio &amp; Tech</option>
+                <option value="home-organization">Home Organization</option>
+                <option value="gourmet-gifts">Gourmet &amp; Gifts</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Affiliate Link (Amazon URL)</label>
+            <input type="url" id="prod-link" class="form-control" placeholder="https://www.amazon.com/dp/..." required>
+          </div>
+
+          <div class="form-group">
+            <label>Product Media URL (Image or .mp4 Video)</label>
+            <input type="url" id="prod-media" class="form-control" placeholder="https://..." required>
+          </div>
+
+          <button type="submit" class="btn-action" style="background:#28a745; color:#fff;">+ Add Product Entry</button>
         </form>
       </div>
 
-      <!-- Product List & Publish -->
-      <div style="background: #181828; padding: 25px; border-radius: 12px; border: 1px solid #2a2a40; margin-top: 20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
-          <h3>Current Products (<span id="prod-count">0</span>)</h3>
-          <button id="publish-btn" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Save & Publish to GitHub</button>
+      <!-- 3. Current Product Inventory & Publish -->
+      <div class="panel-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h3 style="margin: 0;">&#9314; CURRENT PRODUCTS (<span id="prod-count">0</span>)</h3>
+          <button id="publish-btn" class="btn-action" style="background: #007bff; color: white;">Save &amp; Publish to GitHub</button>
         </div>
-        <div id="product-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        
+        <div id="product-list"></div>
+
+        <h4 style="margin-top: 25px; color:#aaa; font-size: 0.85rem;">PREVIEW ORDER IN TRENDING GRID</h4>
+        <div id="drag-grid" class="drag-grid"></div>
       </div>
-    </div>
-  </div>
 
-  <script>
-    let products = [];
-    let fileSha = '';
-
-    const form = document.getElementById('admin-config-form');
-    const setupCard = document.getElementById('setup-card');
-    const dashboard = document.getElementById('admin-dashboard');
-    const disconnectBtn = document.getElementById('disconnect-btn');
-    const noticeBox = document.getElementById('notice-box');
-
-    function showNotice(message, isError = false) {
-      noticeBox.style.display = 'block';
-      noticeBox.textContent = message;
-      noticeBox.style.background = isError ? '#5c1d1d' : '#1d5c2e';
-      noticeBox.style.border = isError ? '1px solid #ff4d4d' : '1px solid #4dff88';
-      noticeBox.style.color = '#fff';
-    }
-
-    function checkConnection() {
-      const savedToken = localStorage.getItem('gh_pat');
-      if (savedToken) {
-        setupCard.style.display = 'none';
-        dashboard.style.display = 'block';
-        fetchProducts();
-      } else {
-        setupCard.style.display = 'block';
-        dashboard.style.display = 'none';
-      }
-    }
-
-    async function fetchProducts() {
-      const user = localStorage.getItem('gh_user');
-      const repo = localStorage.getItem('gh_repo');
-      const path = localStorage.getItem('gh_path');
-      const token = localStorage.getItem('gh_pat');
-
-      try {
-        const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
-          headers: { Authorization: `token ${token}` }
-        });
-        
-        if (!res.ok) {
-          throw new Error(`GitHub API Error: ${res.status} (${res.statusText})`);
-        }
-
-        const data = await res.json();
-        fileSha = data.sha;
-        
-        // Decode base64 content safely
-        const decodedContent = decodeURIComponent(escape(atob(data.content)));
-        products = JSON.parse(decodedContent || '[]');
-        renderProducts();
-        showNotice('Successfully loaded products from GitHub.');
-      } catch (err) {
-        showNotice(`Error loading products: ${err.message}. If products.json is empty, add your first item below and publish!`, true);
-        products = [];
-        renderProducts();
-      }
-    }
-
-    function renderProducts() {
-      const container = document.getElementById('product-list');
-      document.getElementById('prod-count').textContent = products.length;
-      if (products.length === 0) {
-        container.innerHTML = '<p style="color:#888; text-align:center; padding:10px;">No products in list yet. Add one above!</p>';
-        return;
-      }
-      container.innerHTML = products.map((p, i) => `
-        <div style="display:flex; justify-space-between; align-items:center; background:#0f0f1a; padding:12px; border-radius:6px; border:1px solid #333;">
-          <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:70%;">
-            <strong>${p.title}</strong> <span style="color:#888; font-size:0.8rem;">(${p.category})</span>
-          </div>
-          <button onclick="removeProduct(${i})" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button>
+      <!-- Overview Box -->
+      <div class="panel-card" style="display:flex; justify-content:space-around; text-align:center;">
+        <div>
+          <div style="font-size: 1.8rem; font-weight: 800; color: #f2ba49;" id="stat-total-posts">0</div>
+          <div style="font-size:0.75rem; color:#888;">Total Product Entries</div>
         </div>
-      `).join('');
+        <div>
+          <div style="font-size: 1.8rem; font-weight: 800; color: #f2ba49;">4</div>
+          <div style="font-size:0.75rem; color:#888;">Active Collections</div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<script>
+  let products = [];
+  let fileSha = '';
+
+  const form = document.getElementById('admin-config-form');
+  const setupCard = document.getElementById('setup-card');
+  const dashboard = document.getElementById('admin-dashboard');
+  const disconnectBtn = document.getElementById('disconnect-btn');
+  const noticeBox = document.getElementById('notice-box');
+
+  function showNotice(msg, isErr = false) {
+    noticeBox.style.display = 'block';
+    noticeBox.textContent = msg;
+    noticeBox.style.background = isErr ? '#5c1d1d' : '#1d5c2e';
+    noticeBox.style.color = '#fff';
+  }
+
+  function checkConnection() {
+    const token = localStorage.getItem('gh_pat');
+    if (token) {
+      setupCard.style.display = 'none';
+      dashboard.style.display = 'block';
+      disconnectBtn.style.display = 'inline-block';
+      fetchProducts();
+    } else {
+      setupCard.style.display = 'block';
+      dashboard.style.display = 'none';
+      disconnectBtn.style.display = 'none';
+    }
+  }
+
+  async function fetchProducts() {
+    const user = localStorage.getItem('gh_user');
+    const repo = localStorage.getItem('gh_repo');
+    const path = localStorage.getItem('gh_path');
+    const token = localStorage.getItem('gh_pat');
+
+    try {
+      const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
+        headers: { Authorization: `token ${token}` }
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      fileSha = data.sha;
+      const decoded = decodeURIComponent(escape(atob(data.content)));
+      products = JSON.parse(decoded || '[]');
+      renderProducts();
+      showNotice('Connected & loaded catalog successfully.');
+    } catch (err) {
+      showNotice('Error fetching catalog: ' + err.message, true);
+      products = [];
+      renderProducts();
+    }
+  }
+
+  function renderProducts() {
+    const list = document.getElementById('product-list');
+    const dragGrid = document.getElementById('drag-grid');
+    document.getElementById('prod-count').textContent = products.length;
+    document.getElementById('stat-total-posts').textContent = products.length;
+
+    if (products.length === 0) {
+      list.innerHTML = '<p style="color:#666;">No items in product list.</p>';
+      dragGrid.innerHTML = '';
+      return;
     }
 
-    document.getElementById('add-product-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      products.push({
-        id: Date.now().toString(),
-        title: document.getElementById('prod-title').value,
-        category: document.getElementById('prod-category').value,
-        image: document.getElementById('prod-image').value,
-        link: document.getElementById('prod-link').value,
-        description: document.getElementById('prod-desc').value
+    list.innerHTML = products.map((p, i) => `
+      <div class="product-list-item">
+        <div>
+          <strong>${p.title}</strong>
+          <span>(${p.category || 'General'}) &bull; ${p.price || ''}</span>
+        </div>
+        <button onclick="deleteProduct(${i})" class="btn-action btn-danger" style="padding:4px 10px; font-size:0.75rem;">Delete</button>
+      </div>
+    `).join('');
+
+    dragGrid.innerHTML = products.map(p => {
+      const isVideo = p.isVideo || (p.image && p.image.endsWith('.mp4'));
+      return `
+        <div class="drag-item">
+          ${isVideo ? `<video src="${p.image}"></video>` : `<img src="${p.image}">`}
+          <div style="font-size:0.65rem; color:#aaa; margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${p.title}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  document.getElementById('add-product-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const media = document.getElementById('prod-media').value;
+    products.push({
+      id: Date.now().toString(),
+      title: document.getElementById('prod-title').value,
+      verdict: document.getElementById('prod-verdict').value,
+      pros: document.getElementById('prod-pros').value,
+      cons: document.getElementById('prod-cons').value,
+      price: document.getElementById('prod-price').value,
+      rating: document.getElementById('prod-rating').value || '4.8',
+      category: document.getElementById('prod-category').value,
+      link: document.getElementById('prod-link').value,
+      image: media,
+      isVideo: media.endsWith('.mp4')
+    });
+    document.getElementById('add-product-form').reset();
+    renderProducts();
+    showNotice('Product entry added to local queue! Click "Save & Publish" to push changes.');
+  });
+
+  window.deleteProduct = function(i) {
+    products.splice(i, 1);
+    renderProducts();
+    showNotice('Entry deleted from queue.');
+  };
+
+  document.getElementById('publish-btn').addEventListener('click', async () => {
+    const user = localStorage.getItem('gh_user');
+    const repo = localStorage.getItem('gh_repo');
+    const path = localStorage.getItem('gh_path');
+    const token = localStorage.getItem('gh_pat');
+
+    showNotice('Publishing to GitHub...');
+    try {
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(products, null, 2))));
+      const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
+        method: 'PUT',
+        headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: 'Update products via Admin Dashboard',
+          content: content,
+          sha: fileSha || undefined
+        })
       });
-      document.getElementById('add-product-form').reset();
-      renderProducts();
-      showNotice('Product added to local list! Click "Save & Publish to GitHub" to make it live.');
-    });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Publishing failed');
+      fileSha = data.content.sha;
+      showNotice('Successfully published to GitHub! Live site will update shortly.');
+    } catch (err) {
+      showNotice('Publish error: ' + err.message, true);
+    }
+  });
 
-    window.removeProduct = function(index) {
-      products.splice(index, 1);
-      renderProducts();
-      showNotice('Product removed from local list. Remember to publish changes.');
-    };
-
-    document.getElementById('publish-btn').addEventListener('click', async () => {
-      const user = localStorage.getItem('gh_user');
-      const repo = localStorage.getItem('gh_repo');
-      const path = localStorage.getItem('gh_path');
-      const token = localStorage.getItem('gh_pat');
-
-      showNotice('Publishing changes to GitHub...');
-
-      try {
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify(products, null, 2))));
-
-        const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
-          method: 'PUT',
-          headers: {
-            Authorization: `token ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            message: 'Update products via Admin Panel',
-            content: content,
-            sha: fileSha || undefined
-          })
-        });
-
-        const resData = await res.json();
-
-        if (!res.ok) {
-          throw new Error(resData.message || `Failed with status ${res.status}`);
-        }
-
-        fileSha = resData.content.sha;
-        showNotice('Successfully published changes to GitHub! Live site will update in 1-2 minutes.');
-      } catch (err) {
-        showNotice(`Publishing Failed: ${err.message}`, true);
-      }
-    });
-
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      localStorage.setItem('gh_user', document.getElementById('cfg-user').value.trim());
-      localStorage.setItem('gh_repo', document.getElementById('cfg-repo').value.trim());
-      localStorage.setItem('gh_branch', document.getElementById('cfg-branch').value.trim());
-      localStorage.setItem('gh_path', document.getElementById('cfg-path').value.trim());
-      localStorage.setItem('gh_pat', document.getElementById('cfg-token').value.trim());
-      checkConnection();
-    });
-
-    disconnectBtn.addEventListener('click', () => {
-      localStorage.clear();
-      checkConnection();
-    });
-
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    localStorage.setItem('gh_user', document.getElementById('cfg-user').value.trim());
+    localStorage.setItem('gh_repo', document.getElementById('cfg-repo').value.trim());
+    localStorage.setItem('gh_branch', document.getElementById('cfg-branch').value.trim());
+    localStorage.setItem('gh_path', document.getElementById('cfg-path').value.trim());
+    localStorage.setItem('gh_pat', document.getElementById('cfg-token').value.trim());
     checkConnection();
-  </script>
+  });
+
+  disconnectBtn.addEventListener('click', () => {
+    localStorage.clear();
+    checkConnection();
+  });
+
+  checkConnection();
+</script>
 </body>
 </html>

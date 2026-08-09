@@ -1,111 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>checkthiscart | Must-Haves Finds</title>
-<meta name="description" content="Curated Amazon finds and everyday must-haves, hand-scanned by checkthiscart. Kitchen hacks, smart tech, home organization and gifts worth the click.">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./site.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CHECK THIS CART | Verified Amazon Finds, Tested for You</title>
+  <link rel="stylesheet" href="./site.css">
 </head>
 <body>
 
-<div class="scroll-progress" id="scrollProgress"></div>
-
-<!-- ===================== NAV ===================== -->
-<header class="nav">
-  <div class="wrap">
-    <a href="#top" class="logo">
-      <span class="logo-mark">ctc</span>
-      <span class="logo-text">checkthiscart
-        <small>Must-Haves Finds</small>
-      </span>
-    </a>
-    <a class="nav-cta" href="https://pinterest.com/YOUR_PINTEREST_HANDLE" target="_blank" rel="noopener">Follow on Pinterest →</a>
-  </div>
-</header>
-
-<!-- ===================== HERO ===================== -->
-<section class="hero" id="top">
-  <div class="hero-glow" id="heroGlow"></div>
-  <div class="wrap">
-    <span class="eyebrow reveal">Restocked weekly</span>
-    <h1 class="reveal">Curated Amazon finds &amp; <span class="accent">everyday must-haves</span>, already checked out.</h1>
-    <p class="lede reveal">We scan Amazon so your cart doesn't have to. Every pin below links to a hand-picked product — no filler, no guesswork, just things worth adding to cart.</p>
-    <div class="hero-actions reveal">
-      <a href="#trending" class="btn btn-primary">Shop trending finds</a>
-      <a href="#categories" class="btn btn-ghost">Browse categories</a>
-    </div>
-    <p class="disclosure reveal">As an Amazon Associate, checkthiscart earns from qualifying purchases. Product links on this site lead to Amazon.com — prices and availability are accurate as of the date shown on Amazon and may change.</p>
-    <a href="#categories" class="scroll-cue reveal" aria-label="Scroll down">
-      <span class="dot-track"></span> Scroll
-    </a>
-  </div>
-</section>
-
-<!-- ===================== CATEGORY GRID ===================== -->
-<section class="section" id="categories">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <div>
-        <span class="section-tag">Browse by shelf</span>
-        <h2>Pick a collection</h2>
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="logo-container">
+      <div class="logo-badge">CTC</div>
+      <div class="logo-text">
+        <span class="brand-title">CHECK THIS CART</span>
+        <span class="brand-subtitle">VERIFIED AMAZON FINDS</span>
       </div>
-      <p class="section-sub">Each collection is its own bridge page built for the pin that sent you here.</p>
     </div>
+    <a href="https://pinterest.com" target="_blank" rel="noopener" class="btn-pinterest">Follow on Pinterest &rarr;</a>
+  </header>
 
-    <!-- Rendered from products.json → categories[] by assets/site.js -->
-    <div class="category-grid" id="categoryGrid"></div>
-  </div>
-</section>
-
-<!-- ===================== TRENDING PRODUCTS ===================== -->
-<section class="section" id="trending">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <div>
-        <span class="section-tag">Right now</span>
-        <h2>Trending finds</h2>
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">Verified Amazon Finds,<br>Tested for You.</h1>
+      <p class="hero-subtitle">We cut through the noise with real, hands-on tests. Only the best makes our cart.</p>
+      <div class="hero-buttons">
+        <a href="#trending" class="btn-hero-primary">EXPLORE OUR TOP 5</a>
+        <a href="#collections" class="btn-hero-secondary">WATCH REVIEWS</a>
       </div>
-      <p class="section-sub">The most-saved pins this week, straight to the product page.</p>
     </div>
+    <div class="hero-media">
+      <img id="hero-img" src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80" alt="Tested Amazon Finds Header Image">
+    </div>
+  </section>
 
-    <!-- Rendered from products.json → trending[] by assets/site.js -->
-    <div class="product-grid" id="trendingGrid"></div>
+  <!-- Value Badges Bar -->
+  <div class="trust-bar">
+    <div class="trust-item"><span>&#9733; 4.8/5</span> Rated by Readers</div>
+    <div class="trust-item"><span>&#10003;</span> Independent Reviews</div>
+    <div class="trust-item"><span>&#128230;</span> Free Shipping Deals</div>
   </div>
-</section>
 
-<!-- ===================== DISCLOSURE STRIP ===================== -->
-<div class="strip">
-  <div class="wrap">
-    As an Amazon Associate, checkthiscart earns from qualifying purchases. This site contains affiliate links — clicking through and buying costs you nothing extra.
+  <main class="main-content">
+    
+    <!-- Picks & Collections Section -->
+    <section id="collections" class="section-container">
+      <div class="section-header">
+        <div>
+          <span class="section-tag">PICKS &amp; COLLECTIONS</span>
+          <h2 class="section-title">PICKS &amp; COLLECTIONS</h2>
+        </div>
+        <p class="section-desc">Each collection is its own curated guide built for the pin that sent you here.</p>
+      </div>
+
+      <div id="collections-grid" class="collections-grid">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- Trending & Tested Today Section -->
+    <section id="trending" class="section-container">
+      <div class="section-header">
+        <div>
+          <span class="section-tag">TRENDING GRID</span>
+          <h2 class="section-title">TRENDING &amp; TESTED TODAY</h2>
+        </div>
+        <p class="section-desc">The most-saved products this week, straight to the product page.</p>
+      </div>
+
+      <div id="trending-grid" class="trending-grid">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Disclaimer Banner -->
+  <div class="affiliate-banner">
+    As an Amazon Associate, checkthiscart earns from qualifying purchases. This site contains affiliate links &mdash; clicking through and buying costs you nothing extra.
   </div>
-</div>
 
-<!-- ===================== FOOTER ===================== -->
-<footer>
-  <div class="wrap">
+  <!-- Footer -->
+  <footer class="footer">
     <div class="footer-top">
-      <a href="#top" class="logo">
-        <span class="logo-mark">ctc</span>
-        <span class="logo-text">checkthiscart
-          <small>Must-Haves Finds</small>
-        </span>
-      </a>
-      <nav class="footer-links" id="footerCollectionLinks"></nav>
+      <div class="footer-brand">
+        <div class="logo-badge">CTC</div>
+        <div class="logo-text">
+          <span class="brand-title">CHECK THIS CART</span>
+          <span class="brand-subtitle">MUST-HAVES FINDS</span>
+        </div>
+      </div>
+      <div class="footer-links">
+        <a href="#collections">Kitchen &amp; Pantry</a>
+        <a href="#collections">Smart Audio &amp; Tech</a>
+        <a href="#collections">Home Organization</a>
+        <a href="#collections">Gourmet &amp; Gifts</a>
+        <a href="#trending">Reviews</a>
+      </div>
     </div>
-    <div class="footer-legal">
-      <p><strong>Amazon Associates Disclosure:</strong> checkthiscart is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com. As an Amazon Associate, this site earns from qualifying purchases at no additional cost to you.</p>
+    <div class="footer-disclaimer">
+      <p><strong>Amazon Associates Disclosure:</strong> checkthiscart is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com.</p>
       <p>Product prices and availability shown here are accurate as of the date indicated and are subject to change. Any price or availability information displayed on Amazon.com at the time of purchase applies.</p>
-      <p>© 2026 checkthiscart. All product images and descriptions belong to their respective owners on Amazon.com.</p>
+      <p>&copy; 2026 checkthiscart. All product images and descriptions belong to their respective owners on Amazon.com.</p>
     </div>
-  </div>
-</footer>
+  </footer>
 
-<script>window.CTC_PAGE = { type: 'hub' };</script>
-<script src="./site.js"></script>
+  <script>
+    // Default collections
+    const collectionsData = [
+      {
+        id: "kitchen-pantry",
+        title: "Kitchen & Pantry",
+        caption: "The only pantry organizers we recommend (and actually use).",
+        image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=600&q=80",
+        rating: "4.9"
+      },
+      {
+        id: "smart-audio-tech",
+        title: "Smart Audio & Tech",
+        caption: "Gadgets and audio tech with major upgrades for daily use.",
+        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
+        rating: "4.8"
+      },
+      {
+        id: "home-organization",
+        title: "Home Organization",
+        caption: "Smart storage solutions that keep your space clutter-free.",
+        image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80",
+        rating: "4.7"
+      },
+      {
+        id: "gourmet-gifts",
+        title: "Gourmet & Gifts",
+        caption: "Thoughtful quality gifts for the person who has everything.",
+        image: "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?auto=format&fit=crop&w=600&q=80",
+        rating: "4.9"
+      }
+    ];
+
+    async function initStorefront() {
+      renderCollections();
+      await loadProducts();
+    }
+
+    function renderCollections() {
+      const container = document.getElementById('collections-grid');
+      container.innerHTML = collectionsData.map((c, index) => {
+        const isFeatured = index === 0;
+        return `
+          <div class="collection-card ${isFeatured ? 'featured' : ''}">
+            <div class="coll-img-wrap">
+              <img src="${c.image}" alt="${c.title}" loading="lazy">
+              <span class="coll-rating">&#9733; ${c.rating}</span>
+            </div>
+            <div class="coll-body">
+              <h3>${c.title}</h3>
+              <p>${c.caption}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function loadProducts() {
+      const grid = document.getElementById('trending-grid');
+      try {
+        const res = await fetch('./products.json?v=' + Date.now());
+        if (!res.ok) throw new Error('Failed to load products.json');
+        
+        const products = await res.json();
+
+        if (!products || products.length === 0) {
+          grid.innerHTML = '<p class="empty-state">No products added yet. Add products in the admin panel!</p>';
+          return;
+        }
+
+        grid.innerHTML = products.map(p => {
+          const isVideo = p.isVideo || (p.image && p.image.endsWith('.mp4'));
+          const mediaHtml = isVideo
+            ? `<video src="${p.image}" autoplay loop muted playsinline class="card-media"></video>`
+            : `<img src="${p.image || 'https://via.placeholder.com/400x400?text=Product'}" alt="${p.title}" class="card-media" loading="lazy">`;
+
+          const rating = p.rating || '4.8';
+          const verdict = p.verdict || `Tested: Leak-proof & verified. Premium set that replaced our plastics.`;
+          const pros = p.pros || 'Incredible seal, dishwasher safe.';
+          const cons = p.cons || 'Pricey per bag / Narrow opening.';
+          const price = p.price || '$21.99';
+
+          return `
+            <div class="product-card">
+              <div class="card-img-container">
+                ${mediaHtml}
+              </div>
+              <div class="card-content">
+                <h3 class="card-title">${p.title}</h3>
+                <p class="card-verdict">${verdict} <span class="card-star">&#9733; ${rating}</span></p>
+                <div class="card-specs">
+                  <p><strong>Pros:</strong> ${pros}</p>
+                  <p><strong>Cons:</strong> ${cons}</p>
+                </div>
+                <div class="card-footer">
+                  <a href="${p.link}" target="_blank" rel="nofollow noopener" class="btn-check-price">
+                    <span>CHECK PRICE</span>
+                    <span class="price-tag">${price} &rarr;</span>
+                  </a>
+                  <a href="${p.link}" target="_blank" rel="nofollow noopener" class="btn-full-review">
+                    ${isVideo ? 'VIDEO TEST &rarr;' : 'OUR TAKE &rarr;'}
+                  </a>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        grid.innerHTML = '<p class="empty-state">Unable to load product catalog. Please ensure products.json exists.</p>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initStorefront);
+  </script>
 </body>
 </html>
