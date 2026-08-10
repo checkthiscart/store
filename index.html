@@ -23,27 +23,32 @@
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-content">
-      <h1 class="hero-title">Verified Amazon Finds,<br>Tested for You.</h1>
-      <p class="hero-subtitle">We cut through the noise with real, hands-on tests. Only the best makes our cart.</p>
+      <h1 class="hero-title" id="hero-title">Verified Amazon Finds,<br>Tested for You.</h1>
+      <p class="hero-subtitle" id="hero-subtitle">We cut through the noise with real, hands-on tests. Only the best makes our cart.</p>
       <div class="hero-buttons">
-        <a href="#trending" class="btn-hero-primary">EXPLORE OUR TOP 5</a>
-        <a href="#collections" class="btn-hero-secondary">WATCH REVIEWS</a>
+        <a href="#trending" class="btn-hero-primary" id="hero-btn-primary">EXPLORE OUR TOP 5</a>
+        <a href="#collections" class="btn-hero-secondary" id="hero-btn-secondary">WATCH REVIEWS</a>
       </div>
     </div>
     <div class="hero-media">
-      <img id="hero-img" src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80" alt="Tested Amazon Finds Header Image">
+      <div class="hero-carousel" id="hero-carousel">
+        <div id="carousel-slides"><!-- slides injected by JS --></div>
+        <button class="carousel-arrow carousel-prev" id="carousel-prev" aria-label="Previous slide">&#10094;</button>
+        <button class="carousel-arrow carousel-next" id="carousel-next" aria-label="Next slide">&#10095;</button>
+        <div class="carousel-dots" id="carousel-dots"></div>
+      </div>
     </div>
   </section>
 
   <!-- Value Badges Bar -->
   <div class="trust-bar">
-    <div class="trust-item"><span>&#9733; 4.8/5</span> Rated by Readers</div>
+    <div class="trust-item"><span id="trust-rating">&#9733; 4.8/5</span> Rated by Readers</div>
     <div class="trust-item"><span>&#10003;</span> Independent Reviews</div>
     <div class="trust-item"><span>&#128230;</span> Free Shipping Deals</div>
   </div>
 
   <main class="main-content">
-    
+
     <!-- Picks & Collections Section -->
     <section id="collections" class="section-container">
       <div class="section-header">
@@ -55,7 +60,7 @@
       </div>
 
       <div id="collections-grid" class="collections-grid">
-        <!-- Rendered dynamically -->
+        <!-- Rendered dynamically from categories.json -->
       </div>
     </section>
 
@@ -70,7 +75,7 @@
       </div>
 
       <div id="trending-grid" class="trending-grid">
-        <!-- Rendered dynamically -->
+        <!-- Rendered dynamically from products.json -->
       </div>
     </section>
 
@@ -91,11 +96,8 @@
           <span class="brand-subtitle">MUST-HAVES FINDS</span>
         </div>
       </div>
-      <div class="footer-links">
-        <a href="#collections">Kitchen &amp; Pantry</a>
-        <a href="#collections">Smart Audio &amp; Tech</a>
-        <a href="#collections">Home Organization</a>
-        <a href="#collections">Gourmet &amp; Gifts</a>
+      <div class="footer-links" id="footer-links">
+        <!-- Rendered dynamically from categories.json -->
         <a href="#trending">Reviews</a>
       </div>
     </div>
@@ -106,99 +108,168 @@
     </div>
   </footer>
 
-  <script>
-    // Default collections
-    const collectionsData = [
-      {
-        id: "kitchen-pantry",
-        title: "Kitchen & Pantry",
-        caption: "The only pantry organizers we recommend (and actually use).",
-        image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=600&q=80",
-        rating: "4.9"
-      },
-      {
-        id: "smart-audio-tech",
-        title: "Smart Audio & Tech",
-        caption: "Gadgets and audio tech with major upgrades for daily use.",
-        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
-        rating: "4.8"
-      },
-      {
-        id: "home-organization",
-        title: "Home Organization",
-        caption: "Smart storage solutions that keep your space clutter-free.",
-        image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80",
-        rating: "4.7"
-      },
-      {
-        id: "gourmet-gifts",
-        title: "Gourmet & Gifts",
-        caption: "Thoughtful quality gifts for the person who has everything.",
-        image: "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?auto=format&fit=crop&w=600&q=80",
-        rating: "4.9"
-      }
-    ];
+  <!-- Lightbox / Click-to-Enlarge Modal -->
+  <div class="lightbox-overlay" id="lightbox-overlay">
+    <div class="lightbox-box">
+      <button class="lightbox-close" id="lightbox-close" aria-label="Close">&times;</button>
+      <div class="lightbox-media" id="lightbox-media"></div>
+      <div class="lightbox-details">
+        <span class="lightbox-price" id="lightbox-price"></span>
+        <h2 id="lightbox-title"></h2>
+        <p class="lightbox-desc" id="lightbox-desc"></p>
+        <div class="lightbox-specs" id="lightbox-specs"></div>
+        <div class="lightbox-footer">
+          <a href="#" target="_blank" rel="nofollow noopener" class="btn-hero-primary" id="lightbox-link">CHECK PRICE ON AMAZON &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    async function initStorefront() {
-      renderCollections();
-      await loadProducts();
+  <script>
+    // ---------- Fallbacks used if a JSON file can't be fetched ----------
+    const DEFAULT_CATEGORIES = [
+      { id: "kitchen-pantry", title: "Kitchen & Pantry", caption: "The only pantry organizers we recommend (and actually use).", image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=600&q=80", rating: "4.9" },
+      { id: "smart-audio-tech", title: "Smart Audio & Tech", caption: "Gadgets and audio tech with major upgrades for daily use.", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80", rating: "4.8" },
+      { id: "home-organization", title: "Home Organization", caption: "Smart storage solutions that keep your space clutter-free.", image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80", rating: "4.7" },
+      { id: "gourmet-gifts", title: "Gourmet & Gifts", caption: "Thoughtful quality gifts for the person who has everything.", image: "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?auto=format&fit=crop&w=600&q=80", rating: "4.9" }
+    ];
+    const FALLBACK_IMG = "https://placehold.co/600x600/151722/9aa0b4?text=Image+Unavailable";
+
+    let allProducts = [];
+    let allCategories = [];
+    let carouselItems = [];
+    let carouselIndex = 0;
+    let carouselTimer = null;
+
+    // ---------- Helpers ----------
+    function formatPrice(price) {
+      if (price === undefined || price === null) return "";
+      const str = String(price).trim();
+      if (!str) return "";
+      return str.startsWith("$") ? str : "$" + str;
     }
 
-    function renderCollections() {
+    function safeImg(url) {
+      const trimmed = (url || "").trim();
+      return trimmed || FALLBACK_IMG;
+    }
+
+    function attachImgFallback(imgEl) {
+      imgEl.addEventListener("error", function onErr() {
+        this.removeEventListener("error", onErr);
+        this.src = FALLBACK_IMG;
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str || "").replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[c]));
+    }
+
+    async function fetchJson(path) {
+      const res = await fetch(`./${path}?v=` + Date.now());
+      if (!res.ok) throw new Error(`Failed to load ${path}`);
+      return res.json();
+    }
+
+    // ---------- Init ----------
+    async function initStorefront() {
+      await loadSettings();
+      await loadCategories();
+      await loadProducts();
+      initLightbox();
+    }
+
+    // ---------- Settings (hero copy) ----------
+    async function loadSettings() {
+      try {
+        const s = await fetchJson('settings.json');
+        if (s.heroTitle) document.getElementById('hero-title').innerHTML = s.heroTitle;
+        if (s.heroSubtitle) document.getElementById('hero-subtitle').textContent = s.heroSubtitle;
+        if (s.heroBtnPrimary) document.getElementById('hero-btn-primary').textContent = s.heroBtnPrimary;
+        if (s.heroBtnSecondary) document.getElementById('hero-btn-secondary').textContent = s.heroBtnSecondary;
+        if (s.trustRating) document.getElementById('trust-rating').innerHTML = `&#9733; ${escapeHtml(s.trustRating)}`;
+      } catch (err) {
+        // settings.json not present yet — keep the defaults already in the HTML
+      }
+    }
+
+    // ---------- Categories / Collections ----------
+    async function loadCategories() {
       const container = document.getElementById('collections-grid');
-      container.innerHTML = collectionsData.map((c, index) => {
+      const footerLinks = document.getElementById('footer-links');
+      try {
+        allCategories = await fetchJson('categories.json');
+      } catch (err) {
+        allCategories = DEFAULT_CATEGORIES;
+      }
+
+      if (!allCategories || allCategories.length === 0) {
+        container.innerHTML = '<p class="empty-state">No collections added yet. Add one in the admin panel!</p>';
+        return;
+      }
+
+      container.innerHTML = allCategories.map((c, index) => {
         const isFeatured = index === 0;
         return `
           <div class="collection-card ${isFeatured ? 'featured' : ''}">
             <div class="coll-img-wrap">
-              <img src="${c.image}" alt="${c.title}" loading="lazy">
-              <span class="coll-rating">&#9733; ${c.rating}</span>
+              <img src="${safeImg(c.image)}" alt="${escapeHtml(c.title)}" loading="lazy" data-fallback-img>
+              <span class="coll-rating">&#9733; ${escapeHtml(c.rating || '')}</span>
             </div>
             <div class="coll-body">
-              <h3>${c.title}</h3>
-              <p>${c.caption}</p>
+              <h3>${escapeHtml(c.title)}</h3>
+              <p>${escapeHtml(c.caption || '')}</p>
             </div>
           </div>
         `;
       }).join('');
+
+      container.querySelectorAll('img[data-fallback-img]').forEach(attachImgFallback);
+
+      // Footer nav links, one per category, keep "Reviews" link that's already in the markup
+      const reviewsLink = footerLinks.querySelector('a[href="#trending"]');
+      footerLinks.innerHTML = allCategories.map(c =>
+        `<a href="#collections">${escapeHtml(c.title)}</a>`
+      ).join('') + (reviewsLink ? reviewsLink.outerHTML : '<a href="#trending">Reviews</a>');
     }
 
+    // ---------- Products / Trending grid ----------
     async function loadProducts() {
       const grid = document.getElementById('trending-grid');
       try {
-        const res = await fetch('./products.json?v=' + Date.now());
-        if (!res.ok) throw new Error('Failed to load products.json');
-        
-        const products = await res.json();
+        allProducts = await fetchJson('products.json');
 
-        if (!products || products.length === 0) {
+        if (!allProducts || allProducts.length === 0) {
           grid.innerHTML = '<p class="empty-state">No products added yet. Add products in the admin panel!</p>';
+          renderCarousel([]);
           return;
         }
 
-        grid.innerHTML = products.map(p => {
+        grid.innerHTML = allProducts.map((p, i) => {
           const isVideo = p.isVideo || (p.image && p.image.endsWith('.mp4'));
           const mediaHtml = isVideo
-            ? `<video src="${p.image}" autoplay loop muted playsinline class="card-media"></video>`
-            : `<img src="${p.image || 'https://via.placeholder.com/400x400?text=Product'}" alt="${p.title}" class="card-media" loading="lazy">`;
+            ? `<video src="${safeImg(p.image)}" autoplay loop muted playsinline class="card-media"></video>`
+            : `<img src="${safeImg(p.image)}" alt="${escapeHtml(p.title)}" class="card-media" loading="lazy" data-fallback-img>`;
 
           const rating = p.rating || '4.8';
           const verdict = p.verdict || `Tested: Leak-proof & verified. Premium set that replaced our plastics.`;
           const pros = p.pros || 'Incredible seal, dishwasher safe.';
           const cons = p.cons || 'Pricey per bag / Narrow opening.';
-          const price = p.price || '$21.99';
+          const price = formatPrice(p.price) || '$21.99';
 
           return `
             <div class="product-card">
-              <div class="card-img-container">
+              <div class="card-img-container" data-lightbox-index="${i}">
                 ${mediaHtml}
               </div>
               <div class="card-content">
-                <h3 class="card-title">${p.title}</h3>
-                <p class="card-verdict">${verdict} <span class="card-star">&#9733; ${rating}</span></p>
+                <h3 class="card-title">${escapeHtml(p.title)}</h3>
+                <p class="card-verdict">${escapeHtml(verdict)} <span class="card-star">&#9733; ${escapeHtml(rating)}</span></p>
                 <div class="card-specs">
-                  <p><strong>Pros:</strong> ${pros}</p>
-                  <p><strong>Cons:</strong> ${cons}</p>
+                  <p><strong>Pros:</strong> ${escapeHtml(pros)}</p>
+                  <p><strong>Cons:</strong> ${escapeHtml(cons)}</p>
                 </div>
                 <div class="card-footer">
                   <a href="${p.link}" target="_blank" rel="nofollow noopener" class="btn-check-price">
@@ -214,9 +285,124 @@
           `;
         }).join('');
 
+        grid.querySelectorAll('img[data-fallback-img]').forEach(attachImgFallback);
+        grid.querySelectorAll('[data-lightbox-index]').forEach(el => {
+          el.addEventListener('click', () => openLightbox(allProducts[parseInt(el.dataset.lightboxIndex, 10)]));
+        });
+
+        renderCarousel(allProducts);
+
       } catch (err) {
         grid.innerHTML = '<p class="empty-state">Unable to load product catalog. Please ensure products.json exists.</p>';
+        renderCarousel([]);
       }
+    }
+
+    // ---------- Hero Carousel ----------
+    function renderCarousel(products) {
+      const slidesWrap = document.getElementById('carousel-slides');
+      const dotsWrap = document.getElementById('carousel-dots');
+      clearInterval(carouselTimer);
+
+      // Prefer products explicitly flagged "featured" in the admin, otherwise use the first 5
+      const featured = products.filter(p => p.featured);
+      carouselItems = (featured.length > 0 ? featured : products).slice(0, 6);
+
+      if (carouselItems.length === 0) {
+        slidesWrap.innerHTML = `
+          <div class="carousel-slide active">
+            <img src="${FALLBACK_IMG}" alt="No products yet">
+          </div>`;
+        dotsWrap.innerHTML = '';
+        return;
+      }
+
+      slidesWrap.innerHTML = carouselItems.map((p, i) => `
+        <div class="carousel-slide ${i === 0 ? 'active' : ''}" data-index="${i}">
+          <img src="${safeImg(p.image)}" alt="${escapeHtml(p.title)}" data-fallback-img>
+          <span class="carousel-zoom-hint">&#128269; Click to view</span>
+          <div class="carousel-slide-info">
+            <span class="carousel-slide-price">${formatPrice(p.price)}</span>
+            <h3>${escapeHtml(p.title)}</h3>
+          </div>
+        </div>
+      `).join('');
+
+      slidesWrap.querySelectorAll('img[data-fallback-img]').forEach(attachImgFallback);
+      slidesWrap.querySelectorAll('.carousel-slide').forEach(slide => {
+        slide.addEventListener('click', () => openLightbox(carouselItems[parseInt(slide.dataset.index, 10)]));
+      });
+
+      dotsWrap.innerHTML = carouselItems.map((_, i) =>
+        `<span class="${i === 0 ? 'active' : ''}" data-index="${i}"></span>`
+      ).join('');
+      dotsWrap.querySelectorAll('span').forEach(dot => {
+        dot.addEventListener('click', () => goToSlide(parseInt(dot.dataset.index, 10)));
+      });
+
+      carouselIndex = 0;
+      if (carouselItems.length > 1) startCarouselAutoplay();
+    }
+
+    function goToSlide(index) {
+      if (carouselItems.length === 0) return;
+      carouselIndex = (index + carouselItems.length) % carouselItems.length;
+      document.querySelectorAll('.carousel-slide').forEach((el, i) => el.classList.toggle('active', i === carouselIndex));
+      document.querySelectorAll('.carousel-dots span').forEach((el, i) => el.classList.toggle('active', i === carouselIndex));
+    }
+
+    function startCarouselAutoplay() {
+      clearInterval(carouselTimer);
+      carouselTimer = setInterval(() => goToSlide(carouselIndex + 1), 5000);
+    }
+
+    document.getElementById('carousel-prev').addEventListener('click', () => { goToSlide(carouselIndex - 1); startCarouselAutoplay(); });
+    document.getElementById('carousel-next').addEventListener('click', () => { goToSlide(carouselIndex + 1); startCarouselAutoplay(); });
+    document.getElementById('hero-carousel').addEventListener('mouseenter', () => clearInterval(carouselTimer));
+    document.getElementById('hero-carousel').addEventListener('mouseleave', () => { if (carouselItems.length > 1) startCarouselAutoplay(); });
+
+    // ---------- Lightbox ----------
+    function openLightbox(product) {
+      if (!product) return;
+      const overlay = document.getElementById('lightbox-overlay');
+      const isVideo = product.isVideo || (product.image && product.image.endsWith('.mp4'));
+
+      const mediaEl = document.getElementById('lightbox-media');
+      mediaEl.innerHTML = isVideo
+        ? `<video src="${safeImg(product.image)}" autoplay loop muted playsinline controls></video>`
+        : `<img src="${safeImg(product.image)}" alt="${escapeHtml(product.title)}" data-fallback-img>`;
+      const img = mediaEl.querySelector('img');
+      if (img) attachImgFallback(img);
+
+      document.getElementById('lightbox-title').textContent = product.title || '';
+      document.getElementById('lightbox-desc').textContent = product.verdict || '';
+      document.getElementById('lightbox-price').textContent = formatPrice(product.price);
+      document.getElementById('lightbox-specs').innerHTML = `
+        ${product.pros ? `<p><strong>Pros:</strong> ${escapeHtml(product.pros)}</p>` : ''}
+        ${product.cons ? `<p><strong>Cons:</strong> ${escapeHtml(product.cons)}</p>` : ''}
+      `;
+      const link = document.getElementById('lightbox-link');
+      link.href = product.link || '#';
+
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      const overlay = document.getElementById('lightbox-overlay');
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+      document.getElementById('lightbox-media').innerHTML = '';
+    }
+
+    function initLightbox() {
+      document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+      document.getElementById('lightbox-overlay').addEventListener('click', (e) => {
+        if (e.target.id === 'lightbox-overlay') closeLightbox();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeLightbox();
+      });
     }
 
     document.addEventListener('DOMContentLoaded', initStorefront);

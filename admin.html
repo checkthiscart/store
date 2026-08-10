@@ -3,884 +3,608 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard</title>
+  <title>Admin Dashboard | checkthiscart</title>
+  <link rel="stylesheet" href="./site.css">
   <style>
-    :root {
-      --bg: #121214;
-      --card-bg: #1e1e22;
-      --accent: #28a745;
-      --accent-hover: #218838;
-      --border: #33333a;
-      --text: #e1e1e6;
-      --muted: #a0a0b0;
-      --danger: #dc3545;
-      --warning: #f2ba49;
-    }
+    body { background: #121318; color: #e1e3ea; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; }
+    .admin-layout { display: flex; min-height: 100vh; }
+    .sidebar { width: 240px; background: #181a20; border-right: 1px solid #282b36; padding: 20px 15px; }
+    .sidebar-logo { font-weight: 800; letter-spacing: 1px; color: #fff; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; margin-bottom: 30px; }
+    .nav-group-title { font-size: 0.7rem; color: #666; font-weight: 700; text-transform: uppercase; margin: 20px 0 8px 10px; }
+    .nav-item { display: block; padding: 8px 12px; color: #a0a5b5; text-decoration: none; font-size: 0.85rem; border-radius: 6px; margin-bottom: 4px; transition: 0.2s; }
+    .nav-item:hover, .nav-item.active { background: #232733; color: #fff; }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding: 20px; max-width: 1000px; margin: 0 auto; line-height: 1.5; }
+    .admin-main { flex: 1; padding: 30px 40px; max-width: 1000px; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .admin-header h1 { font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0; }
 
-    /* Top Notice Banner */
-    #notice-box {
-      display: none;
-      padding: 12px 16px;
-      margin-bottom: 20px;
-      border-radius: 6px;
-      font-weight: 500;
-      font-size: 0.9rem;
-    }
+    .panel-card { background: #181a23; border: 1px solid #282c3d; border-radius: 12px; padding: 24px; margin-bottom: 25px; }
+    .panel-card h3 { margin-top: 0; color: #f2ba49; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
 
-    /* Layout Cards */
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 24px;
-    }
-
-    .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    h1, h2, h3 { color: #fff; margin-bottom: 12px; }
-    
-    /* Forms & Inputs */
     .form-group { margin-bottom: 15px; }
-    label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
-    input, textarea, select {
-      width: 100%;
-      padding: 10px;
-      background: #121214;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: #fff;
-      font-size: 0.9rem;
-    }
-    input:focus, textarea:focus, select:focus { border-color: var(--accent); outline: none; }
-    
-    .row { display: flex; gap: 12px; }
-    .col { flex: 1; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: #9aa0b4; text-transform: uppercase; margin-bottom: 6px; }
+    .form-control { width: 100%; padding: 10px 12px; background: #0e1017; border: 1px solid #2d3245; border-radius: 6px; color: #fff; font-size: 0.9rem; box-sizing: border-box; }
+    .form-control:focus { outline: none; border-color: #f2ba49; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; }
+    .checkbox-row input { width: 16px; height: 16px; }
+    .checkbox-row label { margin: 0; text-transform: none; font-weight: 600; color: #cfd3e0; font-size: 0.85rem; }
 
-    /* Buttons */
-    .btn-action {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.85rem;
-      transition: opacity 0.2s;
-    }
-    .btn-action:hover { opacity: 0.9; }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-secondary { background: #3b3b44; color: #fff; }
-    .btn-warning { background: var(--warning); color: #000; }
-    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-action { padding: 10px 18px; background: #f2ba49; color: #111; font-weight: 800; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 0.85rem; }
+    .btn-action:hover { background: #e0aa38; }
+    .btn-danger { background: #dc3545; color: #fff; }
+    .btn-danger:hover { background: #bd2130; }
 
-    /* Lists & Items */
-    .list-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #16161a;
-      padding: 12px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      margin-bottom: 8px;
-    }
-    .cat-thumb-preview {
-      width: 48px;
-      height: 48px;
-      object-fit: cover;
-      border-radius: 4px;
-      background: #2a2a30;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.65rem;
-      color: var(--muted);
-      cursor: pointer;
-    }
+    .notice-banner { padding: 12px 18px; border-radius: 8px; font-weight: bold; font-size: 0.85rem; margin-bottom: 20px; display: none; }
 
-    /* Drag and Drop Grid */
-    .drag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-top: 12px; }
-    .drag-item {
-      background: #16161a;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 6px;
-      cursor: grab;
-      text-align: center;
-    }
-    .drag-item img, .drag-item video { width: 100%; height: 80px; object-fit: cover; border-radius: 4px; }
-    .drag-item.dragging { opacity: 0.4; }
+    .product-list-item { display: flex; justify-content: space-between; align-items: center; background: #0e1017; padding: 12px 16px; border-radius: 8px; border: 1px solid #282c3d; margin-bottom: 10px; }
+    .product-list-item strong { color: #fff; font-size: 0.95rem; }
+    .product-list-item span { color: #888; font-size: 0.8rem; margin-left: 10px; }
 
-    /* Lightbox Modal */
-    .lightbox {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85);
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-    .lightbox img { max-width: 90%; max-height: 90%; border-radius: 8px; }
+    .drag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-top: 15px; }
+    .drag-item { background: #0e1017; border: 1px solid #2d3245; border-radius: 8px; padding: 8px; text-align: center; }
+    .drag-item img, .drag-item video { width: 100%; height: 70px; object-fit: cover; border-radius: 4px; }
 
-    /* Stats Bar */
-    .stats-bar { display: flex; gap: 20px; margin-bottom: 20px; }
-    .stat-card { background: #16161a; padding: 12px 20px; border-radius: 6px; border: 1px solid var(--border); flex: 1; }
-    .stat-card span { font-size: 1.4rem; font-weight: bold; color: var(--accent); }
+    .media-preview { margin-top: 8px; width: 80px; height: 80px; border-radius: 6px; object-fit: cover; border: 1px solid #2d3245; display: none; background: #0e1017; }
+    .media-preview.show { display: block; }
+    .field-hint { font-size: 0.72rem; color: #666; margin-top: 4px; }
+    .field-hint.error { color: #dc3545; }
   </style>
 </head>
 <body>
 
-  <!-- NOTIFICATION BANNER -->
-  <div id="notice-box"></div>
-
-  <!-- HEADER -->
-  <div class="header-bar">
-    <h1>Store Admin Dashboard</h1>
-    <button id="disconnect-btn" class="btn-action btn-danger" style="display:none;">Disconnect GitHub</button>
-  </div>
-
-  <!-- SETUP / LOGIN CARD -->
-  <div id="setup-card" class="card">
-    <h2>🔑 Connect to GitHub Repository</h2>
-    <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 16px;">Configure your access token to publish directly to your store repository.</p>
-    <form id="admin-config-form">
-      <div class="row">
-        <div class="col form-group">
-          <label>GitHub Username</label>
-          <input type="text" id="cfg-user" placeholder="checkthiscart" required>
-        </div>
-        <div class="col form-group">
-          <label>Repository Name</label>
-          <input type="text" id="cfg-repo" placeholder="store" required>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col form-group">
-          <label>Branch</label>
-          <input type="text" id="cfg-branch" placeholder="main" value="main" required>
-        </div>
-        <div class="col form-group">
-          <label>Target JSON Path</label>
-          <input type="text" id="cfg-path" placeholder="data/store.json" value="data/store.json" required>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Personal Access Token (PAT)</label>
-        <input type="password" id="cfg-token" placeholder="ghp_xxxxxxxxxxxx" required>
-      </div>
-      <button type="submit" class="btn-action btn-primary">Connect Repository</button>
-    </form>
-  </div>
-
-  <!-- DASHBOARD WRAPPER -->
-  <div id="admin-dashboard" style="display:none;">
-
-    <!-- STATS BAR -->
-    <div class="stats-bar">
-      <div class="stat-card">
-        <div>Total Categories</div>
-        <span id="stat-total-cats">0</span>
-      </div>
-      <div class="stat-card">
-        <div>Total Products</div>
-        <span id="stat-total-posts">0</span>
-      </div>
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span style="background:#f2ba49; color:#000; padding:2px 6px; border-radius:4px; font-weight:900;">CTC</span>
+      ADMIN DASHBOARD
     </div>
 
-    <!-- HERO SECTION MANAGER -->
-    <div class="card">
-      <h2>🎯 Hero Section Manager</h2>
-      <form id="hero-form">
+    <div class="nav-group-title">Menu</div>
+    <a href="#" class="nav-item active">&#128202; Dashboard</a>
+    <a href="./index.html" target="_blank" class="nav-item">&#128065; View Live Store</a>
+
+    <div class="nav-group-title">Content Strategy</div>
+    <a href="#settings-section" class="nav-item">Site Settings</a>
+    <a href="#collections-section" class="nav-item">Collections</a>
+    <a href="#products-section" class="nav-item">Products &amp; Reviews</a>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+
+    <div class="admin-header">
+      <h1>SITE CONTENT MANAGER</h1>
+      <button id="disconnect-btn" class="btn-action btn-danger" style="display:none;">Disconnect GitHub</button>
+    </div>
+
+    <div id="notice-box" class="notice-banner"></div>
+
+    <!-- GitHub Connection Panel -->
+    <div id="setup-card" class="panel-card">
+      <h3>&#128279; Connect to GitHub</h3>
+      <form id="admin-config-form">
         <div class="form-group">
-          <label>Headline</label>
-          <input type="text" id="hero-headline">
+          <label>GitHub Username</label>
+          <input type="text" id="cfg-user" class="form-control" value="checkthiscart">
+        </div>
+        <div class="form-group">
+          <label>Repository Name</label>
+          <input type="text" id="cfg-repo" class="form-control" value="store">
+        </div>
+        <div class="form-group">
+          <label>Branch</label>
+          <input type="text" id="cfg-branch" class="form-control" value="main">
+        </div>
+        <div class="form-group">
+          <label>Products Data File Path</label>
+          <input type="text" id="cfg-path" class="form-control" value="products.json">
+          <p class="field-hint">Categories and site settings are read/written from <code>categories.json</code> and <code>settings.json</code> in the same folder.</p>
+        </div>
+        <div class="form-group">
+          <label>Personal Access Token (PAT)</label>
+          <input type="password" id="cfg-token" class="form-control" placeholder="ghp_..." required>
+        </div>
+        <button type="submit" class="btn-action">Save &amp; Connect</button>
+      </form>
+    </div>
+
+    <!-- Active Management Dashboard -->
+    <div id="admin-dashboard" style="display: none;">
+
+      <!-- 1. Global Site Settings -->
+      <div id="settings-section" class="panel-card">
+        <h3>&#9312; GLOBAL SITE SETTINGS</h3>
+        <div class="form-group">
+          <label>Main Headline (HTML allowed, e.g. &lt;br&gt;)</label>
+          <input type="text" id="set-hero-title" class="form-control" placeholder="Verified Amazon Finds,<br>Tested for You.">
         </div>
         <div class="form-group">
           <label>Subtitle</label>
-          <input type="text" id="hero-subtitle">
+          <input type="text" id="set-hero-subtitle" class="form-control" placeholder="We cut through the noise with real, hands-on tests.">
         </div>
-        <div class="form-group">
-          <label>Hero Image URL or Upload File</label>
-          <div class="row">
-            <input type="text" id="hero-image" class="col" placeholder="https://...">
-            <button type="button" class="btn-action btn-secondary" onclick="clearHeroField('hero-image')">Clear</button>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div class="form-group">
+            <label>Primary Button Text</label>
+            <input type="text" id="set-btn-primary" class="form-control" placeholder="EXPLORE OUR TOP 5">
           </div>
-          <input type="file" id="hero-image-file" style="margin-top:8px;">
-        </div>
-        <div id="hero-preview-container" style="display:none; margin-bottom:12px;">
-          <img id="hero-preview-img" style="max-height: 100px; border-radius: 4px;">
-        </div>
-        <button type="submit" class="btn-action btn-primary">Save Hero Section</button>
-      </form>
-    </div>
-
-    <!-- CATEGORY MANAGER -->
-    <div class="card" id="categories-section">
-      <h2 id="cat-form-heading">📂 CATEGORY MANAGER</h2>
-      <form id="category-form" style="margin-bottom: 20px;">
-        <div class="row">
-          <div class="col form-group">
-            <label>Category Title</label>
-            <input type="text" id="cat-title" required>
-          </div>
-          <div class="col form-group">
-            <label>Category ID (Slug)</label>
-            <input type="text" id="cat-id" required>
+          <div class="form-group">
+            <label>Secondary Button Text</label>
+            <input type="text" id="set-btn-secondary" class="form-control" placeholder="WATCH REVIEWS">
           </div>
         </div>
         <div class="form-group">
-          <label>Caption / Short Description</label>
-          <input type="text" id="cat-caption">
+          <label>Trust Bar Rating</label>
+          <input type="text" id="set-trust-rating" class="form-control" placeholder="4.8/5">
         </div>
-        <div class="row">
-          <div class="col form-group">
-            <label>Image URL</label>
+        <button id="save-settings-btn" class="btn-action" type="button">Update Settings (local)</button>
+        <p class="field-hint">Changes here are staged locally &mdash; click "Save &amp; Publish to GitHub" below to push everything live.</p>
+      </div>
 
-            <div class="row">
-              <input type="text" id="cat-image" class="col">
-              <button type="button" class="btn-action btn-secondary" onclick="clearCatField('cat-image')">Clear</button>
+      <!-- 2. Collections / Categories -->
+      <div id="collections-section" class="panel-card">
+        <h3>&#9313; COLLECTIONS / CATEGORIES (<span id="cat-count">0</span>)</h3>
+        <form id="add-category-form">
+          <div class="form-group">
+            <label>Collection Title</label>
+            <input type="text" id="cat-title" class="form-control" placeholder="e.g. Pet Essentials" required>
+          </div>
+          <div class="form-group">
+            <label>Caption</label>
+            <input type="text" id="cat-caption" class="form-control" placeholder="e.g. Gear our dogs and cats actually approve of.">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="form-group">
+              <label>Cover Image URL</label>
+              <input type="url" id="cat-image" class="form-control" placeholder="https://...">
+              <img id="cat-image-preview" class="media-preview" alt="preview">
             </div>
-            <input type="file" id="cat-image-file" style="margin-top:8px;">
+            <div class="form-group">
+              <label>Rating (optional)</label>
+              <input type="text" id="cat-rating" class="form-control" placeholder="4.8">
+            </div>
           </div>
-          <div class="col form-group">
-            <label>Rating</label>
-            <input type="text" id="cat-rating" value="4.8">
-          </div>
-        </div>
-        <button type="submit" id="cat-submit-btn" class="btn-action btn-primary">+ Add Category</button>
-        <button type="button" id="cat-cancel-btn" class="btn-action btn-secondary" style="display:none;">Cancel</button>
-      </form>
+          <button type="submit" class="btn-action" style="background:#28a745; color:#fff;">+ Add Collection</button>
+        </form>
 
-      <h3>Existing Categories</h3>
-      <div id="category-list"></div>
+        <div id="category-list" style="margin-top: 20px;"></div>
+      </div>
+
+      <!-- 3. Posts & Trending Today (Individual Entry Editor) -->
+      <div id="products-section" class="panel-card">
+        <h3>&#9314; POSTS &amp; TRENDING TODAY (INDIVIDUAL ENTRY EDITOR)</h3>
+        <form id="add-product-form">
+          <div class="form-group">
+            <label>Product Title</label>
+            <input type="text" id="prod-title" class="form-control" placeholder="e.g. Self-Sealing Silicone Food Bags" required>
+          </div>
+
+          <div class="form-group">
+            <label>Testing Verdict / Subtitle</label>
+            <input type="text" id="prod-verdict" class="form-control" placeholder="e.g. Tested: Leak-proof for 12 days. The set that replaced our plastics.">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="form-group">
+              <label>Pros</label>
+              <input type="text" id="prod-pros" class="form-control" placeholder="e.g. Incredible seal, dishwasher safe.">
+            </div>
+            <div class="form-group">
+              <label>Cons</label>
+              <input type="text" id="prod-cons" class="form-control" placeholder="e.g. Pricey per bag / narrow opening.">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+            <div class="form-group">
+              <label>Price (numbers only, $ added automatically)</label>
+              <input type="text" id="prod-price" class="form-control" placeholder="21.99" required>
+            </div>
+            <div class="form-group">
+              <label>Star Rating</label>
+              <input type="text" id="prod-rating" class="form-control" placeholder="4.8">
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select id="prod-category" class="form-control"></select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Affiliate Link (Amazon URL)</label>
+            <input type="url" id="prod-link" class="form-control" placeholder="https://www.amazon.com/dp/..." required>
+          </div>
+
+          <div class="form-group">
+            <label>Product Media URL (Image or .mp4 Video)</label>
+            <input type="url" id="prod-media" class="form-control" placeholder="https://..." required>
+            <img id="prod-media-preview" class="media-preview" alt="preview">
+            <p id="prod-media-hint" class="field-hint"></p>
+          </div>
+
+          <div class="form-group checkbox-row">
+            <input type="checkbox" id="prod-featured">
+            <label for="prod-featured">Feature this product in the homepage hero carousel</label>
+          </div>
+
+          <button type="submit" class="btn-action" style="background:#28a745; color:#fff;">+ Add Product Entry</button>
+        </form>
+      </div>
+
+      <!-- 4. Current Product Inventory & Publish -->
+      <div class="panel-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h3 style="margin: 0;">&#9315; CURRENT PRODUCTS (<span id="prod-count">0</span>)</h3>
+          <button id="publish-btn" class="btn-action" style="background: #007bff; color: white;">Save &amp; Publish to GitHub</button>
+        </div>
+
+        <div id="product-list"></div>
+
+        <h4 style="margin-top: 25px; color:#aaa; font-size: 0.85rem;">PREVIEW ORDER IN TRENDING GRID</h4>
+        <div id="drag-grid" class="drag-grid"></div>
+      </div>
+
+      <!-- Overview Box -->
+      <div class="panel-card" style="display:flex; justify-content:space-around; text-align:center;">
+        <div>
+          <div style="font-size: 1.8rem; font-weight: 800; color: #f2ba49;" id="stat-total-posts">0</div>
+          <div style="font-size:0.75rem; color:#888;">Total Product Entries</div>
+        </div>
+        <div>
+          <div style="font-size: 1.8rem; font-weight: 800; color: #f2ba49;" id="stat-total-cats">0</div>
+          <div style="font-size:0.75rem; color:#888;">Active Collections</div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- PRODUCT MANAGER -->
-    <div class="card" id="products-section">
-      <h2 id="form-heading">➕ ADD NEW PRODUCT ENTRY</h2>
-      <form id="add-product-form" style="margin-bottom: 20px;">
-        <div class="form-group">
-          <label>Product Title</label>
-          <input type="text" id="prod-title" required>
-        </div>
-        <div class="form-group">
-          <label>Verdict / Short Review</label>
-          <textarea id="prod-verdict" rows="2"></textarea>
-        </div>
-        <div class="row">
-          <div class="col form-group">
-            <label>Pros (comma separated)</label>
-            <input type="text" id="prod-pros">
-          </div>
-          <div class="col form-group">
-            <label>Cons (comma separated)</label>
-            <input type="text" id="prod-cons">
-          </div>
-        </div>
-        <div class="row">
-          <div class="col form-group">
-            <label>Price</label>
-            <input type="text" id="prod-price" placeholder="$29.99">
-          </div>
-          <div class="col form-group">
-            <label>Rating</label>
-            <input type="text" id="prod-rating" value="4.8">
-          </div>
-          <div class="col form-group">
-            <label>Category</label>
-            <select id="prod-category"></select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Affiliate / Buy Link</label>
-          <input type="text" id="prod-link">
-        </div>
-        <div class="form-group">
-          <label>Media URL or Upload Image/Video</label>
-          <input type="text" id="prod-media" placeholder="https://...">
-          <input type="file" id="prod-media-file" style="margin-top:8px;">
-        </div>
+  </main>
+</div>
 
-        <button type="submit" id="submit-btn" class="btn-action btn-primary">+ Add Product Entry</button>
-        <button type="button" id="cancel-edit-btn" class="btn-action btn-secondary" style="display:none;">Cancel</button>
-      </form>
+<script>
+  let products = [];
+  let categories = [];
+  let settings = {};
+  let fileShas = { products: '', categories: '', settings: '' };
 
-      <h3>Catalog Queue (<span id="prod-count">0</span>)</h3>
-      <div id="product-list" style="margin-bottom: 20px;"></div>
+  const FALLBACK_IMG = "https://placehold.co/200x200/151722/9aa0b4?text=No+Image";
 
-      <h3>Reorder Products (Drag & Drop)</h3>
-      <div id="drag-grid" class="drag-grid"></div>
-    </div>
+  const form = document.getElementById('admin-config-form');
+  const setupCard = document.getElementById('setup-card');
+  const dashboard = document.getElementById('admin-dashboard');
+  const disconnectBtn = document.getElementById('disconnect-btn');
+  const noticeBox = document.getElementById('notice-box');
 
-    <!-- PUBLISH BUTTON -->
-    <div class="card" style="text-align: center;">
-      <button id="publish-btn" class="btn-action btn-primary" style="font-size: 1.1rem; padding: 14px 28px;">🚀 Save & Publish Changes to GitHub</button>
-    </div>
+  function showNotice(msg, isErr = false) {
+    noticeBox.style.display = 'block';
+    noticeBox.textContent = msg;
+    noticeBox.style.background = isErr ? '#5c1d1d' : '#1d5c2e';
+    noticeBox.style.color = '#fff';
+  }
 
-  </div>
+  function slugify(text) {
+    return text.toString().toLowerCase().trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  }
 
-  <!-- LIGHTBOX MODAL -->
-  <div id="lightbox" class="lightbox" onclick="closeLightbox()">
-    <img id="lightbox-img" src="" alt="Enlarged Preview">
-  </div>
+  function dataDir() {
+    const path = (localStorage.getItem('gh_path') || 'products.json').trim();
+    const idx = path.lastIndexOf('/');
+    return idx >= 0 ? path.slice(0, idx + 1) : '';
+  }
 
-  <!-- SCRIPT BLOCK -->
-  <script>
-    let products = [];
-    let categories = JSON.parse(localStorage.getItem('ctc_categories')) || [
-      { id: "kitchen-pantry", title: "Kitchen & Pantry", caption: "The only pantry organizers we recommend.", image: "", rating: "4.9" },
-      { id: "smart-audio-tech", title: "Smart Audio & Tech", caption: "Gadgets and audio tech with major upgrades.", image: "", rating: "4.8" },
-      { id: "home-organization", title: "Home Organization", caption: "Smart storage solutions for your home.", image: "", rating: "4.7" },
-      { id: "gourmet-gifts", title: "Gourmet & Gifts", caption: "Thoughtful quality gifts for everyone.", image: "", rating: "4.9" }
-    ];
-
-    let heroData = JSON.parse(localStorage.getItem('ctc_hero')) || {
-      headline: "CURATED ESSENTIALS, TESTED FOR QUALITY",
-      subtitle: "Honest testing notes and verified recommendations.",
-      image: ""
-    };
-
-    let fileSha = '';
-    let editingProductIndex = null;
-    let editingCategoryIndex = null;
-    let draggedIndex = null;
-
-    const form = document.getElementById('admin-config-form');
-    const setupCard = document.getElementById('setup-card');
-    const dashboard = document.getElementById('admin-dashboard');
-    const disconnectBtn = document.getElementById('disconnect-btn');
-    const noticeBox = document.getElementById('notice-box');
-
-    const addProductForm = document.getElementById('add-product-form');
-    const cancelEditBtn = document.getElementById('cancel-edit-btn');
-    const submitBtn = document.getElementById('submit-btn');
-
-    const categoryForm = document.getElementById('category-form');
-    const catSubmitBtn = document.getElementById('cat-submit-btn');
-    const catCancelBtn = document.getElementById('cat-cancel-btn');
-
-    /* --- LIGHTBOX ENLARGE --- */
-    function openLightbox(src) {
-      if (!src) return;
-      document.getElementById('lightbox-img').src = src;
-      document.getElementById('lightbox').style.display = 'flex';
+  function checkConnection() {
+    const token = localStorage.getItem('gh_pat');
+    if (token) {
+      setupCard.style.display = 'none';
+      dashboard.style.display = 'block';
+      disconnectBtn.style.display = 'inline-block';
+      loadAllData();
+    } else {
+      setupCard.style.display = 'block';
+      dashboard.style.display = 'none';
+      disconnectBtn.style.display = 'none';
     }
+  }
 
-    function closeLightbox() {
-      document.getElementById('lightbox').style.display = 'none';
-    }
+  // ---------- Generic GitHub helpers ----------
+  async function ghGetFile(path) {
+    const user = localStorage.getItem('gh_user');
+    const repo = localStorage.getItem('gh_repo');
+    const branch = localStorage.getItem('gh_branch') || 'main';
+    const token = localStorage.getItem('gh_pat');
 
-    /* --- NOTIFICATION BANNER HELPER --- */
-    function showNotice(msg, isErr = false) {
-      noticeBox.style.display = 'block';
-      noticeBox.textContent = msg;
-      noticeBox.style.background = isErr ? '#dc3545' : '#28a745';
-      noticeBox.style.color = '#fff';
-      
-      noticeBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
-    /* --- GITHUB IMAGE UPLOADER --- */
-    async function uploadImageToGitHub(file) {
-      const user = localStorage.getItem('gh_user') || 'checkthiscart';
-      const repo = localStorage.getItem('gh_repo') || 'store';
-      const token = localStorage.getItem('gh_pat');
-      const branch = localStorage.getItem('gh_branch') || 'main';
-
-      if (!token) {
-        showNotice('Error: GitHub Personal Access Token is missing. Please reconnect.', true);
-        throw new Error('Missing GitHub token');
-      }
-
-      showNotice(`Uploading ${file.name} to GitHub...`);
-
-      const base64Content = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = error => reject(error);
-        reader.readAsDataURL(file);
-      });
-
-      const cleanFileName = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const filePath = `images/${cleanFileName}`;
-      const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/${filePath}`;
-
-      const response = await fetch(apiUrl, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `token ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: `Upload image via admin: ${cleanFileName}`,
-          content: base64Content,
-          branch: branch
-        })
-      });
-
-      if (!response.ok) {
-        const errData = await response.json();
-        const errMessage = errData.message || 'Image upload failed';
-        showNotice(`GitHub Upload Error: ${errMessage}`, true);
-        throw new Error(errMessage);
-      }
-
-      showNotice(`Image successfully uploaded to GitHub images/ directory!`);
-      return `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${filePath}`;
-    }
-
-    /* --- HERO SECTION --- */
-    function renderHeroForm() {
-      document.getElementById('hero-headline').value = heroData.headline || '';
-      document.getElementById('hero-subtitle').value = heroData.subtitle || '';
-      document.getElementById('hero-image').value = heroData.image || '';
-      
-      if (heroData.image) {
-        document.getElementById('hero-preview-container').style.display = 'block';
-        document.getElementById('hero-preview-img').src = heroData.image;
-      } else {
-        document.getElementById('hero-preview-container').style.display = 'none';
-      }
-    }
-
-    window.clearHeroField = function(fieldId) {
-      if (fieldId === 'hero-image') {
-        document.getElementById('hero-image').value = '';
-        document.getElementById('hero-image-file').value = '';
-        document.getElementById('hero-preview-container').style.display = 'none';
-      } else {
-        document.getElementById(fieldId).value = '';
-      }
-      showNotice('Hero field cleared.');
-    };
-
-    document.getElementById('hero-image-file').addEventListener('change', async (e) => {
-      if (e.target.files && e.target.files[0]) {
-        try {
-          const uploadedUrl = await uploadImageToGitHub(e.target.files[0]);
-          document.getElementById('hero-image').value = uploadedUrl;
-          document.getElementById('hero-preview-container').style.display = 'block';
-          document.getElementById('hero-preview-img').src = uploadedUrl;
-        } catch (err) {
-          console.error(err);
-        }
-      }
+    const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}?ref=${branch}`, {
+      headers: { Authorization: `token ${token}` }
     });
+    if (res.status === 404) return { data: null, sha: '' };
+    if (!res.ok) throw new Error(`HTTP ${res.status} loading ${path}`);
+    const json = await res.json();
+    const decoded = decodeURIComponent(escape(atob(json.content)));
+    return { data: JSON.parse(decoded || 'null'), sha: json.sha };
+  }
 
-    document.getElementById('hero-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      heroData = {
-        headline: document.getElementById('hero-headline').value.trim(),
-        subtitle: document.getElementById('hero-subtitle').value.trim(),
-        image: document.getElementById('hero-image').value.trim()
-      };
-      localStorage.setItem('ctc_hero', JSON.stringify(heroData));
-      renderHeroForm();
-      showNotice('Hero section settings saved locally! Click "Save & Publish" below.');
+  async function ghPutFile(path, sha, dataObj, message) {
+    const user = localStorage.getItem('gh_user');
+    const repo = localStorage.getItem('gh_repo');
+    const branch = localStorage.getItem('gh_branch') || 'main';
+    const token = localStorage.getItem('gh_pat');
+
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(dataObj, null, 2))));
+    const body = { message, content, branch };
+    if (sha) body.sha = sha;
+
+    const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
+      method: 'PUT',
+      headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
     });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || `Publishing failed for ${path}`);
+    return data.content.sha;
+  }
 
-    /* --- CATEGORY MANAGEMENT --- */
-    function saveCategories() {
-      localStorage.setItem('ctc_categories', JSON.stringify(categories));
+  // ---------- Load everything ----------
+  async function loadAllData() {
+    const productsPath = (localStorage.getItem('gh_path') || 'products.json').trim();
+    const categoriesPath = dataDir() + 'categories.json';
+    const settingsPath = dataDir() + 'settings.json';
+
+    try {
+      const [prodRes, catRes, setRes] = await Promise.all([
+        ghGetFile(productsPath),
+        ghGetFile(categoriesPath),
+        ghGetFile(settingsPath)
+      ]);
+
+      products = prodRes.data || [];
+      fileShas.products = prodRes.sha;
+
+      categories = catRes.data || [];
+      fileShas.categories = catRes.sha;
+
+      settings = setRes.data || {};
+      fileShas.settings = setRes.sha;
+
+      renderSettings();
       renderCategories();
       populateCategoryDropdown();
-    }
-
-    window.clearCatField = function(fieldId) {
-      document.getElementById(fieldId).value = '';
-      if (fieldId === 'cat-image') document.getElementById('cat-image-file').value = '';
-      showNotice('Category field cleared.');
-    };
-
-    document.getElementById('cat-image-file').addEventListener('change', async (e) => {
-      if (e.target.files && e.target.files[0]) {
-        try {
-          const uploadedUrl = await uploadImageToGitHub(e.target.files[0]);
-          document.getElementById('cat-image').value = uploadedUrl;
-        } catch (err) {
-          console.error(err);
-        }
-      }
-    });
-
-    function renderCategories() {
-      const catList = document.getElementById('category-list');
-      document.getElementById('stat-total-cats').textContent = categories.length;
-
-      if (categories.length === 0) {
-        catList.innerHTML = '<p style="color:#666;">No custom categories created.</p>';
-        return;
-      }
-
-      catList.innerHTML = categories.map((c, i) => `
-        <div class="list-item">
-          <div style="display:flex; align-items:center; gap:12px;">
-            ${c.image ? `<img src="${c.image}" class="cat-thumb-preview" alt="Thumb" onclick="openLightbox('${c.image}')">` : `<div class="cat-thumb-preview">No Img</div>`}
-            <div>
-              <strong>${c.title}</strong>
-              <span style="display:block; font-size:0.75rem; color:#aaa; margin-top:2px;">
-                ${c.caption ? c.caption : '<em style="color:#666;">(No description)</em>'}
-              </span>
-              <span style="font-size:0.75rem; color:#888;">ID: <code>${c.id}</code> &bull; Rating: ${c.rating || 'N/A'}</span>
-            </div>
-          </div>
-          <div>
-            <button onclick="editCategory(${i})" class="btn-action btn-secondary" style="padding:4px 10px; font-size:0.75rem; margin-right:5px;">Edit</button>
-            <button onclick="deleteCategory(${i})" class="btn-action btn-danger" style="padding:4px 10px; font-size:0.75rem;">Delete</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function populateCategoryDropdown() {
-      const dropdown = document.getElementById('prod-category');
-      dropdown.innerHTML = categories.map(c => `
-        <option value="${c.id}">${c.title}</option>
-      `).join('');
-    }
-
-    window.editCategory = function(i) {
-      editingCategoryIndex = i;
-      const c = categories[i];
-      document.getElementById('cat-title').value = c.title;
-      document.getElementById('cat-id').value = c.id;
-      document.getElementById('cat-caption').value = c.caption || '';
-      document.getElementById('cat-image').value = c.image || '';
-      document.getElementById('cat-rating').value = c.rating || '4.8';
-
-      document.getElementById('cat-form-heading').textContent = `✏️ EDIT CATEGORY #${i + 1}`;
-      catSubmitBtn.textContent = 'Update Category';
-      catSubmitBtn.style.background = '#f2ba49';
-      catSubmitBtn.style.color = '#000';
-      catCancelBtn.style.display = 'inline-block';
-
-      document.getElementById('categories-section').scrollIntoView({ behavior: 'smooth' });
-    };
-
-    function resetCategoryForm() {
-      editingCategoryIndex = null;
-      categoryForm.reset();
-      document.getElementById('cat-form-heading').textContent = '📂 CATEGORY MANAGER';
-      catSubmitBtn.textContent = '+ Add Category';
-      catSubmitBtn.style.background = '#28a745';
-      catSubmitBtn.style.color = '#fff';
-      catCancelBtn.style.display = 'none';
-    }
-
-    catCancelBtn.addEventListener('click', resetCategoryForm);
-
-    categoryForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const catData = {
-        id: document.getElementById('cat-id').value.trim().toLowerCase().replace(/\s+/g, '-'),
-        title: document.getElementById('cat-title').value.trim(),
-        caption: document.getElementById('cat-caption').value.trim(),
-        image: document.getElementById('cat-image').value.trim(),
-        rating: document.getElementById('cat-rating').value.trim() || '4.8'
-      };
-
-      if (editingCategoryIndex !== null) {
-        categories[editingCategoryIndex] = catData;
-        showNotice('Category updated successfully!');
-      } else {
-        categories.push(catData);
-        showNotice('New category added!');
-      }
-
-      resetCategoryForm();
-      saveCategories();
-    });
-
-    window.deleteCategory = function(i) {
-      categories.splice(i, 1);
-      if (editingCategoryIndex === i) resetCategoryForm();
-      saveCategories();
-      showNotice('Category deleted.');
-    };
-
-    /* --- CHECK CONNECTION & FETCH --- */
-    function checkConnection() {
-      const token = localStorage.getItem('gh_pat');
-      if (token) {
-        setupCard.style.display = 'none';
-        dashboard.style.display = 'block';
-        disconnectBtn.style.display = 'inline-block';
-
-        // Pre-fill setup values if available
-        document.getElementById('cfg-user').value = localStorage.getItem('gh_user') || '';
-        document.getElementById('cfg-repo').value = localStorage.getItem('gh_repo') || '';
-        document.getElementById('cfg-branch').value = localStorage.getItem('gh_branch') || 'main';
-        document.getElementById('cfg-path').value = localStorage.getItem('gh_path') || 'data/store.json';
-
-        renderHeroForm();
-        renderCategories();
-        populateCategoryDropdown();
-        fetchProducts();
-      } else {
-        setupCard.style.display = 'block';
-        dashboard.style.display = 'none';
-        disconnectBtn.style.display = 'none';
-      }
-    }
-
-    async function fetchProducts() {
-      const user = localStorage.getItem('gh_user');
-      const repo = localStorage.getItem('gh_repo');
-      const path = localStorage.getItem('gh_path');
-      const token = localStorage.getItem('gh_pat');
-
-      showNotice(`Connecting to GitHub repo ${user}/${repo}...`);
-
-      try {
-        const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
-          headers: { Authorization: `token ${token}` }
-        });
-
-        if (!res.ok) {
-          if (res.status === 401) throw new Error('Invalid GitHub Token (401 Unauthorized). Check your PAT.');
-          if (res.status === 404) throw new Error(`Target file "${path}" or repo not found (404). Check user/repo/path settings.`);
-          throw new Error(`HTTP ${res.status}: Failed to reach GitHub API`);
-        }
-
-        const data = await res.json();
-        fileSha = data.sha;
-        const decoded = decodeURIComponent(escape(atob(data.content)));
-        
-        const jsonParsed = JSON.parse(decoded || '[]');
-        products = Array.isArray(jsonParsed) ? jsonParsed : (jsonParsed.products || []);
-        
-        renderProducts();
-        showNotice('Connected & loaded catalog from GitHub successfully!');
-      } catch (err) {
-        showNotice('GitHub Connection Error: ' + err.message, true);
-        products = [];
-        renderProducts();
-      }
-    }
-
-    function renderProducts() {
-      const list = document.getElementById('product-list');
-      const dragGrid = document.getElementById('drag-grid');
-      document.getElementById('prod-count').textContent = products.length;
-      document.getElementById('stat-total-posts').textContent = products.length;
-
-      if (products.length === 0) {
-        list.innerHTML = '<p style="color:#666;">No items in product list.</p>';
-        dragGrid.innerHTML = '';
-        return;
-      }
-
-      list.innerHTML = products.map((p, i) => `
-        <div class="list-item">
-          <div style="display:flex; align-items:center; gap:12px;">
-            ${p.image ? `<img src="${p.image}" class="cat-thumb-preview" alt="Product" onclick="openLightbox('${p.image}')">` : '<div class="cat-thumb-preview">No Img</div>'}
-            <div>
-              <strong>${p.title}</strong>
-              <span style="display:block; font-size:0.75rem; color:#aaa;">(${p.category || 'General'}) &bull; ${p.price || ''}</span>
-            </div>
-          </div>
-          <div>
-            <button onclick="editProduct(${i})" class="btn-action btn-secondary" style="padding:4px 10px; font-size:0.75rem; margin-right:5px;">Edit</button>
-            <button onclick="deleteProduct(${i})" class="btn-action btn-danger" style="padding:4px 10px; font-size:0.75rem;">Delete</button>
-          </div>
-        </div>
-      `).join('');
-
-      dragGrid.innerHTML = products.map((p, i) => {
-        const isVideo = p.isVideo || (p.image && p.image.endsWith('.mp4'));
-        return `
-          <div class="drag-item" draggable="true" data-index="${i}">
-            ${isVideo ? `<video src="${p.image}"></video>` : `<img src="${p.image}" onclick="openLightbox('${p.image}')">`}
-            <div style="font-size:0.65rem; color:#aaa; margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${i + 1}. ${p.title}</div>
-          </div>
-        `;
-      }).join('');
-
-      attachDragAndDropListeners();
-    }
-
-    function attachDragAndDropListeners() {
-      const items = document.querySelectorAll('.drag-item');
-      items.forEach(item => {
-        item.addEventListener('dragstart', () => {
-          draggedIndex = parseInt(item.getAttribute('data-index'));
-          item.classList.add('dragging');
-        });
-        item.addEventListener('dragend', () => item.classList.remove('dragging'));
-        item.addEventListener('dragover', (e) => e.preventDefault());
-        item.addEventListener('drop', (e) => {
-          e.preventDefault();
-          const targetIndex = parseInt(item.getAttribute('data-index'));
-          if (draggedIndex !== null && draggedIndex !== targetIndex) {
-            const movedItem = products.splice(draggedIndex, 1)[0];
-            products.splice(targetIndex, 0, movedItem);
-            renderProducts();
-            showNotice('Order updated! Click "Save & Publish" to push layout.');
-          }
-        });
-      });
-    }
-
-    window.editProduct = function(i) {
-      editingProductIndex = i;
-      const p = products[i];
-      document.getElementById('prod-title').value = p.title || '';
-      document.getElementById('prod-verdict').value = p.verdict || '';
-      document.getElementById('prod-pros').value = p.pros || '';
-      document.getElementById('prod-cons').value = p.cons || '';
-      document.getElementById('prod-price').value = p.price || '';
-      document.getElementById('prod-rating').value = p.rating || '';
-      document.getElementById('prod-category').value = p.category || categories[0]?.id || 'kitchen-pantry';
-      document.getElementById('prod-link').value = p.link || '';
-      document.getElementById('prod-media').value = p.image || '';
-
-      document.getElementById('form-heading').textContent = `✏️ EDIT PRODUCT ENTRY #${i + 1}`;
-      submitBtn.textContent = 'Update Product Entry';
-      submitBtn.style.background = '#f2ba49';
-      submitBtn.style.color = '#000';
-      cancelEditBtn.style.display = 'inline-block';
-      
-      document.getElementById('products-section').scrollIntoView({ behavior: 'smooth' });
-    };
-
-    function resetProductForm() {
-      editingProductIndex = null;
-      addProductForm.reset();
-      document.getElementById('form-heading').textContent = '➕ ADD NEW PRODUCT ENTRY';
-      submitBtn.textContent = '+ Add Product Entry';
-      submitBtn.style.background = '#28a745';
-      submitBtn.style.color = '#fff';
-      cancelEditBtn.style.display = 'none';
-    }
-
-    cancelEditBtn.addEventListener('click', resetProductForm);
-
-    /* --- ADD/EDIT PRODUCT SUBMIT --- */
-    addProductForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const mediaFileInput = document.getElementById('prod-media-file');
-      let mediaUrl = document.getElementById('prod-media').value.trim();
-
-      try {
-        if (mediaFileInput.files && mediaFileInput.files.length > 0) {
-          mediaUrl = await uploadImageToGitHub(mediaFileInput.files[0]);
-          document.getElementById('prod-media').value = mediaUrl;
-        }
-
-        if (!mediaUrl) {
-          showNotice('Validation Error: Please provide an image URL or choose a file to upload.', true);
-          return;
-        }
-
-        const entryData = {
-          id: editingProductIndex !== null ? products[editingProductIndex].id : Date.now().toString(),
-          title: document.getElementById('prod-title').value.trim(),
-          verdict: document.getElementById('prod-verdict').value.trim(),
-          pros: document.getElementById('prod-pros').value.trim(),
-          cons: document.getElementById('prod-cons').value.trim(),
-          price: document.getElementById('prod-price').value.trim(),
-          rating: document.getElementById('prod-rating').value.trim() || '4.8',
-          category: document.getElementById('prod-category').value,
-          link: document.getElementById('prod-link').value.trim(),
-          image: mediaUrl,
-          isVideo: mediaUrl.endsWith('.mp4') || mediaUrl.startsWith('data:video')
-        };
-
-        if (editingProductIndex !== null) {
-          products[editingProductIndex] = entryData;
-          showNotice('Product entry updated locally! Click "Save & Publish" to push changes.');
-        } else {
-          products.push(entryData);
-          showNotice('Product entry added to queue! Click "Save & Publish" to push changes.');
-        }
-
-        resetProductForm();
-        renderProducts();
-
-      } catch (err) {
-        showNotice('Failed to process product entry: ' + err.message, true);
-      }
-    });
-
-    window.deleteProduct = function(i) {
-      products.splice(i, 1);
-      if (editingProductIndex === i) resetProductForm();
       renderProducts();
-      showNotice('Entry deleted from queue.');
+      showNotice('Connected & loaded products, categories, and settings.');
+    } catch (err) {
+      showNotice('Error fetching site data: ' + err.message, true);
+      products = []; categories = []; settings = {};
+      renderSettings(); renderCategories(); populateCategoryDropdown(); renderProducts();
+    }
+  }
+
+  // ---------- Settings ----------
+  function renderSettings() {
+    document.getElementById('set-hero-title').value = settings.heroTitle || 'Verified Amazon Finds,<br>Tested for You.';
+    document.getElementById('set-hero-subtitle').value = settings.heroSubtitle || 'We cut through the noise with real, hands-on tests. Only the best makes our cart.';
+    document.getElementById('set-btn-primary').value = settings.heroBtnPrimary || 'EXPLORE OUR TOP 5';
+    document.getElementById('set-btn-secondary').value = settings.heroBtnSecondary || 'WATCH REVIEWS';
+    document.getElementById('set-trust-rating').value = settings.trustRating || '4.8/5';
+  }
+
+  document.getElementById('save-settings-btn').addEventListener('click', () => {
+    settings = {
+      heroTitle: document.getElementById('set-hero-title').value.trim(),
+      heroSubtitle: document.getElementById('set-hero-subtitle').value.trim(),
+      heroBtnPrimary: document.getElementById('set-btn-primary').value.trim(),
+      heroBtnSecondary: document.getElementById('set-btn-secondary').value.trim(),
+      trustRating: document.getElementById('set-trust-rating').value.trim()
     };
+    showNotice('Site settings updated locally. Click "Save & Publish to GitHub" to push live.');
+  });
 
-    /* --- PUBLISH CATALOG TO GITHUB --- */
-    document.getElementById('publish-btn').addEventListener('click', async () => {
-      const user = localStorage.getItem('gh_user');
-      const repo = localStorage.getItem('gh_repo');
-      const path = localStorage.getItem('gh_path');
-      const token = localStorage.getItem('gh_pat');
+  // ---------- Categories ----------
+  function renderCategories() {
+    const list = document.getElementById('category-list');
+    document.getElementById('cat-count').textContent = categories.length;
+    document.getElementById('stat-total-cats').textContent = categories.length;
 
-      if (!token) {
-        showNotice('Error: Missing Personal Access Token. Please reconnect to GitHub.', true);
-        return;
-      }
+    if (categories.length === 0) {
+      list.innerHTML = '<p style="color:#666;">No collections yet. Add one above.</p>';
+      return;
+    }
 
-      showNotice('Publishing updated catalog to GitHub...');
-      try {
-        const payload = {
-          hero: heroData,
-          categories: categories,
-          products: products
-        };
-        
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
-        const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
-          method: 'PUT',
-          headers: { Authorization: `token ${token}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: 'Update store catalog, hero, and categories via Admin Dashboard',
-            content: content,
-            sha: fileSha || undefined
-          })
-        });
+    list.innerHTML = categories.map((c, i) => `
+      <div class="product-list-item">
+        <div>
+          <strong>${c.title}</strong>
+          <span>(${c.id})</span>
+        </div>
+        <button onclick="deleteCategory(${i})" class="btn-action btn-danger" style="padding:4px 10px; font-size:0.75rem;">Delete</button>
+      </div>
+    `).join('');
+  }
 
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || 'Publishing failed');
+  function populateCategoryDropdown() {
+    const select = document.getElementById('prod-category');
+    const current = select.value;
+    if (categories.length === 0) {
+      select.innerHTML = '<option value="">Add a collection first</option>';
+      return;
+    }
+    select.innerHTML = categories.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+    if (categories.some(c => c.id === current)) select.value = current;
+  }
 
-        fileSha = data.content.sha;
-        showNotice('Successfully published to GitHub! Live site will update shortly.');
-      } catch (err) {
-        showNotice('Publish Error: ' + err.message, true);
-      }
+  document.getElementById('cat-image').addEventListener('input', (e) => {
+    const preview = document.getElementById('cat-image-preview');
+    const url = e.target.value.trim();
+    if (url) {
+      preview.src = url;
+      preview.classList.add('show');
+      preview.onerror = () => { preview.src = FALLBACK_IMG; };
+    } else {
+      preview.classList.remove('show');
+    }
+  });
+
+  document.getElementById('add-category-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const title = document.getElementById('cat-title').value.trim();
+    const id = slugify(title);
+
+    if (categories.some(c => c.id === id)) {
+      showNotice('A collection with that name already exists.', true);
+      return;
+    }
+
+    categories.push({
+      id,
+      title,
+      caption: document.getElementById('cat-caption').value.trim(),
+      image: document.getElementById('cat-image').value.trim(),
+      rating: document.getElementById('cat-rating').value.trim() || '4.8'
     });
 
-    /* --- CONNECT FORM EVENT --- */
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const token = document.getElementById('cfg-token').value.trim();
+    document.getElementById('add-category-form').reset();
+    document.getElementById('cat-image-preview').classList.remove('show');
+    renderCategories();
+    populateCategoryDropdown();
+    showNotice('Collection added to local queue! Click "Save & Publish" to push changes.');
+  });
 
-      if (!token) {
-        showNotice('Error: Personal Access Token cannot be empty.', true);
-        return;
-      }
+  window.deleteCategory = function(i) {
+    categories.splice(i, 1);
+    renderCategories();
+    populateCategoryDropdown();
+    showNotice('Collection removed from queue.');
+  };
 
-      localStorage.setItem('gh_user', document.getElementById('cfg-user').value.trim());
-      localStorage.setItem('gh_repo', document.getElementById('cfg-repo').value.trim());
-      localStorage.setItem('gh_branch', document.getElementById('cfg-branch').value.trim());
-      localStorage.setItem('gh_path', document.getElementById('cfg-path').value.trim());
-      localStorage.setItem('gh_pat', token);
+  // ---------- Products ----------
+  document.getElementById('prod-media').addEventListener('input', (e) => {
+    const preview = document.getElementById('prod-media-preview');
+    const hint = document.getElementById('prod-media-hint');
+    const url = e.target.value.trim();
+    if (!url) { preview.classList.remove('show'); hint.textContent = ''; return; }
 
-      checkConnection();
+    if (url.endsWith('.mp4')) {
+      preview.classList.remove('show');
+      hint.textContent = 'Detected as a video file.';
+      hint.classList.remove('error');
+      return;
+    }
+
+    preview.src = url;
+    preview.classList.add('show');
+    hint.textContent = '';
+    hint.classList.remove('error');
+    preview.onerror = () => {
+      preview.src = FALLBACK_IMG;
+      hint.textContent = "This image couldn't be loaded — double-check the URL before publishing.";
+      hint.classList.add('error');
+    };
+    preview.onload = () => {
+      if (preview.src !== FALLBACK_IMG) { hint.textContent = ''; hint.classList.remove('error'); }
+    };
+  });
+
+  function renderProducts() {
+    const list = document.getElementById('product-list');
+    const dragGrid = document.getElementById('drag-grid');
+    document.getElementById('prod-count').textContent = products.length;
+    document.getElementById('stat-total-posts').textContent = products.length;
+
+    if (products.length === 0) {
+      list.innerHTML = '<p style="color:#666;">No items in product list.</p>';
+      dragGrid.innerHTML = '';
+      return;
+    }
+
+    list.innerHTML = products.map((p, i) => `
+      <div class="product-list-item">
+        <div>
+          <strong>${p.title}</strong>
+          <span>(${p.category || 'General'}) &bull; ${p.price || ''} ${p.featured ? '&bull; &#9733; Featured' : ''}</span>
+        </div>
+        <button onclick="deleteProduct(${i})" class="btn-action btn-danger" style="padding:4px 10px; font-size:0.75rem;">Delete</button>
+      </div>
+    `).join('');
+
+    dragGrid.innerHTML = products.map(p => {
+      const isVideo = p.isVideo || (p.image && p.image.endsWith('.mp4'));
+      const src = (p.image || '').trim() || FALLBACK_IMG;
+      return `
+        <div class="drag-item">
+          ${isVideo ? `<video src="${src}"></video>` : `<img src="${src}" onerror="this.src='${FALLBACK_IMG}'">`}
+          <div style="font-size:0.65rem; color:#aaa; margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${p.title}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  document.getElementById('add-product-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const media = document.getElementById('prod-media').value.trim();
+    let price = document.getElementById('prod-price').value.trim();
+    if (price && !price.startsWith('$')) price = '$' + price;
+
+    products.push({
+      id: Date.now().toString(),
+      title: document.getElementById('prod-title').value.trim(),
+      verdict: document.getElementById('prod-verdict').value.trim(),
+      pros: document.getElementById('prod-pros').value.trim(),
+      cons: document.getElementById('prod-cons').value.trim(),
+      price: price,
+      rating: document.getElementById('prod-rating').value.trim() || '4.8',
+      category: document.getElementById('prod-category').value,
+      link: document.getElementById('prod-link').value.trim(),
+      image: media,
+      isVideo: media.endsWith('.mp4'),
+      featured: document.getElementById('prod-featured').checked
     });
 
-    disconnectBtn.addEventListener('click', () => {
-      localStorage.clear();
-      showNotice('Disconnected from GitHub.');
-      checkConnection();
-    });
+    document.getElementById('add-product-form').reset();
+    document.getElementById('prod-media-preview').classList.remove('show');
+    document.getElementById('prod-media-hint').textContent = '';
+    renderProducts();
+    showNotice('Product entry added to local queue! Click "Save & Publish" to push changes.');
+  });
 
-    // Initialize
+  window.deleteProduct = function(i) {
+    products.splice(i, 1);
+    renderProducts();
+    showNotice('Entry deleted from queue.');
+  };
+
+  // ---------- Publish everything ----------
+  document.getElementById('publish-btn').addEventListener('click', async () => {
+    const productsPath = (localStorage.getItem('gh_path') || 'products.json').trim();
+    const categoriesPath = dataDir() + 'categories.json';
+    const settingsPath = dataDir() + 'settings.json';
+
+    showNotice('Publishing to GitHub...');
+    try {
+      fileShas.products = await ghPutFile(productsPath, fileShas.products, products, 'Update products via Admin Dashboard');
+      fileShas.categories = await ghPutFile(categoriesPath, fileShas.categories, categories, 'Update categories via Admin Dashboard');
+      fileShas.settings = await ghPutFile(settingsPath, fileShas.settings, settings, 'Update site settings via Admin Dashboard');
+      showNotice('Successfully published products, categories & settings to GitHub! Live site will update shortly.');
+    } catch (err) {
+      showNotice('Publish error: ' + err.message, true);
+    }
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    localStorage.setItem('gh_user', document.getElementById('cfg-user').value.trim());
+    localStorage.setItem('gh_repo', document.getElementById('cfg-repo').value.trim());
+    localStorage.setItem('gh_branch', document.getElementById('cfg-branch').value.trim());
+    localStorage.setItem('gh_path', document.getElementById('cfg-path').value.trim());
+    localStorage.setItem('gh_pat', document.getElementById('cfg-token').value.trim());
     checkConnection();
-  </script>
+  });
+
+  disconnectBtn.addEventListener('click', () => {
+    localStorage.clear();
+    checkConnection();
+  });
+
+  checkConnection();
+</script>
 </body>
 </html>

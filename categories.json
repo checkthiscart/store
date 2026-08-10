@@ -1,0 +1,30 @@
+[
+  {
+    "id": "kitchen-pantry",
+    "title": "Kitchen & Pantry",
+    "caption": "The only pantry organizers we recommend (and actually use).",
+    "image": "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=600&q=80",
+    "rating": "4.9"
+  },
+  {
+    "id": "smart-audio-tech",
+    "title": "Smart Audio & Tech",
+    "caption": "Gadgets and audio tech with major upgrades for daily use.",
+    "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
+    "rating": "4.8"
+  },
+  {
+    "id": "home-organization",
+    "title": "Home Organization",
+    "caption": "Smart storage solutions that keep your space clutter-free.",
+    "image": "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80",
+    "rating": "4.7"
+  },
+  {
+    "id": "gourmet-gifts",
+    "title": "Gourmet & Gifts",
+    "caption": "Thoughtful quality gifts for the person who has everything.",
+    "image": "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?auto=format&fit=crop&w=600&q=80",
+    "rating": "4.9"
+  }
+]
