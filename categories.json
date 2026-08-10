@@ -26,5 +26,12 @@
     "caption": "Thoughtful quality gifts for the person who has everything.",
     "image": "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?auto=format&fit=crop&w=600&q=80",
     "rating": "4.9"
+  },
+  {
+    "id": "airbnb-host",
+    "title": "AirBnB Host",
+    "caption": "Whether welcoming your very first guest or upgrading an established space, these host-tested essentials are curated to maximize guest satisfaction, streamline daily turnovers, and earn effortless 5-star reviews.",
+    "image": "https://i.pinimg.com/originals/61/27/76/612776bbf8ce97b74be542c4dd5671ab.jpg",
+    "rating": "4.8"
   }
 ]
