@@ -177,16 +177,30 @@
       }).join('');
     }
 
-    async function loadProducts() {
-      try {
-        const res = await fetch('./products.json?v=' + Date.now());
-        if (!res.ok) throw new Error('Failed to load products.json');
-        allProducts = await res.json();
-        renderFilteredProducts();
-      } catch (err) {
-        document.getElementById('trending-grid').innerHTML = '<p class="empty-state">Unable to load product catalog. Please ensure products.json exists.</p>';
-      }
+   // Replace your existing fetch block with this:
+async function loadProducts() {
+  try {
+    // Make sure this path matches your Admin "Target JSON Path" setting
+    const response = await fetch('data/store.json'); 
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
+    
+    const data = await response.json();
+    
+    // Handle both array format [] and object format { products: [...] }
+    const productsList = Array.isArray(data) ? data : (data.products || []);
+    
+    renderCatalog(productsList);
+  } catch (error) {
+    console.error('Failed to load products:', error);
+    document.getElementById('catalog-container').innerHTML = 
+      '<p class="error">Unable to load product catalog. Please check your data source path.</p>';
+  }
+}
+
+loadProducts();
 
     function renderFilteredProducts() {
       const grid = document.getElementById('trending-grid');
