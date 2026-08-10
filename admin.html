@@ -609,7 +609,99 @@
 
     attachDragAndDropListeners();
   }
+  ///////////////////////////////////////////////////////////////////////////
+// Function to upload image file to GitHub Repository
+async function uploadImageToGitHub(file) {
+  const user = localStorage.getItem('gh_user') || 'YOUR_GITHUB_USERNAME';
+  const repo = localStorage.getItem('gh_repo') || 'YOUR_REPO_NAME';
+  const token = localStorage.getItem('gh_token'); // Your Personal Access Token
+  const branch = 'main'; // Change to 'master' if your repo uses master
 
+  if (!token) {
+    alert('GitHub Personal Access Token is required to upload images.');
+    throw new Error('Missing GitHub token');
+  }
+
+  // 1. Convert file to Base64
+  const base64Content = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = error => reject(error);
+    reader.readAsDataURL(file);
+  });
+
+  // 2. Generate clean filename
+  const cleanFileName = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+  const filePath = `images/${cleanFileName}`;
+  const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/${filePath}`;
+
+  // 3. Upload file to GitHub via API
+  const response = await fetch(apiUrl, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `token ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      message: `Upload image: ${cleanFileName}`,
+      content: base64Content,
+      branch: branch
+    })
+  });
+
+  if (!response.ok) {
+    const errData = await response.json();
+    throw new Error(errData.message || 'Image upload failed');
+  }
+
+  // 4. Return the raw permanent URL
+  return `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${filePath}`;
+}
+  // Example Form Submit Event Handler
+document.getElementById('product-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const fileInput = document.getElementById('image-file-input');
+  const urlInput = document.getElementById('image-url-input'); // Fallback URL input
+  let finalImageUrl = urlInput ? urlInput.value : '';
+
+  try {
+    // If a new file was chosen, upload to GitHub first
+    if (fileInput && fileInput.files.length > 0) {
+      console.log('Uploading image to GitHub...');
+      finalImageUrl = await uploadImageToGitHub(fileInput.files[0]);
+    }
+
+    if (!finalImageUrl) {
+      alert('Please provide an image URL or select an image file.');
+      return;
+    }
+
+    // Construct product object with the valid RAW image URL
+    const newProduct = {
+      id: Date.now().toString(),
+      title: document.getElementById('title').value,
+      verdict: document.getElementById('verdict').value,
+      pros: document.getElementById('pros').value,
+      cons: document.getElementById('cons').value,
+      price: document.getElementById('price').value,
+      rating: document.getElementById('rating').value,
+      category: document.getElementById('category').value,
+      link: document.getElementById('link').value,
+      image: finalImageUrl, // Permanent GitHub raw link
+      isVideo: false
+    };
+
+    // Save product to products.json (your existing GitHub save logic)
+    await saveProductsToGitHub(newProduct);
+    alert('Product and image successfully saved to GitHub!');
+
+  } catch (error) {
+    console.error(error);
+    alert('Error saving product: ' + error.message);
+  }
+});
+  ///////////////////////////////////////////////////////
   function attachDragAndDropListeners() {
     const items = document.querySelectorAll('.drag-item');
     items.forEach(item => {
