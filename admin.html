@@ -31,6 +31,8 @@
 
     .btn-action { padding: 10px 18px; background: #f2ba49; color: #111; font-weight: 800; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 0.85rem; }
     .btn-action:hover { background: #e0aa38; }
+    .btn-secondary { background: #3a3f54; color: #fff; }
+    .btn-secondary:hover { background: #4a506b; }
     .btn-danger { background: #dc3545; color: #fff; }
     .btn-danger:hover { background: #bd2130; }
 
@@ -40,6 +42,8 @@
     .product-list-item strong { color: #fff; font-size: 0.95rem; }
     .product-list-item span { color: #888; font-size: 0.8rem; margin-left: 10px; }
 
+    .action-btn-group { display: flex; gap: 6px; }
+
     .drag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-top: 15px; }
     .drag-item { background: #0e1017; border: 1px solid #2d3245; border-radius: 8px; padding: 8px; text-align: center; }
     .drag-item img, .drag-item video { width: 100%; height: 70px; object-fit: cover; border-radius: 4px; }
@@ -48,6 +52,7 @@
     .media-preview.show { display: block; }
     .field-hint { font-size: 0.72rem; color: #666; margin-top: 4px; }
     .field-hint.error { color: #dc3545; }
+    .upload-row { display: flex; gap: 10px; align-items: center; }
   </style>
 </head>
 <body>
@@ -116,7 +121,7 @@
       <div id="settings-section" class="panel-card">
         <h3>&#9312; GLOBAL SITE SETTINGS</h3>
         <div class="form-group">
-          <label>Main Headline (HTML allowed, e.g. &lt;br&gt;)</label>
+          <label>Main Headline (HTML allowed)</label>
           <input type="text" id="set-hero-title" class="form-control" placeholder="Verified Amazon Finds,<br>Tested for You.">
         </div>
         <div class="form-group">
@@ -138,13 +143,13 @@
           <input type="text" id="set-trust-rating" class="form-control" placeholder="4.8/5">
         </div>
         <button id="save-settings-btn" class="btn-action" type="button">Update Settings (local)</button>
-        <p class="field-hint">Changes here are staged locally &mdash; click "Save &amp; Publish to GitHub" below to push everything live.</p>
       </div>
 
       <!-- 2. Collections / Categories -->
       <div id="collections-section" class="panel-card">
         <h3>&#9313; COLLECTIONS / CATEGORIES (<span id="cat-count">0</span>)</h3>
         <form id="add-category-form">
+          <input type="hidden" id="cat-edit-index" value="-1">
           <div class="form-group">
             <label>Collection Title</label>
             <input type="text" id="cat-title" class="form-control" placeholder="e.g. Pet Essentials" required>
@@ -155,8 +160,12 @@
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
             <div class="form-group">
-              <label>Cover Image URL</label>
-              <input type="url" id="cat-image" class="form-control" placeholder="https://...">
+              <label>Cover Image (URL or Upload)</label>
+              <div class="upload-row">
+                <input type="url" id="cat-image" class="form-control" placeholder="https://...">
+                <input type="file" id="cat-file-upload" accept="image/*" style="display:none;">
+                <button type="button" class="btn-action btn-secondary" onclick="document.getElementById('cat-file-upload').click()">Upload</button>
+              </div>
               <img id="cat-image-preview" class="media-preview" alt="preview">
             </div>
             <div class="form-group">
@@ -164,16 +173,20 @@
               <input type="text" id="cat-rating" class="form-control" placeholder="4.8">
             </div>
           </div>
-          <button type="submit" class="btn-action" style="background:#28a745; color:#fff;">+ Add Collection</button>
+          <div style="display:flex; gap:10px;">
+            <button type="submit" id="cat-submit-btn" class="btn-action" style="background:#28a745; color:#fff;">+ Add Collection</button>
+            <button type="button" id="cat-cancel-btn" class="btn-action btn-secondary" style="display:none;" onclick="resetCategoryForm()">Cancel Edit</button>
+          </div>
         </form>
 
         <div id="category-list" style="margin-top: 20px;"></div>
       </div>
 
-      <!-- 3. Posts & Trending Today (Individual Entry Editor) -->
+      <!-- 3. Posts & Products (Individual Entry Editor) -->
       <div id="products-section" class="panel-card">
-        <h3>&#9314; POSTS &amp; TRENDING TODAY (INDIVIDUAL ENTRY EDITOR)</h3>
+        <h3>&#9314; POSTS &amp; PRODUCTS (INDIVIDUAL ENTRY EDITOR)</h3>
         <form id="add-product-form">
+          <input type="hidden" id="prod-edit-index" value="-1">
           <div class="form-group">
             <label>Product Title</label>
             <input type="text" id="prod-title" class="form-control" placeholder="e.g. Self-Sealing Silicone Food Bags" required>
@@ -197,7 +210,7 @@
 
           <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
             <div class="form-group">
-              <label>Price (numbers only, $ added automatically)</label>
+              <label>Price</label>
               <input type="text" id="prod-price" class="form-control" placeholder="21.99" required>
             </div>
             <div class="form-group">
@@ -216,8 +229,12 @@
           </div>
 
           <div class="form-group">
-            <label>Product Media URL (Image or .mp4 Video)</label>
-            <input type="url" id="prod-media" class="form-control" placeholder="https://..." required>
+            <label>Product Media (URL or Local Upload Image/Video)</label>
+            <div class="upload-row">
+              <input type="url" id="prod-media" class="form-control" placeholder="https://..." required>
+              <input type="file" id="prod-file-upload" accept="image/*,video/mp4" style="display:none;">
+              <button type="button" class="btn-action btn-secondary" onclick="document.getElementById('prod-file-upload').click()">Upload</button>
+            </div>
             <img id="prod-media-preview" class="media-preview" alt="preview">
             <p id="prod-media-hint" class="field-hint"></p>
           </div>
@@ -227,11 +244,14 @@
             <label for="prod-featured">Feature this product in the homepage hero carousel</label>
           </div>
 
-          <button type="submit" class="btn-action" style="background:#28a745; color:#fff;">+ Add Product Entry</button>
+          <div style="display:flex; gap:10px;">
+            <button type="submit" id="prod-submit-btn" class="btn-action" style="background:#28a745; color:#fff;">+ Add Product Entry</button>
+            <button type="button" id="prod-cancel-btn" class="btn-action btn-secondary" style="display:none;" onclick="resetProductForm()">Cancel Edit</button>
+          </div>
         </form>
       </div>
 
-      <!-- 4. Current Product Inventory & Publish -->
+      <!-- 4. Inventory & Publish -->
       <div class="panel-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
           <h3 style="margin: 0;">&#9315; CURRENT PRODUCTS (<span id="prod-count">0</span>)</h3>
@@ -308,7 +328,31 @@
     }
   }
 
-  // ---------- Generic GitHub helpers ----------
+  // File to Base64 reader for direct image/video uploads
+  function handleFileUpload(fileInput, urlInput, previewImg) {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      urlInput.value = e.target.result;
+      if (previewImg) {
+        previewImg.src = e.target.result;
+        previewImg.classList.add('show');
+      }
+      showNotice('File converted to URL string for upload.');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  document.getElementById('cat-file-upload').addEventListener('change', function() {
+    handleFileUpload(this, document.getElementById('cat-image'), document.getElementById('cat-image-preview'));
+  });
+
+  document.getElementById('prod-file-upload').addEventListener('change', function() {
+    handleFileUpload(this, document.getElementById('prod-media'), document.getElementById('prod-media-preview'));
+  });
+
+  // GitHub integration
   async function ghGetFile(path) {
     const user = localStorage.getItem('gh_user');
     const repo = localStorage.getItem('gh_repo');
@@ -345,7 +389,6 @@
     return data.content.sha;
   }
 
-  // ---------- Load everything ----------
   async function loadAllData() {
     const productsPath = (localStorage.getItem('gh_path') || 'products.json').trim();
     const categoriesPath = dataDir() + 'categories.json';
@@ -371,21 +414,19 @@
       renderCategories();
       populateCategoryDropdown();
       renderProducts();
-      showNotice('Connected & loaded products, categories, and settings.');
+      showNotice('Connected & loaded site resources.');
     } catch (err) {
-      showNotice('Error fetching site data: ' + err.message, true);
-      products = []; categories = []; settings = {};
-      renderSettings(); renderCategories(); populateCategoryDropdown(); renderProducts();
+      showNotice('Error fetching data: ' + err.message, true);
     }
   }
 
-  // ---------- Settings ----------
+  // Settings
   function renderSettings() {
-    document.getElementById('set-hero-title').value = settings.heroTitle || 'Verified Amazon Finds,<br>Tested for You.';
-    document.getElementById('set-hero-subtitle').value = settings.heroSubtitle || 'We cut through the noise with real, hands-on tests. Only the best makes our cart.';
-    document.getElementById('set-btn-primary').value = settings.heroBtnPrimary || 'EXPLORE OUR TOP 5';
-    document.getElementById('set-btn-secondary').value = settings.heroBtnSecondary || 'WATCH REVIEWS';
-    document.getElementById('set-trust-rating').value = settings.trustRating || '4.8/5';
+    document.getElementById('set-hero-title').value = settings.heroTitle || '';
+    document.getElementById('set-hero-subtitle').value = settings.heroSubtitle || '';
+    document.getElementById('set-btn-primary').value = settings.heroBtnPrimary || '';
+    document.getElementById('set-btn-secondary').value = settings.heroBtnSecondary || '';
+    document.getElementById('set-trust-rating').value = settings.trustRating || '';
   }
 
   document.getElementById('save-settings-btn').addEventListener('click', () => {
@@ -396,10 +437,10 @@
       heroBtnSecondary: document.getElementById('set-btn-secondary').value.trim(),
       trustRating: document.getElementById('set-trust-rating').value.trim()
     };
-    showNotice('Site settings updated locally. Click "Save & Publish to GitHub" to push live.');
+    showNotice('Site settings updated locally. Click "Save & Publish" to push changes.');
   });
 
-  // ---------- Categories ----------
+  // Categories
   function renderCategories() {
     const list = document.getElementById('category-list');
     document.getElementById('cat-count').textContent = categories.length;
@@ -416,7 +457,10 @@
           <strong>${c.title}</strong>
           <span>(${c.id})</span>
         </div>
-        <button onclick="deleteCategory(${i})" class="btn-action btn-danger" style="padding:4px 10px; font-size:0.75rem;">Delete</button>
+        <div class="action-btn-group">
+          <button onclick="editCategory(${i})" class="btn-action btn-secondary" style="padding:4px 10px; font-size:0.75rem;">Edit</button>
+          <button onclick="deleteCategory(${i})" class="btn-action btn-danger" style="padding:4px 10px; font-size:0.75rem;">Delete</button>
+        </div>
       </div>
     `).join('');
   }
@@ -432,78 +476,66 @@
     if (categories.some(c => c.id === current)) select.value = current;
   }
 
-  document.getElementById('cat-image').addEventListener('input', (e) => {
-    const preview = document.getElementById('cat-image-preview');
-    const url = e.target.value.trim();
-    if (url) {
-      preview.src = url;
-      preview.classList.add('show');
-      preview.onerror = () => { preview.src = FALLBACK_IMG; };
-    } else {
-      preview.classList.remove('show');
-    }
-  });
-
   document.getElementById('add-category-form').addEventListener('submit', (e) => {
     e.preventDefault();
+    const editIdx = parseInt(document.getElementById('cat-edit-index').value, 10);
     const title = document.getElementById('cat-title').value.trim();
     const id = slugify(title);
 
-    if (categories.some(c => c.id === id)) {
-      showNotice('A collection with that name already exists.', true);
-      return;
-    }
-
-    categories.push({
+    const catData = {
       id,
       title,
       caption: document.getElementById('cat-caption').value.trim(),
       image: document.getElementById('cat-image').value.trim(),
       rating: document.getElementById('cat-rating').value.trim() || '4.8'
-    });
+    };
 
-    document.getElementById('add-category-form').reset();
-    document.getElementById('cat-image-preview').classList.remove('show');
+    if (editIdx >= 0) {
+      categories[editIdx] = catData;
+      showNotice('Collection updated!');
+    } else {
+      categories.push(catData);
+      showNotice('Collection added!');
+    }
+
+    resetCategoryForm();
     renderCategories();
     populateCategoryDropdown();
-    showNotice('Collection added to local queue! Click "Save & Publish" to push changes.');
   });
+
+  window.editCategory = function(i) {
+    const c = categories[i];
+    document.getElementById('cat-edit-index').value = i;
+    document.getElementById('cat-title').value = c.title;
+    document.getElementById('cat-caption').value = c.caption || '';
+    document.getElementById('cat-image').value = c.image || '';
+    document.getElementById('cat-rating').value = c.rating || '';
+    
+    if (c.image) {
+      document.getElementById('cat-image-preview').src = c.image;
+      document.getElementById('cat-image-preview').classList.add('show');
+    }
+
+    document.getElementById('cat-submit-btn').textContent = 'Update Collection';
+    document.getElementById('cat-cancel-btn').style.display = 'inline-block';
+  };
+
+  function resetCategoryForm() {
+    document.getElementById('add-category-form').reset();
+    document.getElementById('cat-edit-index').value = '-1';
+    document.getElementById('cat-image-preview').classList.remove('show');
+    document.getElementById('cat-submit-btn').textContent = '+ Add Collection';
+    document.getElementById('cat-cancel-btn').style.display = 'none';
+  }
 
   window.deleteCategory = function(i) {
     categories.splice(i, 1);
     renderCategories();
     populateCategoryDropdown();
-    showNotice('Collection removed from queue.');
+    showNotice('Collection removed.');
   };
 
-  // ---------- Products ----------
-  document.getElementById('prod-media').addEventListener('input', (e) => {
-    const preview = document.getElementById('prod-media-preview');
-    const hint = document.getElementById('prod-media-hint');
-    const url = e.target.value.trim();
-    if (!url) { preview.classList.remove('show'); hint.textContent = ''; return; }
-
-    if (url.endsWith('.mp4')) {
-      preview.classList.remove('show');
-      hint.textContent = 'Detected as a video file.';
-      hint.classList.remove('error');
-      return;
-    }
-
-    preview.src = url;
-    preview.classList.add('show');
-    hint.textContent = '';
-    hint.classList.remove('error');
-    preview.onerror = () => {
-      preview.src = FALLBACK_IMG;
-      hint.textContent = "This image couldn't be loaded — double-check the URL before publishing.";
-      hint.classList.add('error');
-    };
-    preview.onload = () => {
-      if (preview.src !== FALLBACK_IMG) { hint.textContent = ''; hint.classList.remove('error'); }
-    };
-  });
-
+  // Products
   function renderProducts() {
     const list = document.getElementById('product-list');
     const dragGrid = document.getElementById('drag-grid');
@@ -511,7 +543,7 @@
     document.getElementById('stat-total-posts').textContent = products.length;
 
     if (products.length === 0) {
-      list.innerHTML = '<p style="color:#666;">No items in product list.</p>';
+      list.innerHTML = '<p style="color:#666;">No products found.</p>';
       dragGrid.innerHTML = '';
       return;
     }
@@ -522,7 +554,10 @@
           <strong>${p.title}</strong>
           <span>(${p.category || 'General'}) &bull; ${p.price || ''} ${p.featured ? '&bull; &#9733; Featured' : ''}</span>
         </div>
-        <button onclick="deleteProduct(${i})" class="btn-action btn-danger" style="padding:4px 10px; font-size:0.75rem;">Delete</button>
+        <div class="action-btn-group">
+          <button onclick="editProduct(${i})" class="btn-action btn-secondary" style="padding:4px 10px; font-size:0.75rem;">Edit</button>
+          <button onclick="deleteProduct(${i})" class="btn-action btn-danger" style="padding:4px 10px; font-size:0.75rem;">Delete</button>
+        </div>
       </div>
     `).join('');
 
@@ -540,12 +575,13 @@
 
   document.getElementById('add-product-form').addEventListener('submit', (e) => {
     e.preventDefault();
+    const editIdx = parseInt(document.getElementById('prod-edit-index').value, 10);
     const media = document.getElementById('prod-media').value.trim();
     let price = document.getElementById('prod-price').value.trim();
     if (price && !price.startsWith('$')) price = '$' + price;
 
-    products.push({
-      id: Date.now().toString(),
+    const prodData = {
+      id: editIdx >= 0 ? products[editIdx].id : Date.now().toString(),
       title: document.getElementById('prod-title').value.trim(),
       verdict: document.getElementById('prod-verdict').value.trim(),
       pros: document.getElementById('prod-pros').value.trim(),
@@ -555,35 +591,71 @@
       category: document.getElementById('prod-category').value,
       link: document.getElementById('prod-link').value.trim(),
       image: media,
-      isVideo: media.endsWith('.mp4'),
+      isVideo: media.endsWith('.mp4') || media.startsWith('data:video'),
       featured: document.getElementById('prod-featured').checked
-    });
+    };
 
-    document.getElementById('add-product-form').reset();
-    document.getElementById('prod-media-preview').classList.remove('show');
-    document.getElementById('prod-media-hint').textContent = '';
+    if (editIdx >= 0) {
+      products[editIdx] = prodData;
+      showNotice('Product updated!');
+    } else {
+      products.push(prodData);
+      showNotice('Product added!');
+    }
+
+    resetProductForm();
     renderProducts();
-    showNotice('Product entry added to local queue! Click "Save & Publish" to push changes.');
   });
+
+  window.editProduct = function(i) {
+    const p = products[i];
+    document.getElementById('prod-edit-index').value = i;
+    document.getElementById('prod-title').value = p.title;
+    document.getElementById('prod-verdict').value = p.verdict || '';
+    document.getElementById('prod-pros').value = p.pros || '';
+    document.getElementById('prod-cons').value = p.cons || '';
+    document.getElementById('prod-price').value = (p.price || '').replace('$', '');
+    document.getElementById('prod-rating').value = p.rating || '';
+    document.getElementById('prod-category').value = p.category || '';
+    document.getElementById('prod-link').value = p.link || '';
+    document.getElementById('prod-media').value = p.image || '';
+    document.getElementById('prod-featured').checked = !!p.featured;
+
+    if (p.image) {
+      document.getElementById('prod-media-preview').src = p.image;
+      document.getElementById('prod-media-preview').classList.add('show');
+    }
+
+    document.getElementById('prod-submit-btn').textContent = 'Update Product Entry';
+    document.getElementById('prod-cancel-btn').style.display = 'inline-block';
+  };
+
+  function resetProductForm() {
+    document.getElementById('add-product-form').reset();
+    document.getElementById('prod-edit-index').value = '-1';
+    document.getElementById('prod-media-preview').classList.remove('show');
+    document.getElementById('prod-submit-btn').textContent = '+ Add Product Entry';
+    document.getElementById('prod-cancel-btn').style.display = 'none';
+  }
 
   window.deleteProduct = function(i) {
     products.splice(i, 1);
     renderProducts();
-    showNotice('Entry deleted from queue.');
+    showNotice('Entry deleted.');
   };
 
-  // ---------- Publish everything ----------
+  // Publish
   document.getElementById('publish-btn').addEventListener('click', async () => {
     const productsPath = (localStorage.getItem('gh_path') || 'products.json').trim();
     const categoriesPath = dataDir() + 'categories.json';
     const settingsPath = dataDir() + 'settings.json';
 
-    showNotice('Publishing to GitHub...');
+    showNotice('Publishing changes to GitHub...');
     try {
-      fileShas.products = await ghPutFile(productsPath, fileShas.products, products, 'Update products via Admin Dashboard');
-      fileShas.categories = await ghPutFile(categoriesPath, fileShas.categories, categories, 'Update categories via Admin Dashboard');
-      fileShas.settings = await ghPutFile(settingsPath, fileShas.settings, settings, 'Update site settings via Admin Dashboard');
-      showNotice('Successfully published products, categories & settings to GitHub! Live site will update shortly.');
+      fileShas.products = await ghPutFile(productsPath, fileShas.products, products, 'Update products');
+      fileShas.categories = await ghPutFile(categoriesPath, fileShas.categories, categories, 'Update categories');
+      fileShas.settings = await ghPutFile(settingsPath, fileShas.settings, settings, 'Update site settings');
+      showNotice('Successfully published updates to live store!');
     } catch (err) {
       showNotice('Publish error: ' + err.message, true);
     }
