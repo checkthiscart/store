@@ -21,7 +21,7 @@
   </header>
 
   <!-- Hero Section -->
-  <section class="hero-section">
+  <section class="hero-section reveal-on-scroll">
     <div class="hero-content">
       <h1 class="hero-title" id="hero-title">Verified Amazon Finds,<br>Tested for You.</h1>
       <p class="hero-subtitle" id="hero-subtitle">We cut through the noise with real, hands-on tests. Only the best makes our cart.</p>
@@ -32,7 +32,7 @@
     </div>
     <div class="hero-media">
       <div class="hero-carousel" id="hero-carousel">
-        <div id="carousel-slides"><!-- slides injected by JS --></div>
+        <div id="carousel-slides"></div>
         <button class="carousel-arrow carousel-prev" id="carousel-prev" aria-label="Previous slide">&#10094;</button>
         <button class="carousel-arrow carousel-next" id="carousel-next" aria-label="Next slide">&#10095;</button>
         <div class="carousel-dots" id="carousel-dots"></div>
@@ -40,7 +40,7 @@
     </div>
   </section>
 
-  <!-- Value Badges Bar -->
+  <!-- Trust Bar -->
   <div class="trust-bar">
     <div class="trust-item"><span id="trust-rating">&#9733; 4.8/5</span> Rated by Readers</div>
     <div class="trust-item"><span>&#10003;</span> Independent Reviews</div>
@@ -50,7 +50,7 @@
   <main class="main-content">
 
     <!-- Picks & Collections Section -->
-    <section id="collections" class="section-container">
+    <section id="collections" class="section-container reveal-on-scroll">
       <div class="section-header">
         <div>
           <span class="section-tag">PICKS &amp; COLLECTIONS</span>
@@ -59,13 +59,11 @@
         <p class="section-desc">Each collection is its own curated guide built for the pin that sent you here.</p>
       </div>
 
-      <div id="collections-grid" class="collections-grid">
-        <!-- Rendered dynamically from categories.json -->
-      </div>
+      <div id="collections-grid" class="collections-grid"></div>
     </section>
 
     <!-- Trending & Tested Today Section -->
-    <section id="trending" class="section-container">
+    <section id="trending" class="section-container reveal-on-scroll">
       <div class="section-header">
         <div>
           <span class="section-tag">TRENDING GRID</span>
@@ -74,9 +72,10 @@
         <p class="section-desc">The most-saved products this week, straight to the product page.</p>
       </div>
 
-      <div id="trending-grid" class="trending-grid">
-        <!-- Rendered dynamically from products.json -->
-      </div>
+      <!-- Filter Navigation Pills -->
+      <div class="filter-pills-container" id="category-filter-pills"></div>
+
+      <div id="trending-grid" class="trending-grid"></div>
     </section>
 
   </main>
@@ -97,7 +96,6 @@
         </div>
       </div>
       <div class="footer-links" id="footer-links">
-        <!-- Rendered dynamically from categories.json -->
         <a href="#trending">Reviews</a>
       </div>
     </div>
@@ -112,7 +110,7 @@
   <div class="lightbox-overlay" id="lightbox-overlay">
     <div class="lightbox-box">
       <button class="lightbox-close" id="lightbox-close" aria-label="Close">&times;</button>
-      <div class="lightbox-media" id="lightbox-media"></div>
+      <div class="lightbox-media" id="lightbox-media" title="Click image to zoom in/out"></div>
       <div class="lightbox-details">
         <span class="lightbox-price" id="lightbox-price"></span>
         <h2 id="lightbox-title"></h2>
@@ -120,13 +118,13 @@
         <div class="lightbox-specs" id="lightbox-specs"></div>
         <div class="lightbox-footer">
           <a href="#" target="_blank" rel="nofollow noopener" class="btn-hero-primary" id="lightbox-link">CHECK PRICE ON AMAZON &rarr;</a>
+          <div class="share-bar" id="lightbox-share-bar"></div>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // ---------- Fallbacks used if a JSON file can't be fetched ----------
     const DEFAULT_CATEGORIES = [
       { id: "kitchen-pantry", title: "Kitchen & Pantry", caption: "The only pantry organizers we recommend (and actually use).", image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=600&q=80", rating: "4.9" },
       { id: "smart-audio-tech", title: "Smart Audio & Tech", caption: "Gadgets and audio tech with major upgrades for daily use.", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80", rating: "4.8" },
@@ -137,11 +135,12 @@
 
     let allProducts = [];
     let allCategories = [];
+    let selectedCategory = "all";
     let carouselItems = [];
     let carouselIndex = 0;
     let carouselTimer = null;
 
-    // ---------- Helpers ----------
+    // Helpers
     function formatPrice(price) {
       if (price === undefined || price === null) return "";
       const str = String(price).trim();
@@ -173,15 +172,39 @@
       return res.json();
     }
 
-    // ---------- Init ----------
+    // Dynamic Social Sharing HTML generator
+    function generateShareButtons(title, url) {
+      const encUrl = encodeURIComponent(url || window.location.href);
+      const encTitle = encodeURIComponent(title || "Check out this product!");
+
+      return `
+        <span class="share-title">Share:</span>
+        <button class="share-btn" title="Share link" onclick="nativeShare('${escapeHtml(title)}', '${encUrl}')">&#128279;</button>
+        <a class="share-btn" href="https://www.facebook.com/sharer/sharer.php?u=${encUrl}" target="_blank" rel="noopener" title="Facebook">f</a>
+        <a class="share-btn" href="https://fb-messenger://share?link=${encUrl}" target="_blank" rel="noopener" title="Messenger">&#9889;</a>
+        <a class="share-btn" href="https://twitter.com/intent/tweet?text=${encTitle}&url=${encUrl}" target="_blank" rel="noopener" title="X">X</a>
+        <a class="share-btn" href="https://www.tiktok.com/" target="_blank" rel="noopener" title="TikTok">&#9835;</a>
+      `;
+    }
+
+    window.nativeShare = function(title, url) {
+      if (navigator.share) {
+        navigator.share({ title: title, url: decodeURIComponent(url) }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(decodeURIComponent(url));
+        alert("Product link copied to clipboard!");
+      }
+    };
+
+    // Storefront Initialization
     async function initStorefront() {
       await loadSettings();
       await loadCategories();
       await loadProducts();
       initLightbox();
+      initSwipeGesture();
     }
 
-    // ---------- Settings (hero copy) ----------
     async function loadSettings() {
       try {
         const s = await fetchJson('settings.json');
@@ -190,12 +213,9 @@
         if (s.heroBtnPrimary) document.getElementById('hero-btn-primary').textContent = s.heroBtnPrimary;
         if (s.heroBtnSecondary) document.getElementById('hero-btn-secondary').textContent = s.heroBtnSecondary;
         if (s.trustRating) document.getElementById('trust-rating').innerHTML = `&#9733; ${escapeHtml(s.trustRating)}`;
-      } catch (err) {
-        // settings.json not present yet — keep the defaults already in the HTML
-      }
+      } catch (err) {}
     }
 
-    // ---------- Categories / Collections ----------
     async function loadCategories() {
       const container = document.getElementById('collections-grid');
       const footerLinks = document.getElementById('footer-links');
@@ -206,14 +226,14 @@
       }
 
       if (!allCategories || allCategories.length === 0) {
-        container.innerHTML = '<p class="empty-state">No collections added yet. Add one in the admin panel!</p>';
+        container.innerHTML = '<p class="empty-state">No collections added yet.</p>';
         return;
       }
 
       container.innerHTML = allCategories.map((c, index) => {
         const isFeatured = index === 0;
         return `
-          <div class="collection-card ${isFeatured ? 'featured' : ''}">
+          <div class="collection-card ${isFeatured ? 'featured' : ''}" onclick="filterByCategory('${c.id}')">
             <div class="coll-img-wrap">
               <img src="${safeImg(c.image)}" alt="${escapeHtml(c.title)}" loading="lazy" data-fallback-img>
               <span class="coll-rating">&#9733; ${escapeHtml(c.rating || '')}</span>
@@ -228,50 +248,78 @@
 
       container.querySelectorAll('img[data-fallback-img]').forEach(attachImgFallback);
 
-      // Footer nav links, one per category, keep "Reviews" link that's already in the markup
+      renderFilterPills();
+
       const reviewsLink = footerLinks.querySelector('a[href="#trending"]');
       footerLinks.innerHTML = allCategories.map(c =>
-        `<a href="#collections">${escapeHtml(c.title)}</a>`
+        `<a href="#trending" onclick="filterByCategory('${c.id}')">${escapeHtml(c.title)}</a>`
       ).join('') + (reviewsLink ? reviewsLink.outerHTML : '<a href="#trending">Reviews</a>');
     }
 
-    // ---------- Products / Trending grid ----------
+    function renderFilterPills() {
+      const pillsWrap = document.getElementById('category-filter-pills');
+      pillsWrap.innerHTML = `
+        <button class="filter-pill ${selectedCategory === 'all' ? 'active' : ''}" onclick="filterByCategory('all')">All Products</button>
+        ${allCategories.map(c => `
+          <button class="filter-pill ${selectedCategory === c.id ? 'active' : ''}" onclick="filterByCategory('${c.id}')">${escapeHtml(c.title)}</button>
+        `).join('')}
+      `;
+    }
+
+    window.filterByCategory = function(catId) {
+      selectedCategory = catId;
+      renderFilterPills();
+      renderProductsGrid();
+      document.getElementById('trending').scrollIntoView({ behavior: 'smooth' });
+    };
+
     async function loadProducts() {
-      const grid = document.getElementById('trending-grid');
       try {
         allProducts = await fetchJson('products.json');
+      } catch (err) {
+        allProducts = [];
+      }
+      renderProductsGrid();
+      renderCarousel(allProducts);
+    }
 
-        if (!allProducts || allProducts.length === 0) {
-          grid.innerHTML = '<p class="empty-state">No products added yet. Add products in the admin panel!</p>';
-          renderCarousel([]);
-          return;
-        }
+    function renderProductsGrid() {
+      const grid = document.getElementById('trending-grid');
+      const filtered = selectedCategory === 'all' 
+        ? allProducts 
+        : allProducts.filter(p => p.category === selectedCategory);
 
-        grid.innerHTML = allProducts.map((p, i) => {
-          const isVideo = p.isVideo || (p.image && p.image.endsWith('.mp4'));
-          const mediaHtml = isVideo
-            ? `<video src="${safeImg(p.image)}" autoplay loop muted playsinline class="card-media"></video>`
-            : `<img src="${safeImg(p.image)}" alt="${escapeHtml(p.title)}" class="card-media" loading="lazy" data-fallback-img>`;
+      if (!filtered || filtered.length === 0) {
+        grid.innerHTML = '<p class="empty-state">No products found in this section.</p>';
+        return;
+      }
 
-          const rating = p.rating || '4.8';
-          const verdict = p.verdict || `Tested: Leak-proof & verified. Premium set that replaced our plastics.`;
-          const pros = p.pros || 'Incredible seal, dishwasher safe.';
-          const cons = p.cons || 'Pricey per bag / Narrow opening.';
-          const price = formatPrice(p.price) || '$21.99';
+      grid.innerHTML = filtered.map((p) => {
+        const isVideo = p.isVideo || (p.image && p.image.endsWith('.mp4'));
+        const mediaHtml = isVideo
+          ? `<video src="${safeImg(p.image)}" autoplay loop muted playsinline class="card-media"></video>`
+          : `<img src="${safeImg(p.image)}" alt="${escapeHtml(p.title)}" class="card-media" loading="lazy" data-fallback-img>`;
 
-          return `
-            <div class="product-card">
-              <div class="card-img-container" data-lightbox-index="${i}">
-                ${mediaHtml}
+        const rating = p.rating || '4.8';
+        const verdict = p.verdict || `Tested & verified. Premium item.`;
+        const pros = p.pros || 'High performance quality.';
+        const cons = p.cons || 'Limited stock.';
+        const price = formatPrice(p.price) || '$21.99';
+
+        return `
+          <div class="product-card">
+            <div class="card-img-container" onclick="openLightboxById('${p.id}')">
+              ${mediaHtml}
+            </div>
+            <div class="card-content">
+              <h3 class="card-title">${escapeHtml(p.title)}</h3>
+              <p class="card-verdict">${escapeHtml(verdict)} <span class="card-star">&#9733; ${escapeHtml(rating)}</span></p>
+              <div class="card-specs">
+                <p><strong>Pros:</strong> ${escapeHtml(pros)}</p>
+                <p><strong>Cons:</strong> ${escapeHtml(cons)}</p>
               </div>
-              <div class="card-content">
-                <h3 class="card-title">${escapeHtml(p.title)}</h3>
-                <p class="card-verdict">${escapeHtml(verdict)} <span class="card-star">&#9733; ${escapeHtml(rating)}</span></p>
-                <div class="card-specs">
-                  <p><strong>Pros:</strong> ${escapeHtml(pros)}</p>
-                  <p><strong>Cons:</strong> ${escapeHtml(cons)}</p>
-                </div>
-                <div class="card-footer">
+              <div class="card-footer">
+                <div class="card-actions-row">
                   <a href="${p.link}" target="_blank" rel="nofollow noopener" class="btn-check-price">
                     <span>CHECK PRICE</span>
                     <span class="price-tag">${price} &rarr;</span>
@@ -280,31 +328,29 @@
                     ${isVideo ? 'VIDEO TEST &rarr;' : 'OUR TAKE &rarr;'}
                   </a>
                 </div>
+                <div class="share-bar">
+                  ${generateShareButtons(p.title, p.link)}
+                </div>
               </div>
             </div>
-          `;
-        }).join('');
+          </div>
+        `;
+      }).join('');
 
-        grid.querySelectorAll('img[data-fallback-img]').forEach(attachImgFallback);
-        grid.querySelectorAll('[data-lightbox-index]').forEach(el => {
-          el.addEventListener('click', () => openLightbox(allProducts[parseInt(el.dataset.lightboxIndex, 10)]));
-        });
-
-        renderCarousel(allProducts);
-
-      } catch (err) {
-        grid.innerHTML = '<p class="empty-state">Unable to load product catalog. Please ensure products.json exists.</p>';
-        renderCarousel([]);
-      }
+      grid.querySelectorAll('img[data-fallback-img]').forEach(attachImgFallback);
     }
 
-    // ---------- Hero Carousel ----------
+    window.openLightboxById = function(id) {
+      const prod = allProducts.find(p => p.id === id);
+      if (prod) openLightbox(prod);
+    };
+
+    // Hero Carousel
     function renderCarousel(products) {
       const slidesWrap = document.getElementById('carousel-slides');
       const dotsWrap = document.getElementById('carousel-dots');
       clearInterval(carouselTimer);
 
-      // Prefer products explicitly flagged "featured" in the admin, otherwise use the first 5
       const featured = products.filter(p => p.featured);
       carouselItems = (featured.length > 0 ? featured : products).slice(0, 6);
 
@@ -358,19 +404,38 @@
 
     document.getElementById('carousel-prev').addEventListener('click', () => { goToSlide(carouselIndex - 1); startCarouselAutoplay(); });
     document.getElementById('carousel-next').addEventListener('click', () => { goToSlide(carouselIndex + 1); startCarouselAutoplay(); });
-    document.getElementById('hero-carousel').addEventListener('mouseenter', () => clearInterval(carouselTimer));
-    document.getElementById('hero-carousel').addEventListener('mouseleave', () => { if (carouselItems.length > 1) startCarouselAutoplay(); });
 
-    // ---------- Lightbox ----------
+    // Swipe selection gestures for Touch Screens
+    function initSwipeGesture() {
+      const carousel = document.getElementById('hero-carousel');
+      let startX = 0;
+
+      carousel.addEventListener('touchstart', (e) => {
+        startX = e.changedTouches[0].clientX;
+      }, { passive: true });
+
+      carousel.addEventListener('touchend', (e) => {
+        const endX = e.changedTouches[0].clientX;
+        if (startX - endX > 40) {
+          goToSlide(carouselIndex + 1);
+        } else if (endX - startX > 40) {
+          goToSlide(carouselIndex - 1);
+        }
+      }, { passive: true });
+    }
+
+    // Lightbox Modal
     function openLightbox(product) {
       if (!product) return;
       const overlay = document.getElementById('lightbox-overlay');
       const isVideo = product.isVideo || (product.image && product.image.endsWith('.mp4'));
 
       const mediaEl = document.getElementById('lightbox-media');
+      mediaEl.classList.remove('zoomed');
       mediaEl.innerHTML = isVideo
         ? `<video src="${safeImg(product.image)}" autoplay loop muted playsinline controls></video>`
-        : `<img src="${safeImg(product.image)}" alt="${escapeHtml(product.title)}" data-fallback-img>`;
+        : `<img src="${safeImg(product.image)}" alt="${escapeHtml(product.title)}" data-fallback-img onclick="toggleZoom(this)">`;
+      
       const img = mediaEl.querySelector('img');
       if (img) attachImgFallback(img);
 
@@ -384,9 +449,16 @@
       const link = document.getElementById('lightbox-link');
       link.href = product.link || '#';
 
+      document.getElementById('lightbox-share-bar').innerHTML = generateShareButtons(product.title, product.link);
+
       overlay.classList.add('open');
       document.body.style.overflow = 'hidden';
     }
+
+    window.toggleZoom = function(img) {
+      const parent = img.parentElement;
+      parent.classList.toggle('zoomed');
+    };
 
     function closeLightbox() {
       const overlay = document.getElementById('lightbox-overlay');
