@@ -3,249 +3,464 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CHECK THIS CART | Verified Amazon Finds, Tested for You</title>
-  <link rel="stylesheet" href="./site.css">
+  <title>CheckThisCart - Curated Essentials & Recommendations</title>
+  <style>
+    :root {
+      --bg: #0d0e12;
+      --card-bg: #16181f;
+      --accent: #f2ba49;
+      --accent-hover: #d9a338;
+      --border: #262933;
+      --text: #e1e1e6;
+      --muted: #8c8c9e;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding-bottom: 60px; line-height: 1.5; }
+
+    /* LAYOUT CONTAINERS */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+    
+    /* HERO SECTION */
+    .hero { text-align: center; padding: 60px 20px 40px; }
+    .hero h1 { font-size: 2.5rem; font-weight: 800; color: var(--white); margin-bottom: 12px; letter-spacing: -0.5px; }
+    .hero p { color: var(--muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto 20px; }
+    .hero-img { max-width: 100%; max-height: 300px; border-radius: 12px; object-fit: cover; margin-top: 15px; display: none; }
+
+    /* SECTION HEADINGS */
+    .section-title { font-size: 1.4rem; font-weight: 700; color: var(--white); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; }
+    .section-subtitle { font-size: 0.9rem; color: var(--muted); margin-top: -12px; margin-bottom: 20px; }
+
+    /* CATEGORIES / PICKS & COLLECTIONS GRID */
+    .collections-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; margin-bottom: 50px; }
+    .cat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .cat-card:hover { transform: translateY(-4px); border-color: var(--accent); }
+    .cat-img-box { height: 140px; background: #20232d; overflow: hidden; position: relative; }
+    .cat-img-box img { width: 100%; height: 100%; object-fit: cover; }
+    .cat-info { padding: 14px; }
+    .cat-info h3 { font-size: 1.05rem; color: var(--white); margin-bottom: 4px; }
+    .cat-info p { font-size: 0.8rem; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    /* TRENDING GRID & FILTER BAR */
+    .filter-bar-wrapper {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    .search-input {
+      flex: 1;
+      min-width: 220px;
+      background: #0d0e12;
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    .search-input:focus { outline: none; border-color: var(--accent); }
+    
+    .filter-pills { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+    .pill {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .pill.active, .pill:hover { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+
+    /* PRODUCTS GRID */
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .product-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .prod-media-box { position: relative; height: 220px; background: #000; cursor: pointer; overflow: hidden; }
+    .prod-media-box img, .prod-media-box video { width: 100%; height: 100%; object-fit: cover; }
+    .rating-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.75);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 4px;
+      backdrop-filter: blur(4px);
+    }
+    
+    .prod-content { padding: 16px; flex: 1; display: flex; flex-direction: column; }
+    .prod-title { font-size: 1.1rem; color: var(--white); margin-bottom: 8px; line-height: 1.3; }
+    .prod-verdict { font-size: 0.85rem; color: var(--muted); margin-bottom: 12px; flex: 1; }
+    
+    .prod-tags { display: flex; flex-direction: column; gap: 4px; font-size: 0.75rem; margin-bottom: 12px; }
+    .tag-pro { color: #4ade80; }
+    .tag-con { color: #f87171; }
+
+    .prod-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border); }
+    .prod-price { font-size: 1.2rem; font-weight: 800; color: var(--white); }
+
+    .action-btns { display: flex; gap: 8px; }
+    .btn {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-buy { background: var(--accent); color: #000; }
+    .btn-buy:hover { background: var(--accent-hover); }
+    .btn-share { background: #262933; color: var(--text); }
+    .btn-share:hover { background: #333745; }
+
+    /* FOOTER DISCLOSURE */
+    .affiliate-disclosure {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 50px;
+      padding: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* MODALS & LIGHTBOX */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.85);
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+    .modal-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 400px;
+      padding: 24px;
+      position: relative;
+    }
+    .modal-close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: var(--muted); font-size: 1.4rem; cursor: pointer; }
+    
+    .share-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 16px; }
+    .share-btn {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #101216;
+      color: #fff;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .share-btn:hover { border-color: var(--accent); }
+
+    .lightbox-img { max-width: 90%; max-height: 90vh; border-radius: 8px; object-fit: contain; }
+  </style>
 </head>
 <body>
 
-  <!-- Navigation Bar -->
-  <header class="navbar">
-    <div class="logo-container">
-      <div class="logo-badge">CTC</div>
-      <div class="logo-text">
-        <span class="brand-title">CHECK THIS CART</span>
-        <span class="brand-subtitle">VERIFIED AMAZON FINDS</span>
-      </div>
-    </div>
-    <a href="https://pinterest.com" target="_blank" rel="noopener" class="btn-pinterest">Follow on Pinterest &rarr;</a>
-  </header>
-
-  <!-- Hero Section -->
-  <section class="hero-section">
-    <div class="hero-content">
-      <h1 class="hero-title">Verified Amazon Finds,<br>Tested for You.</h1>
-      <p class="hero-subtitle">We cut through the noise with real, hands-on tests. Only the best makes our cart.</p>
-      <div class="hero-buttons">
-        <a href="#trending" class="btn-hero-primary">EXPLORE OUR FINDS</a>
-        <a href="#collections" class="btn-hero-secondary">CATEGORIES</a>
-      </div>
-    </div>
-    <div class="hero-media">
-      <img id="hero-img" src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80" alt="Tested Amazon Finds Header Image">
-    </div>
-  </section>
-
-  <!-- Value Badges Bar -->
-  <div class="trust-bar">
-    <div class="trust-item"><span>&#9733; 4.8/5</span> Rated by Readers</div>
-    <div class="trust-item"><span>&#10003;</span> Independent Reviews</div>
-    <div class="trust-item"><span>&#128230;</span> Free Shipping Deals</div>
+  <!-- HERO SECTION -->
+  <div class="hero container">
+    <h1 id="hero-title">CURATED ESSENTIALS, TESTED FOR QUALITY</h1>
+    <p id="hero-subtitle">Honest testing notes and verified recommendations.</p>
+    <img id="hero-banner" class="hero-img" alt="Hero Banner">
   </div>
 
-  <main class="main-content">
+  <div class="container">
     
-    <!-- Picks & Collections Section -->
-    <section id="collections" class="section-container">
-      <div class="section-header">
-        <div>
-          <span class="section-tag">PICKS &amp; COLLECTIONS</span>
-          <h2 class="section-title">FEATURED CATEGORIES</h2>
-        </div>
-        <p class="section-desc">Click any category below to instantly filter our tested recommendations.</p>
+    <!-- PICKS & COLLECTIONS SECTION -->
+    <div id="collections-section">
+      <div class="section-title">Picks & Collections</div>
+      <div class="section-subtitle">Browse hand-picked categories curated for quality.</div>
+      <div id="collections-container" class="collections-grid">
+        <!-- Rendered dynamically from admin JSON -->
       </div>
+    </div>
 
-      <div id="collections-grid" class="collections-grid">
+    <!-- TRENDING GRID SECTION -->
+    <div class="section-title">Trending & Tested Today</div>
+    <div class="section-subtitle">The most-saved products this week, straight to the product page.</div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar-wrapper">
+      <input type="text" id="search-bar" class="search-input" placeholder="🔍 Search products, pros, or verdicts...">
+      <div id="category-pills" class="filter-pills">
         <!-- Rendered dynamically -->
       </div>
-    </section>
+    </div>
 
-    <!-- Trending & Tested Today Section -->
-    <section id="trending" class="section-container">
-      <div class="section-header">
-        <div>
-          <span class="section-tag">TRENDING GRID</span>
-          <h2 class="section-title">TRENDING &amp; TESTED TODAY</h2>
-        </div>
-        <p class="section-desc">The most-saved products this week, straight to the product page.</p>
-      </div>
+    <!-- PRODUCTS GRID -->
+    <div id="products-container" class="products-grid">
+      <!-- Products loaded dynamically -->
+    </div>
 
-      <!-- Live Search & Filter Bar -->
-      <div class="filter-container">
-        <input type="text" id="search-input" class="search-input" placeholder="🔍 Search products, pros, or verdicts...">
-        <div class="category-chips" id="category-chips">
-          <button class="filter-chip active" data-category="all">All Items</button>
-          <button class="filter-chip" data-category="kitchen-pantry">Kitchen &amp; Pantry</button>
-          <button class="filter-chip" data-category="smart-audio-tech">Smart Tech</button>
-          <button class="filter-chip" data-category="home-organization">Organization</button>
-          <button class="filter-chip" data-category="gourmet-gifts">Gourmet &amp; Gifts</button>
-        </div>
-      </div>
-
-      <div id="trending-grid" class="trending-grid">
-        <!-- Rendered dynamically -->
-      </div>
-    </section>
-
-  </main>
-
-  <!-- Disclaimer Banner -->
-  <div class="affiliate-banner">
-    As an Amazon Associate, checkthiscart earns from qualifying purchases. This site contains affiliate links &mdash; clicking through and buying costs you nothing extra.
+    <!-- AFFILIATE DISCLOSURE -->
+    <div class="affiliate-disclosure">
+      As an Amazon Associate, checkthiscart earns from qualifying purchases. This site contains affiliate links — clicking through and buying costs you nothing extra.
+    </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-top">
-      <div class="footer-brand">
-        <div class="logo-badge">CTC</div>
-        <div class="logo-text">
-          <span class="brand-title">CHECK THIS CART</span>
-          <span class="brand-subtitle">MUST-HAVES FINDS</span>
-        </div>
+  <!-- LIGHTBOX MODAL FOR IMAGE ENLARGE -->
+  <div id="lightbox-modal" class="modal-overlay" onclick="closeLightbox()">
+    <img id="lightbox-target" class="lightbox-img" src="" alt="Enlarged View">
+  </div>
+
+  <!-- SHARE MODAL -->
+  <div id="share-modal" class="modal-overlay">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeShareModal()">&times;</button>
+      <h3 style="color:#fff; margin-bottom: 6px;">Share Product</h3>
+      <p style="font-size:0.8rem; color:var(--muted);">Spread this link on social media:</p>
+      
+      <div class="share-grid">
+        <a id="share-fb" target="_blank" class="share-btn">Facebook</a>
+        <a id="share-tw" target="_blank" class="share-btn">Twitter (X)</a>
+        <a id="share-wa" target="_blank" class="share-btn">WhatsApp</a>
+        <a id="share-ms" target="_blank" class="share-btn">Messenger</a>
       </div>
-      <div class="footer-links">
-        <a href="#trending" onclick="filterByCategory('kitchen-pantry')">Kitchen &amp; Pantry</a>
-        <a href="#trending" onclick="filterByCategory('smart-audio-tech')">Smart Audio &amp; Tech</a>
-        <a href="#trending" onclick="filterByCategory('home-organization')">Home Organization</a>
-        <a href="#trending" onclick="filterByCategory('gourmet-gifts')">Gourmet &amp; Gifts</a>
+      
+      <div style="margin-top: 14px;">
+        <button id="share-copy" class="share-btn" style="width: 100%; background: var(--accent); color: #000; font-weight: bold;">Copy Direct Link</button>
       </div>
     </div>
-    <div class="footer-disclaimer">
-      <p><strong>Amazon Associates Disclosure:</strong> checkthiscart is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com.</p>
-      <p>Product prices and availability shown here are accurate as of the date indicated and are subject to change. Any price or availability information displayed on Amazon.com at the time of purchase applies.</p>
-      <p>&copy; 2026 checkthiscart. All product images and descriptions belong to their respective owners on Amazon.com.</p>
-    </div>
-  </footer>
+  </div>
 
   <script>
-    let allProducts = [];
-    let selectedCategory = 'all';
+    let globalCatalog = {
+      hero: {},
+      categories: [],
+      products: []
+    };
+    let activeCategory = 'all';
 
-    const collectionsData = [
-      {
-        id: "kitchen-pantry",
-        title: "Kitchen & Pantry",
-        caption: "The only pantry organizers we recommend (and actually use).",
-        image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=600&q=80",
-        rating: "4.9"
-      },
-      {
-        id: "smart-audio-tech",
-        title: "Smart Audio & Tech",
-        caption: "Gadgets and audio tech with major upgrades for daily use.",
-        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
-        rating: "4.8"
-      },
-      {
-        id: "home-organization",
-        title: "Home Organization",
-        caption: "Smart storage solutions that keep your space clutter-free.",
-        image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80",
-        rating: "4.7"
-      },
-      {
-        id: "gourmet-gifts",
-        title: "Gourmet & Gifts",
-        caption: "Thoughtful quality gifts for the person who has everything.",
-        image: "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?auto=format&fit=crop&w=600&q=80",
-        rating: "4.9"
-      }
-    ];
-
-    async function initStorefront() {
-      renderCollections();
-      await loadProducts();
-      setupEventListeners();
+    /* --- ENLARGE IMAGE LIGHTBOX --- */
+    function openLightbox(src) {
+      if (!src) return;
+      document.getElementById('lightbox-target').src = src;
+      document.getElementById('lightbox-modal').style.display = 'flex';
     }
 
-    function renderCollections() {
-      const container = document.getElementById('collections-grid');
-      container.innerHTML = collectionsData.map((c, index) => {
-        const isFeatured = index === 0;
-        return `
-          <div class="collection-card ${isFeatured ? 'featured' : ''}" onclick="filterByCategory('${c.id}')">
-            <div class="coll-img-wrap">
-              <img src="${c.image}" alt="${c.title}" loading="lazy">
-              <span class="coll-rating">&#9733; ${c.rating}</span>
-            </div>
-            <div class="coll-body">
-              <h3>${c.title}</h3>
-              <p>${c.caption}</p>
-            </div>
-          </div>
-        `;
-      }).join('');
+    function closeLightbox() {
+      document.getElementById('lightbox-modal').style.display = 'none';
     }
 
-   // Replace your existing fetch block with this:
-async function loadProducts() {
-  try {
-    // Make sure this path matches your Admin "Target JSON Path" setting
-    const response = await fetch('data/store.json'); 
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+    /* --- SHARE MODAL FUNCTIONALITY --- */
+    let currentShareUrl = '';
+
+    function openShareModal(title, link) {
+      currentShareUrl = link || window.location.href;
+      const encodedUrl = encodeURIComponent(currentShareUrl);
+      const encodedText = encodeURIComponent(`Check out this item: ${title}`);
+
+      document.getElementById('share-fb').href = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+      document.getElementById('share-tw').href = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;
+      document.getElementById('share-wa').href = `https://api.whatsapp.com/send?text=${encodedText}%20${encodedUrl}`;
+      document.getElementById('share-ms').href = `fb-messenger://share/?link=${encodedUrl}`; // Fallback web link handled below
+
+      document.getElementById('share-modal').style.display = 'flex';
     }
-    
-    const data = await response.json();
-    
-    // Handle both array format [] and object format { products: [...] }
-    const productsList = Array.isArray(data) ? data : (data.products || []);
-    
-    renderCatalog(productsList);
-  } catch (error) {
-    console.error('Failed to load products:', error);
-    document.getElementById('catalog-container').innerHTML = 
-      '<p class="error">Unable to load product catalog. Please check your data source path.</p>';
-  }
-}
 
-loadProducts();
+    function closeShareModal() {
+      document.getElementById('share-modal').style.display = 'none';
+    }
 
-    function renderFilteredProducts() {
-      const grid = document.getElementById('trending-grid');
-      const searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
-
-      const filtered = allProducts.filter(p => {
-        const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
-        const matchesSearch = !searchQuery || 
-          p.title?.toLowerCase().includes(searchQuery) ||
-          p.verdict?.toLowerCase().includes(searchQuery) ||
-          p.pros?.toLowerCase().includes(searchQuery);
-        return matchesCategory && matchesSearch;
+    document.getElementById('share-copy').addEventListener('click', () => {
+      navigator.clipboard.writeText(currentShareUrl).then(() => {
+        const copyBtn = document.getElementById('share-copy');
+        copyBtn.textContent = '✓ Link Copied!';
+        setTimeout(() => copyBtn.textContent = 'Copy Direct Link', 2000);
       });
+    });
 
-      if (!filtered || filtered.length === 0) {
-        grid.innerHTML = '<p class="empty-state">No matching products found.</p>';
+    /* --- FORMAT PRICE WITH USD SYMBOL --- */
+    function formatUSD(price) {
+      if (!price) return '$0.00';
+      let clean = price.toString().trim();
+      if (!clean.startsWith('$')) {
+        clean = '$' + clean;
+      }
+      return clean;
+    }
+
+    /* --- LOAD STORE DATA --- */
+    async function loadStoreCatalog() {
+      try {
+        // Change path to match your Admin Target JSON Path if configured differently (e.g., 'data/store.json')
+        const response = await fetch('data/store.json');
+        
+        if (!response.ok) throw new Error('Catalog file load error');
+
+        const data = await response.json();
+        
+        // Handle both object schema and legacy array schema
+        if (Array.isArray(data)) {
+          globalCatalog.products = data;
+        } else {
+          globalCatalog.hero = data.hero || {};
+          globalCatalog.categories = data.categories || [];
+          globalCatalog.products = data.products || [];
+        }
+
+        renderHero();
+        renderCategoriesSection();
+        renderFilterPills();
+        renderProducts();
+
+      } catch (err) {
+        console.error('Failed to load store catalog:', err);
+        document.getElementById('products-container').innerHTML = 
+          `<p style="color:var(--muted); text-align:center; grid-column: 1/-1; padding: 40px;">
+            Unable to load product catalog. Please ensure <code>data/store.json</code> exists and is published from the Admin Panel.
+          </p>`;
+      }
+    }
+
+    /* --- RENDER HERO --- */
+    function renderHero() {
+      if (globalCatalog.hero.headline) {
+        document.getElementById('hero-title').textContent = globalCatalog.hero.headline;
+      }
+      if (globalCatalog.hero.subtitle) {
+        document.getElementById('hero-subtitle').textContent = globalCatalog.hero.subtitle;
+      }
+      if (globalCatalog.hero.image) {
+        const img = document.getElementById('hero-banner');
+        img.src = globalCatalog.hero.image;
+        img.style.display = 'inline-block';
+        img.onclick = () => openLightbox(globalCatalog.hero.image);
+      }
+    }
+
+    /* --- RENDER PICKS & COLLECTIONS --- */
+    function renderCategoriesSection() {
+      const container = document.getElementById('collections-container');
+      const cats = globalCatalog.categories;
+
+      if (!cats || cats.length === 0) {
+        document.getElementById('collections-section').style.display = 'none';
         return;
       }
 
-      grid.innerHTML = filtered.map(p => {
+      container.innerHTML = cats.map(c => `
+        <div class="cat-card" onclick="filterByCategory('${c.id}')">
+          <div class="cat-img-box">
+            ${c.image ? `<img src="${c.image}" alt="${c.title}" onclick="event.stopPropagation(); openLightbox('${c.image}')">` : ''}
+          </div>
+          <div class="cat-info">
+            <h3>${c.title}</h3>
+            <p>${c.caption || 'Explore collection'}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    /* --- RENDER FILTER PILLS --- */
+    function renderFilterPills() {
+      const pillBox = document.getElementById('category-pills');
+      const cats = globalCatalog.categories;
+
+      let html = `<button class="pill ${activeCategory === 'all' ? 'active' : ''}" onclick="filterByCategory('all')">All Items</button>`;
+
+      cats.forEach(c => {
+        html += `<button class="pill ${activeCategory === c.id ? 'active' : ''}" onclick="filterByCategory('${c.id}')">${c.title}</button>`;
+      });
+
+      pillBox.innerHTML = html;
+    }
+
+    function filterByCategory(catId) {
+      activeCategory = catId;
+      renderFilterPills();
+      renderProducts();
+      document.getElementById('products-container').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    /* --- RENDER PRODUCTS GRID --- */
+    function renderProducts() {
+      const container = document.getElementById('products-container');
+      const searchVal = document.getElementById('search-bar').value.toLowerCase().trim();
+
+      const filtered = globalCatalog.products.filter(p => {
+        const matchesCategory = activeCategory === 'all' || p.category === activeCategory;
+        const matchesSearch = !searchVal || 
+          (p.title && p.title.toLowerCase().includes(searchVal)) ||
+          (p.verdict && p.verdict.toLowerCase().includes(searchVal)) ||
+          (p.pros && p.pros.toLowerCase().includes(searchVal));
+
+        return matchesCategory && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<p style="color:var(--muted); text-align:center; grid-column: 1/-1; padding: 40px;">No matching items found.</p>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(p => {
+        const formattedPrice = formatUSD(p.price);
         const isVideo = p.isVideo || (p.image && p.image.endsWith('.mp4'));
-        const mediaHtml = isVideo
-          ? `<video src="${p.image}" autoplay loop muted playsinline class="card-media"></video>`
-          : `<img src="${p.image || 'https://via.placeholder.com/400x400?text=Product'}" alt="${p.title}" class="card-media" loading="lazy">`;
 
         return `
           <div class="product-card">
-            <div class="card-img-container">
-              ${mediaHtml}
+            <div class="prod-media-box">
+              ${p.rating ? `<div class="rating-badge">★ ${p.rating}</div>` : ''}
+              ${isVideo ? `
+                <video src="${p.image}" controls></video>
+              ` : `
+                <img src="${p.image}" alt="${p.title}" onclick="openLightbox('${p.image}')">
+              `}
             </div>
-            <div class="card-content">
-              <h3 class="card-title">${p.title}</h3>
-              <p class="card-verdict">${p.verdict || ''} <span class="card-star">&#9733; ${p.rating || '4.8'}</span></p>
-              <div class="card-specs">
-                <p><strong>Pros:</strong> ${p.pros || 'N/A'}</p>
-                <p><strong>Cons:</strong> ${p.cons || 'N/A'}</p>
+            
+            <div class="prod-content">
+              <div class="prod-title">${p.title}</div>
+              ${p.verdict ? `<div class="prod-verdict">${p.verdict}</div>` : ''}
+              
+              <div class="prod-tags">
+                ${p.pros ? `<div class="tag-pro">✓ Pros: ${p.pros}</div>` : ''}
+                ${p.cons ? `<div class="tag-con">✕ Cons: ${p.cons}</div>` : ''}
               </div>
-              <div class="card-footer">
-                <a href="${p.link}" target="_blank" rel="nofollow noopener" class="btn-check-price">
-                  <span>CHECK PRICE</span>
-                  <span class="price-tag">${p.price || ''} &rarr;</span>
-                </a>
-                <a href="${p.link}" target="_blank" rel="nofollow noopener" class="btn-full-review">
-                  ${isVideo ? 'VIDEO TEST &rarr;' : 'OUR TAKE &rarr;'}
-                </a>
+
+              <div class="prod-footer">
+                <div class="prod-price">${formattedPrice}</div>
+                <div class="action-btns">
+                  <button class="btn btn-share" onclick="openShareModal('${escapeQuotes(p.title)}', '${p.link || ''}')">🔗 Share</button>
+                  <a href="${p.link || '#'}" target="_blank" rel="noopener noreferrer" class="btn btn-buy">Buy Now</a>
+                </div>
               </div>
             </div>
           </div>
@@ -253,26 +468,15 @@ loadProducts();
       }).join('');
     }
 
-    window.filterByCategory = function(catId) {
-      selectedCategory = catId;
-      document.querySelectorAll('.filter-chip').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.category === catId);
-      });
-      renderFilteredProducts();
-      document.getElementById('trending').scrollIntoView({ behavior: 'smooth' });
-    };
-
-    function setupEventListeners() {
-      document.getElementById('search-input').addEventListener('input', renderFilteredProducts);
-
-      document.getElementById('category-chips').addEventListener('click', (e) => {
-        if (e.target.classList.contains('filter-chip')) {
-          filterByCategory(e.target.dataset.category);
-        }
-      });
+    function escapeQuotes(str) {
+      return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
     }
 
-    document.addEventListener('DOMContentLoaded', initStorefront);
+    // Search input listener
+    document.getElementById('search-bar').addEventListener('input', renderProducts);
+
+    // Initial load
+    loadStoreCatalog();
   </script>
 </body>
 </html>
