@@ -51,14 +51,12 @@
     .media-preview { margin-top: 8px; width: 80px; height: 80px; border-radius: 6px; object-fit: cover; border: 1px solid #2d3245; display: none; background: #0e1017; }
     .media-preview.show { display: block; }
     .field-hint { font-size: 0.72rem; color: #666; margin-top: 4px; }
-    .field-hint.error { color: #dc3545; }
     .upload-row { display: flex; gap: 10px; align-items: center; }
   </style>
 </head>
 <body>
 
 <div class="admin-layout">
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-logo">
       <span style="background:#f2ba49; color:#000; padding:2px 6px; border-radius:4px; font-weight:900;">CTC</span>
@@ -75,7 +73,6 @@
     <a href="#products-section" class="nav-item">Products &amp; Reviews</a>
   </aside>
 
-  <!-- Main Content -->
   <main class="admin-main">
 
     <div class="admin-header">
@@ -104,7 +101,6 @@
         <div class="form-group">
           <label>Products Data File Path</label>
           <input type="text" id="cfg-path" class="form-control" value="products.json">
-          <p class="field-hint">Categories and site settings are read/written from <code>categories.json</code> and <code>settings.json</code> in the same folder.</p>
         </div>
         <div class="form-group">
           <label>Personal Access Token (PAT)</label>
@@ -120,6 +116,48 @@
       <!-- 1. Global Site Settings -->
       <div id="settings-section" class="panel-card">
         <h3>&#9312; GLOBAL SITE SETTINGS</h3>
+        
+        <!-- Branding / Logo Settings -->
+        <div style="background: #0e1017; padding: 16px; border-radius: 8px; border: 1px solid #2d3245; margin-bottom: 20px;">
+          <h4 style="margin: 0 0 12px 0; color: #fff; font-size: 0.9rem;">BRAND &amp; LOGO CONFIGURATION</h4>
+          <div class="form-group">
+            <label>Logo Display Type</label>
+            <select id="set-logo-type" class="form-control" onchange="toggleLogoFields()">
+              <option value="badge">Text Badge + Title (Default)</option>
+              <option value="image">Custom Logo Image</option>
+            </select>
+          </div>
+
+          <div id="logo-badge-fields">
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 15px;">
+              <div class="form-group">
+                <label>Badge Icon / Text</label>
+                <input type="text" id="set-badge-text" class="form-control" placeholder="CTC">
+              </div>
+              <div class="form-group">
+                <label>Brand Title</label>
+                <input type="text" id="set-brand-title" class="form-control" placeholder="CHECK THIS CART">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Brand Subtitle / Tagline</label>
+              <input type="text" id="set-brand-subtitle" class="form-control" placeholder="VERIFIED AMAZON FINDS">
+            </div>
+          </div>
+
+          <div id="logo-image-fields" style="display: none;">
+            <div class="form-group">
+              <label>Custom Logo Image (URL or Upload File)</label>
+              <div class="upload-row">
+                <input type="url" id="set-logo-img" class="form-control" placeholder="https://...">
+                <input type="file" id="logo-file-upload" accept="image/*" style="display:none;">
+                <button type="button" class="btn-action btn-secondary" onclick="document.getElementById('logo-file-upload').click()">Upload</button>
+              </div>
+              <img id="logo-image-preview" class="media-preview" alt="logo preview">
+            </div>
+          </div>
+        </div>
+
         <div class="form-group">
           <label>Main Headline (HTML allowed)</label>
           <input type="text" id="set-hero-title" class="form-control" placeholder="Verified Amazon Finds,<br>Tested for You.">
@@ -145,7 +183,7 @@
         <button id="save-settings-btn" class="btn-action" type="button">Update Settings (local)</button>
       </div>
 
-      <!-- 2. Collections / Categories -->
+      <!-- 2. Collections -->
       <div id="collections-section" class="panel-card">
         <h3>&#9313; COLLECTIONS / CATEGORIES (<span id="cat-count">0</span>)</h3>
         <form id="add-category-form">
@@ -182,7 +220,7 @@
         <div id="category-list" style="margin-top: 20px;"></div>
       </div>
 
-      <!-- 3. Posts & Products (Individual Entry Editor) -->
+      <!-- 3. Posts & Products -->
       <div id="products-section" class="panel-card">
         <h3>&#9314; POSTS &amp; PRODUCTS (INDIVIDUAL ENTRY EDITOR)</h3>
         <form id="add-product-form">
@@ -236,7 +274,6 @@
               <button type="button" class="btn-action btn-secondary" onclick="document.getElementById('prod-file-upload').click()">Upload</button>
             </div>
             <img id="prod-media-preview" class="media-preview" alt="preview">
-            <p id="prod-media-hint" class="field-hint"></p>
           </div>
 
           <div class="form-group checkbox-row">
@@ -262,18 +299,6 @@
 
         <h4 style="margin-top: 25px; color:#aaa; font-size: 0.85rem;">PREVIEW ORDER IN TRENDING GRID</h4>
         <div id="drag-grid" class="drag-grid"></div>
-      </div>
-
-      <!-- Overview Box -->
-      <div class="panel-card" style="display:flex; justify-content:space-around; text-align:center;">
-        <div>
-          <div style="font-size: 1.8rem; font-weight: 800; color: #f2ba49;" id="stat-total-posts">0</div>
-          <div style="font-size:0.75rem; color:#888;">Total Product Entries</div>
-        </div>
-        <div>
-          <div style="font-size: 1.8rem; font-weight: 800; color: #f2ba49;" id="stat-total-cats">0</div>
-          <div style="font-size:0.75rem; color:#888;">Active Collections</div>
-        </div>
       </div>
 
     </div>
@@ -328,7 +353,12 @@
     }
   }
 
-  // File to Base64 reader for direct image/video uploads
+  function toggleLogoFields() {
+    const logoType = document.getElementById('set-logo-type').value;
+    document.getElementById('logo-badge-fields').style.display = logoType === 'badge' ? 'block' : 'none';
+    document.getElementById('logo-image-fields').style.display = logoType === 'image' ? 'block' : 'none';
+  }
+
   function handleFileUpload(fileInput, urlInput, previewImg) {
     const file = fileInput.files[0];
     if (!file) return;
@@ -339,10 +369,14 @@
         previewImg.src = e.target.result;
         previewImg.classList.add('show');
       }
-      showNotice('File converted to URL string for upload.');
+      showNotice('File converted to string for save.');
     };
     reader.readAsDataURL(file);
   }
+
+  document.getElementById('logo-file-upload').addEventListener('change', function() {
+    handleFileUpload(this, document.getElementById('set-logo-img'), document.getElementById('logo-image-preview'));
+  });
 
   document.getElementById('cat-file-upload').addEventListener('change', function() {
     handleFileUpload(this, document.getElementById('cat-image'), document.getElementById('cat-image-preview'));
@@ -352,7 +386,6 @@
     handleFileUpload(this, document.getElementById('prod-media'), document.getElementById('prod-media-preview'));
   });
 
-  // GitHub integration
   async function ghGetFile(path) {
     const user = localStorage.getItem('gh_user');
     const repo = localStorage.getItem('gh_repo');
@@ -420,17 +453,34 @@
     }
   }
 
-  // Settings
   function renderSettings() {
+    document.getElementById('set-logo-type').value = settings.logoType || 'badge';
+    document.getElementById('set-badge-text').value = settings.badgeText || 'CTC';
+    document.getElementById('set-brand-title').value = settings.brandTitle || 'CHECK THIS CART';
+    document.getElementById('set-brand-subtitle').value = settings.brandSubtitle || 'VERIFIED AMAZON FINDS';
+    document.getElementById('set-logo-img').value = settings.logoImage || '';
+    
+    if (settings.logoImage) {
+      document.getElementById('logo-image-preview').src = settings.logoImage;
+      document.getElementById('logo-image-preview').classList.add('show');
+    }
+
     document.getElementById('set-hero-title').value = settings.heroTitle || '';
     document.getElementById('set-hero-subtitle').value = settings.heroSubtitle || '';
     document.getElementById('set-btn-primary').value = settings.heroBtnPrimary || '';
     document.getElementById('set-btn-secondary').value = settings.heroBtnSecondary || '';
     document.getElementById('set-trust-rating').value = settings.trustRating || '';
+    
+    toggleLogoFields();
   }
 
   document.getElementById('save-settings-btn').addEventListener('click', () => {
     settings = {
+      logoType: document.getElementById('set-logo-type').value,
+      badgeText: document.getElementById('set-badge-text').value.trim(),
+      brandTitle: document.getElementById('set-brand-title').value.trim(),
+      brandSubtitle: document.getElementById('set-brand-subtitle').value.trim(),
+      logoImage: document.getElementById('set-logo-img').value.trim(),
       heroTitle: document.getElementById('set-hero-title').value.trim(),
       heroSubtitle: document.getElementById('set-hero-subtitle').value.trim(),
       heroBtnPrimary: document.getElementById('set-btn-primary').value.trim(),
@@ -440,14 +490,12 @@
     showNotice('Site settings updated locally. Click "Save & Publish" to push changes.');
   });
 
-  // Categories
   function renderCategories() {
     const list = document.getElementById('category-list');
     document.getElementById('cat-count').textContent = categories.length;
-    document.getElementById('stat-total-cats').textContent = categories.length;
 
     if (categories.length === 0) {
-      list.innerHTML = '<p style="color:#666;">No collections yet. Add one above.</p>';
+      list.innerHTML = '<p style="color:#666;">No collections yet.</p>';
       return;
     }
 
@@ -467,23 +515,20 @@
 
   function populateCategoryDropdown() {
     const select = document.getElementById('prod-category');
-    const current = select.value;
     if (categories.length === 0) {
       select.innerHTML = '<option value="">Add a collection first</option>';
       return;
     }
     select.innerHTML = categories.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
-    if (categories.some(c => c.id === current)) select.value = current;
   }
 
   document.getElementById('add-category-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const editIdx = parseInt(document.getElementById('cat-edit-index').value, 10);
     const title = document.getElementById('cat-title').value.trim();
-    const id = slugify(title);
 
     const catData = {
-      id,
+      id: slugify(title),
       title,
       caption: document.getElementById('cat-caption').value.trim(),
       image: document.getElementById('cat-image').value.trim(),
@@ -492,10 +537,8 @@
 
     if (editIdx >= 0) {
       categories[editIdx] = catData;
-      showNotice('Collection updated!');
     } else {
       categories.push(catData);
-      showNotice('Collection added!');
     }
 
     resetCategoryForm();
@@ -510,12 +553,6 @@
     document.getElementById('cat-caption').value = c.caption || '';
     document.getElementById('cat-image').value = c.image || '';
     document.getElementById('cat-rating').value = c.rating || '';
-    
-    if (c.image) {
-      document.getElementById('cat-image-preview').src = c.image;
-      document.getElementById('cat-image-preview').classList.add('show');
-    }
-
     document.getElementById('cat-submit-btn').textContent = 'Update Collection';
     document.getElementById('cat-cancel-btn').style.display = 'inline-block';
   };
@@ -523,7 +560,6 @@
   function resetCategoryForm() {
     document.getElementById('add-category-form').reset();
     document.getElementById('cat-edit-index').value = '-1';
-    document.getElementById('cat-image-preview').classList.remove('show');
     document.getElementById('cat-submit-btn').textContent = '+ Add Collection';
     document.getElementById('cat-cancel-btn').style.display = 'none';
   }
@@ -532,15 +568,12 @@
     categories.splice(i, 1);
     renderCategories();
     populateCategoryDropdown();
-    showNotice('Collection removed.');
   };
 
-  // Products
   function renderProducts() {
     const list = document.getElementById('product-list');
     const dragGrid = document.getElementById('drag-grid');
     document.getElementById('prod-count').textContent = products.length;
-    document.getElementById('stat-total-posts').textContent = products.length;
 
     if (products.length === 0) {
       list.innerHTML = '<p style="color:#666;">No products found.</p>';
@@ -562,14 +595,8 @@
     `).join('');
 
     dragGrid.innerHTML = products.map(p => {
-      const isVideo = p.isVideo || (p.image && p.image.endsWith('.mp4'));
       const src = (p.image || '').trim() || FALLBACK_IMG;
-      return `
-        <div class="drag-item">
-          ${isVideo ? `<video src="${src}"></video>` : `<img src="${src}" onerror="this.src='${FALLBACK_IMG}'">`}
-          <div style="font-size:0.65rem; color:#aaa; margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${p.title}</div>
-        </div>
-      `;
+      return `<div class="drag-item"><img src="${src}" onerror="this.src='${FALLBACK_IMG}'"><div style="font-size:0.65rem; color:#aaa; margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${p.title}</div></div>`;
     }).join('');
   }
 
@@ -597,10 +624,8 @@
 
     if (editIdx >= 0) {
       products[editIdx] = prodData;
-      showNotice('Product updated!');
     } else {
       products.push(prodData);
-      showNotice('Product added!');
     }
 
     resetProductForm();
@@ -620,12 +645,6 @@
     document.getElementById('prod-link').value = p.link || '';
     document.getElementById('prod-media').value = p.image || '';
     document.getElementById('prod-featured').checked = !!p.featured;
-
-    if (p.image) {
-      document.getElementById('prod-media-preview').src = p.image;
-      document.getElementById('prod-media-preview').classList.add('show');
-    }
-
     document.getElementById('prod-submit-btn').textContent = 'Update Product Entry';
     document.getElementById('prod-cancel-btn').style.display = 'inline-block';
   };
@@ -633,7 +652,6 @@
   function resetProductForm() {
     document.getElementById('add-product-form').reset();
     document.getElementById('prod-edit-index').value = '-1';
-    document.getElementById('prod-media-preview').classList.remove('show');
     document.getElementById('prod-submit-btn').textContent = '+ Add Product Entry';
     document.getElementById('prod-cancel-btn').style.display = 'none';
   }
@@ -641,10 +659,8 @@
   window.deleteProduct = function(i) {
     products.splice(i, 1);
     renderProducts();
-    showNotice('Entry deleted.');
   };
 
-  // Publish
   document.getElementById('publish-btn').addEventListener('click', async () => {
     const productsPath = (localStorage.getItem('gh_path') || 'products.json').trim();
     const categoriesPath = dataDir() + 'categories.json';
