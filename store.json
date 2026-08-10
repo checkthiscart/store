@@ -1,0 +1,12 @@
+{
+  "products": [
+    {
+      "id": "sample-1",
+      "name": "Sample Product",
+      "category": "Essentials",
+      "pros": ["Durable", "High Quality"],
+      "verdict": "Highly Recommended",
+      "link": "#"
+    }
+  ]
+}
