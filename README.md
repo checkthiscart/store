@@ -1,2 +1,0 @@
-# store
-board 1
