@@ -1,22 +1,13 @@
 /* CSS Design System for checkthiscart */
-:root{
-  --bg:#0a0812;
-  --bg-alt:#120c22;
-  --panel:#16102b;
-  --panel-line: rgba(180,160,255,0.14);
-  --violet:#8b5cf6;
-  --violet-dim:#5b3fb0;
-  --cyan:#4ee9d8;
-  --blue-deep:#241a4d;
-  --text:#f3f0ff;
-  --text-dim:#a79fca;
-  --text-faint:#6e6591;
-  --cta:#ffb020;
-  --cta-dim:#c98614;
-  --danger:#ff5d6c;
-  --radius:18px;
-  --wrap: 1180px;
-  --wrap-narrow: 900px;
+:root {
+  --bg-main: #0c0d12;
+  --bg-card: #151722;
+  --bg-card-hover: #1c1f2e;
+  --text-main: #ffffff;
+  --text-muted: #9aa0b4;
+  --accent-gold: #f2ba49;
+  --accent-gold-hover: #dca030;
+  --border-color: #242838;
 }
 
 body {
