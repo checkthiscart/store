@@ -1,0 +1,22 @@
+{
+  "profile": {
+    "photo": "",
+    "name": "check this cart >>>>",
+    "bio": "Helping you simplify life with top-rated budget home hacks, smart space upgrades, daily cleaning essentials, and everyday carry gear. Tap the links for top product picks!🛒✨ As an Amazon Associate I earn from qualifying purchases."
+  },
+  "sectionTitle": "AMAZON MUST HAVES",
+  "products": [
+    {
+      "id": "id-4q3ql8c",
+      "name": "FACE TOWEL",
+      "price": "22",
+      "image": "https://tse4.mm.bing.net/th/id/OIP.xhqJIKjXYrbS1uWrPCyxpwHaFi?r=0&rs=1&pid=ImgDetMain&o=7&rm=3",
+      "url": "AMAZON.TO"
+    }
+  ],
+  "footer": [],
+  "background": {
+    "type": "video",
+    "url": "https://canva.link/rzpphunfpm3t92t"
+  }
+}
